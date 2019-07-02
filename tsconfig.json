@@ -16,7 +16,7 @@
     "noUnusedLocals": true,
     "declaration": false,
     "jsxFactory": "React.createElement",
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "noImplicitReturns": true,
     "noUnusedParameters": true,
     "strictNullChecks": true,

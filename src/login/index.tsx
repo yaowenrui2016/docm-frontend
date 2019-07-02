@@ -2,35 +2,23 @@ import React from 'react'
 import './index.css'
 import { Form, Icon, Input, Button, Checkbox } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
+import { withRouter, RouteComponentProps } from 'react-router-dom'
 
-interface IProps {
-  onChange?: (userId: string) => void
-  onSubmit?: () => void
-}
+type IProps = RouteComponentProps & {}
 
 interface IState {}
 
-class LoginForm extends React.Component<IProps, IState> {
-  form: React.ReactElement<FormProps> | undefined = undefined
-
-  constructor(props: IProps) {
-    super(props)
-    const { form } = this
-    if (form) {
-      form.props['onSubmit'] = props.onSubmit
-    }
-    this.state = {}
-  }
+class Login extends React.Component<IProps, IState> {
+  form: React.ReactElement<FormProps> | undefined
 
   handleSubmit = (e: React.MouseEvent) => {
     e.preventDefault()
-    const { onChange } = this.props
-    const { form } = this
-    form &&
-      form.props.form.validateFields((err, values) => {
+    this.form &&
+      this.form.props.form.validateFields((err, values) => {
         if (!err) {
-          onChange && onChange(values.username)
           console.log('Received values of form: ', values)
+          sessionStorage.setItem('userId', values.username)
+          this.props.history.push('/main')
         }
       })
   }
@@ -55,6 +43,8 @@ class LoginForm extends React.Component<IProps, IState> {
     )
   }
 }
+
+export default withRouter(Login)
 
 interface FormProps extends FormComponentProps {
   username: string
@@ -105,5 +95,3 @@ class NormalLoginForm extends React.Component<FormProps, any> {
 const WrappedNormalLoginForm = Form.create({
   name: 'normal_login'
 })(NormalLoginForm)
-
-export default LoginForm

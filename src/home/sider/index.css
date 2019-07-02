@@ -1,0 +1,21 @@
+.aside-top {
+  color: rgba(255, 255, 255, 0.65);
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  background: #21283b;
+}
+
+.aside-top-label {
+  flex-grow: 1;
+  padding: 0 0 0 18px;
+}
+
+.aside-top-icon {
+  float: right;
+}
+
+.ele-operation {
+  margin: 0 8px 0 0;
+}

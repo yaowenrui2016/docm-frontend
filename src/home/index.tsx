@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import './index.css'
 import { Layout } from 'antd'
-import UserSider from '../user/index'
 import HomeHeader from './header/index'
+import HomeSider from './sider/index'
+import './index.css'
 
 interface IProps {
   userId: string
@@ -25,7 +25,7 @@ class Home extends Component<IProps, IState> {
     return (
       <Layout className="ant-layout-home">
         <HomeHeader userId={this.props.userId} />
-        <UserSider />
+        <HomeSider />
       </Layout>
     )
   }

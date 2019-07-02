@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react'
 import ReactDOM from 'react-dom'
-import './index.css'
+import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
 import Home from './home/index'
-// import LoginForm from './login/index'
+import Login from './login/index'
+import './index.css'
 
 interface IProps {}
 
@@ -18,18 +19,20 @@ class App extends PureComponent<IProps, IState> {
     }
   }
 
+  renderMain() {
+    const userId = sessionStorage.getItem('userId')
+    return userId ? <Home userId={userId} /> : <Login />
+  }
+
   render() {
-    // const { userId } = this.state
-    // return userId ? (
-    //   <Home userId={userId} />
-    // ) : (
-    //   <LoginForm
-    //     onChange={(userId: string) => {
-    //       this.setState({ userId })
-    //     }}
-    //   />
-    // )
-    return <Home userId="yaowr" />
+    return (
+      <HashRouter>
+        <Switch>
+          <Redirect path={'/'} exact={true} to={'/main'} />
+          <Route path={'/main'} render={() => this.renderMain()} />
+        </Switch>
+      </HashRouter>
+    )
   }
 }
 

@@ -3,7 +3,6 @@ import './index.css'
 import { Layout, Menu, Icon, Button, Breadcrumb, Select } from 'antd'
 
 const { Sider, Content } = Layout
-// const { Option } = Select
 
 class UserSider extends React.Component {
   state = {
@@ -36,17 +35,12 @@ class UserSider extends React.Component {
               type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
             />
           </span>
-          <Menu
-            defaultSelectedKeys={['1']}
-            defaultOpenKeys={['sub1']}
-            mode="inline"
-            theme="dark"
-          >
-            <Menu.Item className="aside-item" key="normal-user">
+          <Menu defaultSelectedKeys={['/normal']} mode="inline" theme="dark">
+            <Menu.Item className="aside-item" key="/normal">
               <Icon type="user" />
               <span>普通用户</span>
             </Menu.Item>
-            <Menu.Item className="aside-item" key="authority-app">
+            <Menu.Item className="aside-item" key="/authority">
               <Icon type="safety-certificate" />
               <span>授权应用</span>
             </Menu.Item>
