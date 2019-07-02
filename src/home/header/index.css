@@ -1,0 +1,23 @@
+.header {
+  height: 64px;
+  background: #1890ff;
+  padding: 0px;
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 200px;
+  padding: 10px 18px;
+}
+
+.navbar {
+  background: #1890ff;
+  flex-grow: 1;
+}
+
+.avatar {
+  width: 64px;
+  padding: 0 18px 0 0;
+  /* flex-grow: 1; */
+}

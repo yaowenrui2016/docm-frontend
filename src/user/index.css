@@ -1,0 +1,54 @@
+.aside-top {
+  color: rgba(255, 255, 255, 0.65);
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  background: #21283b;
+}
+
+.aside-top-label {
+  flex-grow: 1;
+  padding: 0 0 0 18px;
+}
+
+.aside-top-icon {
+  flex-grow: 1;
+  float: right;
+}
+
+/* ----------for-test-------- */
+.for-test {
+  width: 100%;
+  height: 100%;
+}
+
+.for-test-header {
+  width: auto;
+  height: 10%;
+  background: rgba(49, 151, 253, 0.06);
+}
+
+.for-test-header .for-test-a:hover {
+  cursor: pointer;
+  background: rgba(49, 151, 253, 0.1);
+}
+.for-test-header .for-test-a:active {
+  background: rgba(49, 151, 253, 0.2);
+}
+.for-test-header .for-test-a:checked {
+  background: rgba(91, 116, 141, 0.5);
+}
+
+.for-test-content {
+  width: auto;
+  height: 90%;
+  margin: 0;
+}
+.for-test-content:hover {
+  background: rgba(49, 151, 253, 0.06);
+}
+.for-test-content:focus {
+  background: rgba(49, 151, 253, 0.1);
+  outline-width: 0;
+}

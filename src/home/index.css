@@ -1,0 +1,9 @@
+.ant-layout {
+  height: 100%;
+}
+
+.aside-item:hover,
+.navbar-item:hover,
+.ant-menu.ant-menu-dark .ant-menu-item-selected {
+  background-color: #346ac3 !important;
+}
