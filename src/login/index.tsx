@@ -1,8 +1,9 @@
 import React from 'react'
-import './index.css'
 import { Form, Icon, Input, Button, Checkbox } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
+import Http from '../common/http/index'
+import './index.css'
 
 type IProps = RouteComponentProps & {}
 
@@ -17,6 +18,8 @@ class Login extends React.Component<IProps, IState> {
       this.form.props.form.validateFields((err, values) => {
         if (!err) {
           console.log('Received values of form: ', values)
+          const response = Http.post('/login', values)
+          console.log(response)
           sessionStorage.setItem('userId', values.username)
           this.props.history.push('/main')
         }

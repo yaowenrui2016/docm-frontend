@@ -11,6 +11,8 @@ import {
 } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
+import IDocmVO from '../type'
+import Http from '../../../../common/http/index'
 
 const { Content } = Layout
 const { MonthPicker } = DatePicker
@@ -21,7 +23,7 @@ type IProps = RouteComponentProps & {
 
 interface IState {
   loading: boolean
-  value: any
+  value: IDocmVO | undefined
 }
 
 class List extends React.Component<IProps, IState> {
@@ -30,7 +32,7 @@ class List extends React.Component<IProps, IState> {
     super(props)
     this.state = {
       loading: true,
-      value: {}
+      value: undefined
     }
   }
 
@@ -54,9 +56,11 @@ class List extends React.Component<IProps, IState> {
   handleSubmit = e => {
     e.preventDefault()
     this.form &&
-      this.form.props.form.validateFields((err, values) => {
+      this.form.props.form.validateFields(async (err, values) => {
         if (!err) {
           console.log(values)
+          const res = await Http.put('/docm', values)
+          console.log(res)
           const { match } = this.props
           const path = match.path.replace('/edit', '/list')
           this.props.history.push(path)
@@ -65,47 +69,16 @@ class List extends React.Component<IProps, IState> {
   }
 
   render() {
-    const { value, loading } = this.state
-    console.log(value)
-    console.log(loading)
-    const columns = [
-      {
-        title: '序号',
-        dataIndex: 'index',
-        key: 'index'
-      },
-      {
-        title: '合同号',
-        dataIndex: 'contractNum',
-        key: 'contractNum'
-      },
-      {
-        title: '名称',
-        dataIndex: 'name',
-        key: 'name'
-      },
-      {
-        title: '日期',
-        dataIndex: 'date',
-        key: 'date'
-      },
-      {
-        title: '备注',
-        dataIndex: 'description',
-        key: 'description'
-      }
-    ]
-    console.log(columns)
     return (
       <Content
         style={{
           background: '#fff',
           margin: 0,
-          minHeight: 280
+          height: '100%'
         }}
       >
         <Breadcrumb style={{ margin: '8px' }}>
-          <span>当前位置：</span>
+          <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
           <Breadcrumb.Item>文档库</Breadcrumb.Item>
           <Breadcrumb.Item>文档管理</Breadcrumb.Item>
           <Breadcrumb.Item>新建</Breadcrumb.Item>
@@ -166,43 +139,48 @@ class NormalForm extends React.Component<FormProps, any> {
     const { getFieldDecorator } = this.props.form
     return (
       <Form labelCol={{ span: 8 }} wrapperCol={{ span: 8 }}>
-        <Form.Item label="项目">
-          {getFieldDecorator('project', {
+        <Form.Item key={'projectName'} label="项目名称">
+          {getFieldDecorator('projectName', {
             rules: [{ required: true, message: '请输入项目' }]
           })(<Input />)}
         </Form.Item>
-        <Form.Item label="合同号">
-          {getFieldDecorator('contractNum', {
-            rules: [{ required: true, message: '请输入合同号' }]
+        <Form.Item key={'projectType'} label="项目类型">
+          {getFieldDecorator('projectType', {
+            rules: [{ required: false, message: '请输入项目' }]
           })(<Input />)}
         </Form.Item>
-        <Form.Item label="公司">
+        <Form.Item key={'company'} label="公司名称">
           {getFieldDecorator('company', {
-            rules: [{ required: true, message: '请输入公司' }]
+            rules: [{ required: false, message: '请输入公司' }]
           })(<Input />)}
         </Form.Item>
-        <Form.Item label="签订时间">
-          {getFieldDecorator('contractDate', {
-            rules: [{ required: true, message: '请输入签订时间' }]
+        <Form.Item key={'contractNum'} label="合同号">
+          {getFieldDecorator('contractNum', {
+            rules: [{ required: false, message: '请输入合同号' }]
+          })(<Input />)}
+        </Form.Item>
+        <Form.Item key={'contractTime'} label="合同签订时间">
+          {getFieldDecorator('contractTime', {
+            rules: [{ required: false, message: '请输入签订时间' }]
           })(<DatePicker />)}
         </Form.Item>
-        <Form.Item label="所属凭证">
-          {getFieldDecorator('credential', {
-            rules: [{ required: true, message: '请输入凭证' }]
+        <Form.Item key={'credentialNum'} label="凭证号">
+          {getFieldDecorator('credentialNum', {
+            rules: [{ required: false, message: '请输入凭证' }]
           })(<Input />)}
         </Form.Item>
-        <Form.Item label="凭证年月">
-          {getFieldDecorator('credDate', {
-            rules: [{ required: true, message: '请输入年月' }]
+        <Form.Item key={'credentialTime'} label="凭证时间">
+          {getFieldDecorator('credentialTime', {
+            rules: [{ required: false, message: '请输入年月' }]
           })(<MonthPicker />)}
         </Form.Item>
-        <Form.Item label="金额">
+        <Form.Item key={'money'} label="金额">
           {getFieldDecorator('money', {
-            rules: [{ required: true, message: '请输入金额' }]
+            rules: [{ required: false, message: '请输入金额' }]
           })(<Input />)}
         </Form.Item>
-        <Form.Item label="文件上传">
-          {getFieldDecorator('upload', {
+        <Form.Item key={'docName'} label="文件上传">
+          {getFieldDecorator('docName', {
             valuePropName: 'fileList',
             getValueFromEvent: this.normFile
           })(

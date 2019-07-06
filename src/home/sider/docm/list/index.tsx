@@ -4,12 +4,13 @@ import {
   Breadcrumb,
   Select,
   Button,
-  Pagination,
   Table,
-  Empty
+  Empty,
+  message,
+  Icon
 } from 'antd'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
-import http from 'axios'
+import Http from '../../../../common/http/index'
 
 const { Content } = Layout
 
@@ -22,7 +23,7 @@ interface IState {
   data: {
     totalSize: number | undefined
     pageSize: number | undefined
-    offset: number | undefined
+    currentPage: number | undefined
     content: Array<any>
   }
 }
@@ -35,17 +36,16 @@ class List extends React.Component<IProps, IState> {
       data: {
         totalSize: undefined,
         pageSize: undefined,
-        offset: undefined,
+        currentPage: undefined,
         content: []
       }
     }
   }
 
   componentDidMount() {
-    this.setState({ loading: true }, () => {
-      debugger
-      http.post('http://localhost:8090/docm/list', {})
-      this.setState({ loading: false })
+    this.setState({ loading: true }, async () => {
+      const res = await Http.post('/docm/list', {})
+      this.setState({ loading: false, data: res.data.data })
     })
   }
 
@@ -58,8 +58,21 @@ class List extends React.Component<IProps, IState> {
     const columns = [
       {
         title: '序号',
-        dataIndex: 'index',
-        key: 'index'
+        // dataIndex: 'index',
+        key: 'index',
+        render: (text, record, index) => {
+          return index + 1
+        }
+      },
+      {
+        title: '项目名称',
+        dataIndex: 'projectName',
+        key: 'projectName'
+      },
+      {
+        title: '项目类型',
+        dataIndex: 'projectType',
+        key: 'projectType'
       },
       {
         title: '合同号',
@@ -67,26 +80,35 @@ class List extends React.Component<IProps, IState> {
         key: 'contractNum'
       },
       {
-        title: '名称',
-        dataIndex: 'name',
-        key: 'name'
-      },
-      {
-        title: '日期',
-        dataIndex: 'date',
-        key: 'date'
-      },
-      {
-        title: '备注',
-        dataIndex: 'description',
-        key: 'description'
+        title: '创建时间',
+        dataIndex: 'createTime',
+        key: 'createTime'
       },
       {
         title: '操作',
-        dataIndex: 'description',
-        key: 'description',
+        // dataIndex: 'operation',
+        key: 'operation',
         render() {
-          return <a href="/">下载</a>
+          return (
+            <div>
+              <Icon
+                style={{ fontSize: '17px', margin: '0 9px 0 0' }}
+                title={'编辑'}
+                type="edit"
+                onClick={() => {
+                  message.error('保存失败')
+                }}
+              />
+              <Icon
+                style={{ fontSize: '17px' }}
+                title={'下载'}
+                type="download"
+                onClick={() => {
+                  message.success('下载成功')
+                }}
+              />
+            </div>
+          )
         }
       }
     ]
@@ -99,7 +121,7 @@ class List extends React.Component<IProps, IState> {
         }}
       >
         <Breadcrumb style={{ margin: '8px' }}>
-          <span>当前位置：</span>
+          <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
           <Breadcrumb.Item>文档库</Breadcrumb.Item>
           <Breadcrumb.Item>文档管理</Breadcrumb.Item>
           <Breadcrumb.Item>查询</Breadcrumb.Item>
@@ -140,16 +162,15 @@ class List extends React.Component<IProps, IState> {
         </div>
         <div style={{ margin: '8px' }}>
           {loading || data.content.length > 0 ? (
-            <div>
-              <Table
-                dataSource={data.content}
-                columns={columns}
-                loading={loading}
-              />
-              <div style={{ display: 'flex' }}>
-                <Pagination defaultCurrent={6} total={data.totalSize} />
-              </div>
-            </div>
+            <Table
+              rowKey={record => {
+                return record.id
+              }}
+              columns={columns}
+              dataSource={data.content}
+              loading={loading}
+              pagination={{ position: 'bottom' }}
+            />
           ) : (
             <Empty description={'暂无内容'} />
           )}

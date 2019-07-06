@@ -10,7 +10,7 @@ import {
 } from 'react-router-dom'
 import ListCmpt from './list'
 import EditCmpt from './edit'
-import ViewCmpt from './view'
+// import ViewCmpt from './view'
 
 const { Sider } = Layout
 
@@ -73,7 +73,7 @@ class Docm extends React.Component<IProps, IState> {
               />
               <Route path={'/main/docm/edit'} component={EditCmpt} />
               <Route path={'/main/docm/list'} component={ListCmpt} />
-              <Route path={'/main/docm/view'} component={ViewCmpt} />
+              {/* <Route path={'/main/docm/view'} component={ViewCmpt} /> */}
             </Switch>
           </HashRouter>
         </Layout>
