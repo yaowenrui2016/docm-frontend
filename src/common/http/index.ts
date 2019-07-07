@@ -17,4 +17,16 @@ export class Http {
   }
 }
 
+export interface QueryRequest {
+  pageSize: number | undefined
+  current: number | undefined
+  conditions?: any
+  sorters?: any
+}
+
+export interface QueryResult<T> {
+  total: number | undefined
+  content: Array<T>
+}
+
 export default Http

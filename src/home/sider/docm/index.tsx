@@ -64,18 +64,20 @@ class Docm extends React.Component<IProps, IState> {
           </Menu>
         </Sider>
         <Layout style={{ padding: '0 24px 24px' }}>
-          <HashRouter>
-            <Switch>
-              <Redirect
-                path={'/main/docm'}
-                exact={true}
-                to={'/main/docm/list'}
-              />
-              <Route path={'/main/docm/edit'} component={EditCmpt} />
-              <Route path={'/main/docm/list'} component={ListCmpt} />
-              {/* <Route path={'/main/docm/view'} component={ViewCmpt} /> */}
-            </Switch>
-          </HashRouter>
+          <div style={{ margin: '0px', background: 'rgb(255, 255, 255)' }}>
+            <HashRouter>
+              <Switch>
+                <Redirect
+                  path={'/main/docm'}
+                  exact={true}
+                  to={'/main/docm/list'}
+                />
+                <Route path={'/main/docm/edit/:id'} component={EditCmpt} />
+                <Route path={'/main/docm/list'} component={ListCmpt} />
+                {/* <Route path={'/main/docm/view'} component={ViewCmpt} /> */}
+              </Switch>
+            </HashRouter>
+          </div>
         </Layout>
       </Layout>
     )

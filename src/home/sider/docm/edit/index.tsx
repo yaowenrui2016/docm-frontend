@@ -23,7 +23,7 @@ type IProps = RouteComponentProps & {
 
 interface IState {
   loading: boolean
-  value: IDocmVO | undefined
+  data: IDocmVO | undefined
 }
 
 class List extends React.Component<IProps, IState> {
@@ -32,18 +32,24 @@ class List extends React.Component<IProps, IState> {
     super(props)
     this.state = {
       loading: true,
-      value: undefined
+      data: undefined
     }
   }
 
   componentDidMount() {
-    this.setState({ loading: true }, () => {
-      this.setState({ loading: false })
+    this.setState({ loading: true }, async () => {
+      const { match } = this.props
+      debugger
+      if (match.path.indexOf('edit') > 0) {
+        const data = (await Http.get(`/docm?id=${match.params['id']}`)).data
+          .data
+        this.form &&
+          this.form.props.form.setFieldsValue({
+            projectName: data.projectName
+          })
+        this.setState({ loading: false })
+      }
     })
-  }
-
-  handleSearch = (value: string) => {
-    console.log(value)
   }
 
   handleCancel = e => {
@@ -56,8 +62,17 @@ class List extends React.Component<IProps, IState> {
   handleSubmit = e => {
     e.preventDefault()
     this.form &&
-      this.form.props.form.validateFields(async (err, values) => {
+      this.form.props.form.validateFields(async (err, fielldValues) => {
         if (!err) {
+          const values: IDocmVO = {
+            ...fielldValues,
+            contractTime: fielldValues['contractTime']
+              ? fielldValues['contractTime'].format('YYYY-MM-DD')
+              : undefined,
+            credentialTime: fielldValues['credentialTime']
+              ? fielldValues['credentialTime'].format('YYYY-MM')
+              : undefined
+          }
           console.log(values)
           const res = await Http.put('/docm', values)
           console.log(res)
@@ -70,13 +85,7 @@ class List extends React.Component<IProps, IState> {
 
   render() {
     return (
-      <Content
-        style={{
-          background: '#fff',
-          margin: 0,
-          height: '100%'
-        }}
-      >
+      <Content>
         <Breadcrumb style={{ margin: '8px' }}>
           <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
           <Breadcrumb.Item>文档库</Breadcrumb.Item>
@@ -93,7 +102,7 @@ class List extends React.Component<IProps, IState> {
           <div style={{ order: 2, flexGrow: 1, padding: '0 8px 0 0' }}>
             <span style={{ float: 'right' }}>
               <Button block type={'default'} onClick={this.handleCancel}>
-                关闭
+                返回
               </Button>
             </span>
           </div>
@@ -107,9 +116,6 @@ class List extends React.Component<IProps, IState> {
           <Form.Item wrapperCol={{ span: 8, offset: 8 }}>
             <Button block type={'primary'} onClick={this.handleSubmit}>
               提交
-            </Button>
-            <Button block type={'default'} onClick={this.handleCancel}>
-              取消
             </Button>
           </Form.Item>
         </div>

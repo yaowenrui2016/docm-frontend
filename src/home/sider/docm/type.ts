@@ -1,5 +1,5 @@
 export default interface IDocmVO {
-  id:String
+  id:string
   name:string
   projectName: string
   projectType: string
