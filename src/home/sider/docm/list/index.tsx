@@ -13,7 +13,8 @@ import {
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import moment from 'moment'
 import IDocmVO from '../type'
-import Http, { QueryResult, QueryRequest } from '../../../../common/http/index'
+import Http, { QueryResult, QueryRequest } from '../../../../common/http'
+import { toLine } from '../../../../common/util'
 
 const { Content } = Layout
 
@@ -21,10 +22,6 @@ type IProps = RouteComponentProps & {}
 
 interface IState {
   loading: boolean
-  /**
-   * 搜索的值
-   */
-  value: string | undefined
   selectedRowKeys: string[] | number[]
   /**
    * 查询结果
@@ -32,6 +29,9 @@ interface IState {
   data: QueryResult<IDocmVO>
   pageSize: number | undefined
   current: number | undefined
+  /**
+   * 查询条件与排序
+   */
   param: {
     conditions: any | undefined
     sorters: any | undefined
@@ -43,7 +43,6 @@ class List extends React.Component<IProps, IState> {
     super(props)
     this.state = {
       loading: true,
-      value: undefined,
       selectedRowKeys: [],
       data: {
         total: undefined,
@@ -52,8 +51,8 @@ class List extends React.Component<IProps, IState> {
       pageSize: 10,
       current: 1,
       param: {
-        conditions: undefined,
-        sorters: undefined
+        conditions: {},
+        sorters: {}
       }
     }
   }
@@ -71,17 +70,15 @@ class List extends React.Component<IProps, IState> {
         ...param
       }
       const res = await Http.post('/docm/list', queryRequest)
-      message.success('加载列表')
       this.setState({ loading: false, data: res.data.data })
     })
   }
 
-  handleSelectSearch = (value: string) => {
-    console.log(value)
-  }
-
   handleSelectChange = value => {
-    this.setState({ value })
+    const { conditions } = this.state.param
+    conditions['keywords'] = value
+    this.setState({ current: 1 })
+    this.handleListChange()
   }
 
   handleDeleteOper = async (ids: Array<string> | Array<number>) => {
@@ -102,14 +99,7 @@ class List extends React.Component<IProps, IState> {
   }
 
   render() {
-    const {
-      loading,
-      value,
-      selectedRowKeys,
-      data,
-      pageSize,
-      current
-    } = this.state
+    const { loading, selectedRowKeys, data, pageSize, current } = this.state
     const { total, content } = data
     const columns = [
       {
@@ -142,12 +132,18 @@ class List extends React.Component<IProps, IState> {
       {
         title: '合同签订时间',
         dataIndex: 'contractTime',
-        key: 'contractTime'
+        key: 'contractTime',
+        sorter: (a, b) => {
+          return a.id - b.id
+        }
       },
       {
         title: '凭证时间',
         dataIndex: 'credentialTime',
-        key: 'credentialTime'
+        key: 'credentialTime',
+        sorter: (a, b) => {
+          return a.id - b.id
+        }
       },
       {
         title: '创建时间',
@@ -199,8 +195,7 @@ class List extends React.Component<IProps, IState> {
       <Content>
         <Breadcrumb style={{ margin: '8px' }}>
           <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
-          <Breadcrumb.Item>文档库</Breadcrumb.Item>
-          <Breadcrumb.Item>文档管理</Breadcrumb.Item>
+          <Breadcrumb.Item>我的项目</Breadcrumb.Item>
           <Breadcrumb.Item>查询</Breadcrumb.Item>
         </Breadcrumb>
         <div
@@ -212,14 +207,12 @@ class List extends React.Component<IProps, IState> {
         >
           <div style={{ margin: '4px', flex: 1 }}>
             <Select
-              showSearch
-              value={value}
+              mode={'tags'}
               placeholder={'请输入关键字'}
               style={{ width: '280px' }}
-              defaultActiveFirstOption={false}
-              showArrow={false}
-              filterOption={false}
-              onSearch={this.handleSelectSearch}
+              tokenSeparators={[' ']}
+              showArrow={true}
+              suffixIcon={<Icon style={{ fontSize: '16px' }} type="search" />}
               onChange={this.handleSelectChange}
               notFoundContent={null}
             />
@@ -280,16 +273,18 @@ class List extends React.Component<IProps, IState> {
                 current,
                 pageSize,
                 showSizeChanger: true,
-                onShowSizeChange: (current, pageSize) =>
-                  this.setState({ current, pageSize }),
-                onChange: (page, pageSize) =>
-                  this.setState({ current: page, pageSize }),
                 showTotal: total => {
                   return `共${total}条`
                 }
               }}
               onChange={(pagination, filters, sorter, extra) => {
+                const { param } = this.state
                 const { current, pageSize } = pagination
+                const { field, order } = sorter
+                param.sorters = {}
+                if (field && order) {
+                  param.sorters[toLine(field)] = fetchOrderDirection(order)
+                }
                 this.setState({ current, pageSize })
                 this.handleListChange()
               }}
@@ -300,6 +295,14 @@ class List extends React.Component<IProps, IState> {
         </div>
       </Content>
     )
+  }
+}
+
+function fetchOrderDirection(order: string) {
+  if (order === 'descend') {
+    return 'desc'
+  } else {
+    return 'asc'
   }
 }
 

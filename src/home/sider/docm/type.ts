@@ -1,6 +1,6 @@
 export default interface IDocmVO {
-  id:string
-  name:string
+  id: string
+  name: string
   projectName: string
   projectType: string
   company: string
@@ -9,9 +9,11 @@ export default interface IDocmVO {
   credentialNum: string
   credentialTime: string
   money: string
-  docName: string
-  docPath: string
-  state:boolean
-  createTime:string
-  lastModifyTime:string
+  attachments: Array<{
+    docName: string
+    docPath: string
+  }>
+  state: boolean
+  createTime: string
+  lastModifyTime: string
 }

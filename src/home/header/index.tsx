@@ -40,7 +40,7 @@ class HomeHeader extends Component<IProps, IState> {
     return (
       <div>
         <Header className="header">
-          <div key="logo" className="logo" />
+          {/* <div key="logo" className="logo" /> */}
           <Menu
             className="navbar"
             theme="dark"
@@ -53,7 +53,7 @@ class HomeHeader extends Component<IProps, IState> {
             }}
           >
             <Menu.Item className="navbar-item" key="/docm">
-              文档库
+              我的项目
             </Menu.Item>
             <Menu.Item className="navbar-item" key="/user">
               账户与安全
