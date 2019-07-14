@@ -1,6 +1,6 @@
 import React from 'react'
 import './index.css'
-import { Layout, Menu, Icon } from 'antd'
+import { Layout, Menu, Icon, Result } from 'antd'
 
 const { Sider } = Layout
 
@@ -45,7 +45,9 @@ class UserSider extends React.Component {
             </Menu.Item>
           </Menu>
         </Sider>
-        <Layout style={{ padding: '0 24px 24px' }} />
+        <Layout style={{ padding: '0 24px 24px' }}>
+          <Result status="403" title="403" subTitle="对不起，拒绝访问" />
+        </Layout>
       </Layout>
     )
   }

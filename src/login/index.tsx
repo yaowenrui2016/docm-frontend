@@ -1,8 +1,9 @@
 import React from 'react'
-import { Form, Icon, Input, Button } from 'antd'
+import { Form, Icon, Input, Button, message } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import Http from '../common/http/index'
+import md5 from 'js-md5'
 import './index.css'
 
 type IProps = RouteComponentProps & {}
@@ -17,12 +18,32 @@ class Login extends React.Component<IProps, IState> {
     this.form &&
       this.form.props.form.validateFields(async (err, values) => {
         if (!err) {
-          const res = (await Http.post('/login', values)).data
-          console.log(res)
-          debugger
-          const userInfo = res.data
-          sessionStorage.setItem('userInfo', userInfo)
-          this.props.history.push('/main')
+          const password = md5(values.password)
+          await Http.post('/login', { ...values, password })
+            .then(res => {
+              console.log(res)
+              if (res.data.status === '00000000') {
+                sessionStorage.setItem(
+                  'xAuthToken',
+                  res.headers['x-auth-token']
+                )
+                debugger
+                const userId = res.data.username
+                sessionStorage.setItem('userId', userId)
+                this.props.history.push('/main')
+              } else {
+                this.form &&
+                  this.form.props.form.setFields({
+                    password: {
+                      value: values.password,
+                      errors: [new Error(res.data.message)]
+                    }
+                  })
+              }
+            })
+            .catch(err => {
+              message.error('服务器异常')
+            })
         }
       })
   }

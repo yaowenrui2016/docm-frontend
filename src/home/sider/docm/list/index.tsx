@@ -301,7 +301,8 @@ class List extends React.Component<IProps, IState> {
                     if (event.target['tagName'] !== 'TD') {
                       return
                     }
-                    message.info('查看' + record.id)
+                    // TODO
+                    // message.info('查看' + record.id)
                   }
                 }
               }}
