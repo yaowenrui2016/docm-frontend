@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Icon, Input, Button, Checkbox } from 'antd'
+import { Form, Icon, Input, Button } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import Http from '../common/http/index'
@@ -15,12 +15,13 @@ class Login extends React.Component<IProps, IState> {
   handleSubmit = (e: React.MouseEvent) => {
     e.preventDefault()
     this.form &&
-      this.form.props.form.validateFields((err, values) => {
+      this.form.props.form.validateFields(async (err, values) => {
         if (!err) {
-          console.log('Received values of form: ', values)
-          const response = Http.post('/login', values)
-          console.log(response)
-          sessionStorage.setItem('userId', values.username)
+          const res = (await Http.post('/login', values)).data
+          console.log(res)
+          debugger
+          const userInfo = res.data
+          sessionStorage.setItem('userInfo', userInfo)
           this.props.history.push('/main')
         }
       })
@@ -39,9 +40,8 @@ class Login extends React.Component<IProps, IState> {
           type="primary"
           onClick={this.handleSubmit}
         >
-          Log in
+          登录
         </Button>
-        Or <a href="/register">register now!</a>
       </div>
     )
   }
@@ -62,7 +62,7 @@ class NormalLoginForm extends React.Component<FormProps, any> {
       <Form>
         <Form.Item>
           {getFieldDecorator('username', {
-            rules: [{ required: true, message: 'Please input your username!' }]
+            rules: [{ required: true, message: '请输入用户名' }]
           })(
             <Input
               prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
@@ -72,7 +72,7 @@ class NormalLoginForm extends React.Component<FormProps, any> {
         </Form.Item>
         <Form.Item>
           {getFieldDecorator('password', {
-            rules: [{ required: true, message: 'Please input your Password!' }]
+            rules: [{ required: true, message: '请输入密码' }]
           })(
             <Input
               prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
@@ -80,15 +80,6 @@ class NormalLoginForm extends React.Component<FormProps, any> {
               placeholder="Password"
             />
           )}
-        </Form.Item>
-        <Form.Item className="last-ant-form-item">
-          {getFieldDecorator('remember', {
-            valuePropName: 'checked',
-            initialValue: true
-          })(<Checkbox>Remember me</Checkbox>)}
-          <a className="login-form-forgot" href="/forgotpwd">
-            Forgot password
-          </a>
         </Form.Item>
       </Form>
     )

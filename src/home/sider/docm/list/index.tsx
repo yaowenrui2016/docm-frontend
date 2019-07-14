@@ -13,7 +13,11 @@ import {
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import moment from 'moment'
 import IDocmVO from '../type'
-import Http, { QueryResult, QueryRequest } from '../../../../common/http'
+import Http, {
+  QueryResult,
+  QueryRequest,
+  serverPath
+} from '../../../../common/http'
 import { toLine } from '../../../../common/util'
 
 const { Content } = Layout
@@ -176,10 +180,44 @@ class List extends React.Component<IProps, IState> {
                 style={{ fontSize: '17px', margin: '0 9px 0 0' }}
                 title={'下载'}
                 type="download"
-                onClick={() => {
-                  message.success('下载成功' + record.id)
+                onClick={event => {
+                  // event.preventDefault()
+                  // event.stopPropagation()
+                  // fetch(`${serverPath}/doc?id=${record.id}`, {
+                  //   method: 'post'
+                  // })
+                  //   .then(response => {
+                  //     response.blob().then(blob => {
+                  //       const blobUrl = window.URL.createObjectURL(blob)
+                  //       //不能直接创建一个<a>标签
+                  //       // let a = document.createElement('a_id');
+                  //       let a = document.getElementById('for_download')
+                  //       //无法从返回的文件流中获取文件名
+                  //       let filename = response.headers.get(
+                  //         'Content-Disposition'
+                  //       )
+                  //       // let filename = 'file.txt'
+                  //       if (a) {
+                  //         a['href'] = blobUrl
+                  //         a['download'] = filename1
+                  //         a.click()
+                  //         window.URL.revokeObjectURL(blobUrl)
+                  //       }
+                  //     })
+                  //   })
+                  //   .catch(error => {
+                  //     message.error('下载失败')
+                  //   })
+
+                  const url = `${serverPath}/doc?id=${record.id}`
+                  const aElement = document.createElement('a')
+                  aElement.href = url
+                  aElement.target = '_blank'
+                  aElement.click()
+                  window.URL.revokeObjectURL(url)
                 }}
               />
+              <div id="downloadDiv" style={{ display: 'none' }} />
               <Icon
                 style={{ fontSize: '17px', margin: '0 9px 0 0' }}
                 title={'删除'}

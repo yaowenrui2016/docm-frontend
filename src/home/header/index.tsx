@@ -5,6 +5,8 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 
 const { Header } = Layout
 
+const menuPaths = ['/docm', '/user']
+
 interface IProps extends RouteComponentProps {
   userId: string
 }
@@ -12,6 +14,17 @@ interface IProps extends RouteComponentProps {
 interface IState {}
 
 class HomeHeader extends Component<IProps, IState> {
+  fetchDefaultSelectedKey = () => {
+    const { pathname } = this.props.location
+    const selectedKeys = menuPaths.filter(path => {
+      return pathname.indexOf(path) >= 0
+    })
+    if (selectedKeys.length < 1) {
+      return [menuPaths[0]]
+    }
+    return selectedKeys
+  }
+
   render() {
     const { userId } = this.props
     const menu = (
@@ -22,7 +35,7 @@ class HomeHeader extends Component<IProps, IState> {
               this.props.history.push('/main/user')
             }}
           >
-            {'账号设置'}
+            {'修改密码'}
           </Button>
         </Menu.Item>
         <Menu.Item>
@@ -45,7 +58,7 @@ class HomeHeader extends Component<IProps, IState> {
             className="navbar"
             theme="dark"
             mode="horizontal"
-            defaultSelectedKeys={['/docm']}
+            defaultSelectedKeys={this.fetchDefaultSelectedKey()}
             style={{ lineHeight: '64px' }}
             onSelect={param => {
               const { history, match } = this.props
@@ -60,7 +73,9 @@ class HomeHeader extends Component<IProps, IState> {
             </Menu.Item>
           </Menu>
           <Dropdown overlay={menu} placement="bottomRight">
-            <Avatar size="large">{userId}</Avatar>
+            <Avatar style={{ margin: '0 8px 0 0' }} size="large">
+              {userId}
+            </Avatar>
           </Dropdown>
         </Header>
       </div>

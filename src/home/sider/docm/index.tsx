@@ -15,7 +15,7 @@ import ListCmpt from './list'
 import EditCmpt from './edit'
 // import ViewCmpt from './view'
 
-// const { Sider } = Layout
+const { Sider } = Layout
 
 type IProps = RouteComponentProps & {
   username: string
@@ -46,26 +46,7 @@ class Docm extends React.Component<IProps, IState> {
   render() {
     return (
       <Layout>
-        {/* <Sider
-          width={180}
-          theme="dark"
-          collapsed={this.state.collapsed}
-          collapsedWidth={100}
-        >
-          <span className="aside-top" onClick={this.toggleCollapsed}>
-            <span className="aside-top-label">文档库</span>
-            <Icon
-              className="aside-top-icon"
-              type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
-            />
-          </span>
-          <Menu defaultSelectedKeys={['file']} mode="inline" theme="dark">
-            <Menu.Item className="aside-item" key="file">
-              <Icon type="file-search" />
-              <span>文档管理</span>
-            </Menu.Item>
-          </Menu>
-        </Sider> */}
+        <Sider width={0} />
         <Layout style={{ padding: '0 24px 24px' }}>
           <div style={{ margin: '0px', background: 'rgb(255, 255, 255)' }}>
             <HashRouter>
