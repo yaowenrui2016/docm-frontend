@@ -4,9 +4,7 @@ import HomeHeader from './header/index'
 import HomeSider from './sider/index'
 import './index.css'
 
-interface IProps {
-  userId: string
-}
+interface IProps {}
 
 interface IState {}
 
@@ -24,7 +22,7 @@ class Home extends Component<IProps, IState> {
   render() {
     return (
       <Layout className="ant-layout-home">
-        <HomeHeader userId={this.props.userId} />
+        <HomeHeader />
         <HomeSider />
       </Layout>
     )

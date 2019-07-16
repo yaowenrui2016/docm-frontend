@@ -4,7 +4,7 @@ import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import Http from '../common/http/index'
 import md5 from 'js-md5'
-import img from '../assert/img/aaa.jpg'
+import img from '../assert/img/b.png'
 import './index.css'
 
 type IProps = RouteComponentProps & {}
@@ -22,15 +22,11 @@ class Login extends React.Component<IProps, IState> {
           const password = md5(values.password)
           await Http.post('/login', { ...values, password })
             .then(res => {
-              console.log(res)
               if (res.data.status === '00000000') {
-                sessionStorage.setItem(
-                  'xAuthToken',
-                  res.headers['x-auth-token']
-                )
-                const userId = res.data.username
-                sessionStorage.setItem('userId', userId)
-                this.props.history.push('/main')
+                sessionStorage.setItem('userId', res.data.data.username)
+                setTimeout(() => {
+                  this.props.history.push('/main')
+                }, 300)
               } else {
                 this.form &&
                   this.form.props.form.setFields({

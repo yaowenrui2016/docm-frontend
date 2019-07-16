@@ -66,15 +66,20 @@ class List extends React.Component<IProps, IState> {
   }
 
   handleListChange = () => {
-    this.setState({ loading: true }, async () => {
+    this.setState({ loading: true }, () => {
       const { pageSize, current, param } = this.state
       const queryRequest: QueryRequest = {
         pageSize,
         current,
         ...param
       }
-      const res = await Http.post('/docm/list', queryRequest)
-      this.setState({ loading: false, data: res.data.data })
+      Http.post('/docm/list', queryRequest)
+        .then(res => {
+          this.setState({ loading: false, data: res.data.data })
+        })
+        .catch(error => {
+          this.setState({ loading: false })
+        })
     })
   }
 
@@ -181,34 +186,6 @@ class List extends React.Component<IProps, IState> {
                 title={'下载'}
                 type="download"
                 onClick={event => {
-                  // event.preventDefault()
-                  // event.stopPropagation()
-                  // fetch(`${serverPath}/doc?id=${record.id}`, {
-                  //   method: 'post'
-                  // })
-                  //   .then(response => {
-                  //     response.blob().then(blob => {
-                  //       const blobUrl = window.URL.createObjectURL(blob)
-                  //       //不能直接创建一个<a>标签
-                  //       // let a = document.createElement('a_id');
-                  //       let a = document.getElementById('for_download')
-                  //       //无法从返回的文件流中获取文件名
-                  //       let filename = response.headers.get(
-                  //         'Content-Disposition'
-                  //       )
-                  //       // let filename = 'file.txt'
-                  //       if (a) {
-                  //         a['href'] = blobUrl
-                  //         a['download'] = filename1
-                  //         a.click()
-                  //         window.URL.revokeObjectURL(blobUrl)
-                  //       }
-                  //     })
-                  //   })
-                  //   .catch(error => {
-                  //     message.error('下载失败')
-                  //   })
-
                   const url = `${serverPath}/doc?id=${record.id}`
                   const aElement = document.createElement('a')
                   aElement.href = url

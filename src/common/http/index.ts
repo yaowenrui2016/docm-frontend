@@ -1,35 +1,6 @@
-import Axios from 'axios'
-
-export const serverPath = "http://localhost:8090"
-
-export let xAuthToken
-
-export class Http {
-  static put = (path: string, data?: any, config?: any) => {
-    xAuthToken = sessionStorage.getItem('xAuthToken')
-    const headers = Object.assign({ 'x-auth-token': xAuthToken }, config ? config['headers'] : {})
-    const aConfig = Object.assign(config ? config : {}, { headers })
-    return Axios.put(`${serverPath}${path}`, data, aConfig)
-  }
-  static post = (path: string, data?: any, config?: any) => {
-    xAuthToken = sessionStorage.getItem('xAuthToken')
-    const headers = Object.assign({ 'x-auth-token': xAuthToken }, config ? config['headers'] : {})
-    const aConfig = Object.assign(config ? config : {}, { headers })
-    return Axios.post(`${serverPath}${path}`, data, aConfig)
-  }
-  static get = (path: string, config?: any) => {
-    xAuthToken = sessionStorage.getItem('xAuthToken')
-    const headers = Object.assign({ 'x-auth-token': xAuthToken }, config ? config['headers'] : {})
-    const aConfig = Object.assign(config ? config : {}, { headers })
-    return Axios.get(`${serverPath}${path}`, aConfig)
-  }
-  static delete = (path: string, config?: any) => {
-    xAuthToken = sessionStorage.getItem('xAuthToken')
-    const headers = Object.assign({ 'x-auth-token': xAuthToken }, config ? config['headers'] : {})
-    const aConfig = Object.assign(config ? config : {}, { headers })
-    return Axios.delete(`${serverPath}${path}`, aConfig)
-  }
-}
+import axios from 'axios'
+import { createHashHistory } from 'history'
+import { message } from 'antd'
 
 export interface QueryRequest {
   pageSize: number | undefined
@@ -43,4 +14,39 @@ export interface QueryResult<T> {
   content: Array<T>
 }
 
-export default Http
+export const serverPath = "http://localhost:8090"
+
+const http = axios.create({
+  baseURL: serverPath,
+  withCredentials: false,
+  timeout: 10000
+});
+
+http.interceptors.request.use(config => {
+  const xAuthToken = sessionStorage.getItem('xAuthToken');
+  if (xAuthToken) {
+    config.headers['x-auth-token'] = xAuthToken
+  }
+  return config
+}, error => {
+  console.error('请求异常')
+})
+
+http.interceptors.response.use(response => {
+  const xAuthToken = response.headers['x-auth-token']
+  if (xAuthToken) {
+    sessionStorage.setItem('xAuthToken', xAuthToken)
+  }
+  return response
+}, error => {
+  debugger
+  if (error.response.status === 401) {
+    sessionStorage.removeItem('userId')
+    message.error('登录超时，请重新登录', 3)
+    setTimeout(() => {
+      createHashHistory().push("/login")
+    }, 500)
+  }
+})
+
+export default http

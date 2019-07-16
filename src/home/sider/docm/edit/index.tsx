@@ -8,7 +8,6 @@ import {
   Icon,
   message,
   Upload,
-  // Modal,
   DatePicker
 } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
@@ -16,7 +15,7 @@ import { UploadFile } from 'antd/lib/upload/interface'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import moment from 'moment'
 import IDocmVO from '../type'
-import Http, { serverPath } from '../../../../common/http/index'
+import Http, { serverPath } from '../../../../common/http'
 
 const { Content } = Layout
 const { MonthPicker } = DatePicker
@@ -48,37 +47,41 @@ class List extends React.Component<IProps, IState> {
     const { match } = this.props
     const id = match.params['id']
     const mode = id ? 'edit' : 'add'
-    this.setState({ mode, loading: true }, async () => {
+    this.setState({ mode, loading: true }, () => {
       if (mode === 'edit') {
         message.info('编辑')
-        const data = (await Http.get(`/docm?id=${id}`)).data.data
-        this.form &&
-          this.form.props.form.setFieldsValue({
-            ...data,
-            contractTime: data.contractTime
-              ? moment(data.contractTime, 'YYYY-MM-DD')
-              : undefined,
-            credentialTime: data.credentialTime
-              ? moment(data.credentialTime, 'YYYY-MM')
-              : undefined
-          })
-        const fileList = data.attachments.map(attachment => ({
-          uid: attachment.id,
-          size: 123,
-          name: attachment.docName,
-          type: 'image',
-          status: 'done',
-          response: {
-            status: '00000000',
-            data: [
-              {
-                docName: attachment.docName,
-                docPath: attachment.docPath
+        Http.get(`/docm?id=${id}`)
+          .then(res => {
+            const data = res.data.data
+            this.form &&
+              this.form.props.form.setFieldsValue({
+                ...data,
+                contractTime: data.contractTime
+                  ? moment(data.contractTime, 'YYYY-MM-DD')
+                  : undefined,
+                credentialTime: data.credentialTime
+                  ? moment(data.credentialTime, 'YYYY-MM')
+                  : undefined
+              })
+            const fileList = data.attachments.map(attachment => ({
+              uid: attachment.id,
+              size: 123,
+              name: attachment.docName,
+              type: 'image',
+              status: 'done',
+              response: {
+                status: '00000000',
+                data: [
+                  {
+                    docName: attachment.docName,
+                    docPath: attachment.docPath
+                  }
+                ]
               }
-            ]
-          }
-        }))
-        this.setState({ loading: false, fileList })
+            }))
+            this.setState({ loading: false, fileList })
+          })
+          .catch(error => {})
       } else if (mode === 'add') {
         message.info('新建')
         this.form && this.form.props.form.setFieldsValue({ attachments: [] })

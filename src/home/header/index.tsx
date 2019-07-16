@@ -7,9 +7,7 @@ const { Header } = Layout
 
 const menuPaths = ['/docm', '/user']
 
-interface IProps extends RouteComponentProps {
-  userId: string
-}
+interface IProps extends RouteComponentProps {}
 
 interface IState {}
 
@@ -26,13 +24,16 @@ class HomeHeader extends Component<IProps, IState> {
   }
 
   render() {
-    const { userId } = this.props
+    const userId = sessionStorage.getItem('userId')
+    if (!userId) {
+      this.props.history.push('/login')
+    }
     const menu = (
       <Menu>
         <Menu.Item>
           <Button
             onClick={() => {
-              this.props.history.push('/main/user')
+              this.props.history.push('/main/user/edit')
             }}
           >
             {'修改密码'}
@@ -42,7 +43,9 @@ class HomeHeader extends Component<IProps, IState> {
           <Button
             onClick={() => {
               sessionStorage.removeItem('userId')
-              this.props.history.push('/main')
+              setTimeout(() => {
+                this.props.history.push('/login')
+              }, 300)
             }}
           >
             {'退出'}
@@ -73,7 +76,10 @@ class HomeHeader extends Component<IProps, IState> {
             </Menu.Item>
           </Menu>
           <Dropdown overlay={menu} placement="bottomRight">
-            <Avatar style={{ margin: '0 8px 0 0' }} size="large">
+            <Avatar
+              style={{ margin: '0 8px 0 0', color: 'white', fontSize: '25px' }}
+              size="large"
+            >
               {userId}
             </Avatar>
           </Dropdown>
