@@ -4,6 +4,7 @@ import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import Http from '../common/http/index'
 import md5 from 'js-md5'
+import img from '../assert/img/aaa.jpg'
 import './index.css'
 
 type IProps = RouteComponentProps & {}
@@ -27,7 +28,6 @@ class Login extends React.Component<IProps, IState> {
                   'xAuthToken',
                   res.headers['x-auth-token']
                 )
-                debugger
                 const userId = res.data.username
                 sessionStorage.setItem('userId', userId)
                 this.props.history.push('/main')
@@ -50,19 +50,32 @@ class Login extends React.Component<IProps, IState> {
 
   render() {
     return (
-      <div className="login-form">
-        <WrappedNormalLoginForm
-          wrappedComponentRef={(form: React.ReactElement<FormProps>) => {
-            this.form = form
-          }}
-        />
-        <Button
-          className="login-form-button"
-          type="primary"
-          onClick={this.handleSubmit}
-        >
-          登录
-        </Button>
+      <div
+        style={{
+          width: '100%',
+          height: 0,
+          paddingBottom: '48%',
+          overflow: 'hidden',
+          backgroundPosition: '50%',
+          backgroundRepeat: 'no - repeat',
+          backgroundSize: 'cover',
+          backgroundImage: `url(${img})`
+        }}
+      >
+        <div className="login-form">
+          <WrappedNormalLoginForm
+            wrappedComponentRef={(form: React.ReactElement<FormProps>) => {
+              this.form = form
+            }}
+          />
+          <Button
+            className="login-form-button"
+            type="primary"
+            onClick={this.handleSubmit}
+          >
+            登录
+          </Button>
+        </div>
       </div>
     )
   }
