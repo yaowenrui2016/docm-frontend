@@ -13,7 +13,6 @@ export default interface IDocmVO {
     docName: string
     docPath: string
   }>
-  state: boolean
   createTime: string
   lastModifyTime: string
 }

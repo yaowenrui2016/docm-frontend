@@ -1,16 +1,41 @@
 import React from 'react'
 import './index.css'
-import { Layout, Menu, Icon, Result } from 'antd'
+import { Layout, Menu, Icon } from 'antd'
+import {
+  HashRouter,
+  Route,
+  Switch,
+  withRouter,
+  RouteComponentProps
+} from 'react-router-dom'
+import Manage from './manage'
+// import Authority from './authority'
 
 const { Sider } = Layout
 
-class UserSider extends React.Component {
-  state = {
-    collapsed: false
+type IProps = RouteComponentProps & {}
+
+interface IState {
+  collapsed: boolean
+  selectedKeys: Array<string>
+}
+
+class UserSider extends React.Component<IProps, IState> {
+  state: IState = {
+    collapsed: false,
+    selectedKeys: []
   }
 
-  handleSearch = (value: string) => {
-    console.log(value)
+  componentDidMount() {
+    const key = '/manage'
+    this.handleOnSelect({ key })
+  }
+
+  handleOnSelect = param => {
+    const prePath = '/main/user'
+    const { key } = param
+    this.setState({ selectedKeys: [key] })
+    this.props.history.push(`${prePath}${key}`)
   }
 
   toggleCollapsed = () => {
@@ -20,6 +45,7 @@ class UserSider extends React.Component {
   }
 
   render() {
+    const { selectedKeys } = this.state
     return (
       <Layout>
         <Sider
@@ -34,8 +60,13 @@ class UserSider extends React.Component {
               type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
             />
           </span>
-          <Menu defaultSelectedKeys={['/normal']} mode="inline" theme="dark">
-            <Menu.Item className="aside-item" key="/normal">
+          <Menu
+            selectedKeys={selectedKeys}
+            mode="inline"
+            theme="dark"
+            onSelect={this.handleOnSelect}
+          >
+            <Menu.Item className="aside-item" key="/manage">
               <Icon type="user" />
               <span>账号管理</span>
             </Menu.Item>
@@ -46,11 +77,17 @@ class UserSider extends React.Component {
           </Menu>
         </Sider>
         <Layout style={{ padding: '0 24px 24px' }}>
-          <Result status="403" title="403" subTitle="对不起，拒绝访问" />
+          {/* <Result status="403" title="403" subTitle="对不起，拒绝访问" /> */}
+          <HashRouter>
+            <Switch>
+              <Route path={'/main/user/manage'} component={Manage} />
+              {/* <Route path={'/main/user/authority'} component={Authority} /> */}
+            </Switch>
+          </HashRouter>
         </Layout>
       </Layout>
     )
   }
 }
 
-export default UserSider
+export default withRouter(UserSider)

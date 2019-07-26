@@ -4,7 +4,7 @@ import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import Http from '../common/http/index'
 import md5 from 'js-md5'
-import img from '../assert/img/b.png'
+import img from '../assert/img/aaa.jpg'
 import './index.css'
 
 type IProps = RouteComponentProps & {}
@@ -47,10 +47,11 @@ class Login extends React.Component<IProps, IState> {
   render() {
     return (
       <div
+        id="hehe"
         style={{
           width: '100%',
-          height: 0,
-          paddingBottom: '48%',
+          height: '100%',
+          // paddingBottom: '48%',
           overflow: 'hidden',
           backgroundPosition: '50%',
           backgroundRepeat: 'no - repeat',

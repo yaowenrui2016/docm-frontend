@@ -17,32 +17,11 @@ import EditCmpt from './edit'
 
 const { Sider } = Layout
 
-type IProps = RouteComponentProps & {
-  username: string
-}
+type IProps = RouteComponentProps & {}
 
-interface IState {
-  collapsed: boolean
-}
+interface IState {}
 
 class Docm extends React.Component<IProps, IState> {
-  constructor(props: IProps) {
-    super(props)
-    this.state = {
-      collapsed: false
-    }
-  }
-
-  handleSearch = (value: string) => {
-    console.log(value)
-  }
-
-  toggleCollapsed = () => {
-    this.setState({
-      collapsed: !this.state.collapsed
-    })
-  }
-
   render() {
     return (
       <Layout>

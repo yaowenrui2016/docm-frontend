@@ -133,7 +133,7 @@ class List extends React.Component<IProps, IState> {
         <Breadcrumb style={{ margin: '8px' }}>
           <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
           <Breadcrumb.Item>我的项目</Breadcrumb.Item>
-          <Breadcrumb.Item>新建</Breadcrumb.Item>
+          <Breadcrumb.Item>{mode === 'add' ? '新建' : '编辑'}</Breadcrumb.Item>
         </Breadcrumb>
         <div
           style={{
@@ -249,7 +249,7 @@ class NormalForm extends React.Component<FormProps, FormState> {
         </Form.Item>
         <Form.Item key={'money'} label="金额">
           {getFieldDecorator('money', {
-            rules: [{ required: false, message: '请输入金额' }]
+            rules: [{ required: false, message: '请输入金额', type: 'float' }]
           })(<Input />)}
         </Form.Item>
         {getFieldDecorator('attachments')}

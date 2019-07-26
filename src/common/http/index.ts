@@ -35,6 +35,7 @@ http.interceptors.request.use(config => {
 http.interceptors.response.use(response => {
   const xAuthToken = response.headers['x-auth-token']
   if (xAuthToken) {
+    debugger
     sessionStorage.setItem('xAuthToken', xAuthToken)
   }
   return response
