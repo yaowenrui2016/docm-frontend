@@ -19,7 +19,7 @@ export const serverPath = "http://localhost:8090"
 const http = axios.create({
   baseURL: serverPath,
   withCredentials: false,
-  timeout: 10000
+  timeout: 60000
 });
 
 http.interceptors.request.use(config => {
@@ -35,12 +35,10 @@ http.interceptors.request.use(config => {
 http.interceptors.response.use(response => {
   const xAuthToken = response.headers['x-auth-token']
   if (xAuthToken) {
-    debugger
     sessionStorage.setItem('xAuthToken', xAuthToken)
   }
   return response
 }, error => {
-  debugger
   if (error.response.status === 401) {
     sessionStorage.removeItem('userId')
     message.error('登录超时，请重新登录', 3)

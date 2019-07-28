@@ -158,7 +158,8 @@ class List extends React.Component<IProps, IState> {
                 style={{ fontSize: '17px', margin: '0 9px 0 0' }}
                 title={'编辑'}
                 type="edit"
-                onClick={() => {
+                onClick={event => {
+                  event.preventDefault()
                   const { match } = this.props
                   const path = match.path.replace('/list', `/edit/${record.id}`)
                   this.props.history.push(path)
@@ -168,14 +169,28 @@ class List extends React.Component<IProps, IState> {
                 style={{ fontSize: '17px', margin: '0 9px 0 0' }}
                 title={record.frozen ? '解冻' : '冻结'}
                 type={record.frozen ? 'lock' : 'unlock'}
-                onClick={event => {}}
+                onClick={event => {
+                  event.preventDefault()
+                  const operation = record.frozen ? 'unfreeze' : 'freeze'
+                  Http.post(`/user/${operation}`, { ids: [record.id] })
+                    .then(res => {
+                      message.success(`${record.frozen ? '解冻' : '冻结'}成功`)
+                      this.handleListChange()
+                    })
+                    .catch(err => {
+                      this.handleListChange()
+                    })
+                }}
               />
               <div id="downloadDiv" style={{ display: 'none' }} />
               <Icon
                 style={{ fontSize: '17px', margin: '0 9px 0 0' }}
                 title={'删除'}
                 type="delete"
-                onClick={() => this.handleDeleteOper([record.id])}
+                onClick={event => {
+                  event.preventDefault()
+                  this.handleDeleteOper([record.id])
+                }}
               />
             </div>
           )

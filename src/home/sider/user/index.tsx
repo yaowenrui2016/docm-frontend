@@ -72,7 +72,7 @@ class UserSider extends React.Component<IProps, IState> {
             </Menu.Item>
             <Menu.Item className="aside-item" key="/authority">
               <Icon type="safety-certificate" />
-              <span>权限管理</span>
+              <span>授权查询</span>
             </Menu.Item>
           </Menu>
         </Sider>
