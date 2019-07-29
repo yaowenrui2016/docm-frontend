@@ -249,7 +249,7 @@ class NormalForm extends React.Component<FormProps, FormState> {
         </Form.Item>
         <Form.Item key={'money'} label="金额">
           {getFieldDecorator('money', {
-            rules: [{ required: false, message: '请输入金额', type: 'float' }]
+            rules: [{ required: false, message: '请输入金额' }]
           })(<Input />)}
         </Form.Item>
         {getFieldDecorator('attachments')}

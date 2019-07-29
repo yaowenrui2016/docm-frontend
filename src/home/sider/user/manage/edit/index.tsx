@@ -7,7 +7,8 @@ import {
   Input,
   message,
   Col,
-  Row
+  Row,
+  TreeSelect
 } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
@@ -21,6 +22,8 @@ type IProps = RouteComponentProps & {}
 interface IState {
   loading: boolean
   id: string
+  treeData: Array<any>
+  permissions: Array<any>
 }
 
 class List extends React.Component<IProps, IState> {
@@ -29,7 +32,9 @@ class List extends React.Component<IProps, IState> {
     super(props)
     this.state = {
       id: this.props.match.params['id'],
-      loading: true
+      loading: true,
+      treeData: [],
+      permissions: []
     }
   }
 
@@ -43,11 +48,31 @@ class List extends React.Component<IProps, IState> {
             this.form.props.form.setFieldsValue({
               ...data
             })
-          this.setState({ loading: false })
+          const permissions = data.permissions.map(perm => perm.id)
+          this.setState({ loading: false, permissions })
         })
         .catch(error => {
           this.setState({ loading: false })
         })
+      Http.get(`/perm/all`)
+        .then(res => {
+          const treeData = res.data.data.map((v, index) => {
+            return {
+              key: index,
+              title: v.group,
+              value: undefined,
+              children: v.permissions.map(perm => {
+                return {
+                  key: perm.id,
+                  title: perm.name,
+                  value: perm.id
+                }
+              })
+            }
+          })
+          this.setState({ treeData })
+        })
+        .catch(err => {})
     })
   }
 
@@ -74,8 +99,16 @@ class List extends React.Component<IProps, IState> {
       })
   }
 
+  handlePermOnChange = permissions => {
+    this.form &&
+      this.form.props.form.setFieldsValue({
+        permissions: permissions.map(perm => ({ id: perm }))
+      })
+    this.setState({ permissions })
+  }
+
   render() {
-    const { loading } = this.state
+    const { loading, treeData, permissions } = this.state
     return (
       <Content>
         <Breadcrumb style={{ margin: '8px' }}>
@@ -105,6 +138,21 @@ class List extends React.Component<IProps, IState> {
               this.form = form
             }}
           />
+          <Row gutter={60}>
+            <Col span={16} offset={4}>
+              <Form.Item key={'permissions'} label="账号授权">
+                <TreeSelect
+                  style={{ width: '100%' }}
+                  searchPlaceholder={'请选择权限'}
+                  multiple={true}
+                  treeData={treeData}
+                  value={permissions}
+                  treeCheckable={true}
+                  onChange={this.handlePermOnChange}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
           <Row gutter={60}>
             <Col span={3} offset={9}>
               <Button
@@ -144,7 +192,7 @@ interface FormState {
 
 class NormalForm extends React.Component<FormProps, FormState> {
   render() {
-    const { getFieldDecorator } = this.props.form
+    const { getFieldDecorator, getFieldValue } = this.props.form
     return (
       <Form>
         {getFieldDecorator('id')(<Input hidden />)}
@@ -155,10 +203,38 @@ class NormalForm extends React.Component<FormProps, FormState> {
                 rules: [
                   {
                     required: true,
-                    message:
-                      '用户名为3~12位字母、数字或下划线,第一位必须为字母',
                     type: 'string',
-                    pattern: /^[a-zA-Z][a-zA-Z1-9_]{2,11}$/
+                    pattern: /^[a-zA-Z][a-zA-Z1-9_]{2,11}$/,
+                    message: '用户名为3~12位字母、数字或下划线,第一位必须为字母'
+                  },
+                  {
+                    message: '用户名已存在',
+                    validator: async (
+                      rule,
+                      value,
+                      callback,
+                      source,
+                      options
+                    ) => {
+                      const id = getFieldValue('id')
+                      await Http.get(
+                        `/user/cku-username?username=${value}&id=${id}`
+                      )
+                        .then(res => {
+                          if (res.data.status === '00000000') {
+                            const cku =
+                              res.data.data === true ? true : undefined
+                            callback(cku)
+                          } else {
+                            message.error(res.data.message)
+                            callback()
+                          }
+                        })
+                        .catch(err => {
+                          message.error('服务器异常')
+                          callback()
+                        })
+                    }
                   }
                 ],
                 validateTrigger: 'onBlur'
@@ -197,6 +273,8 @@ class NormalForm extends React.Component<FormProps, FormState> {
             </Form.Item>
           </Col>
         </Row>
+        {/** 角色授权 */}
+        {getFieldDecorator('permissions')}
       </Form>
     )
   }

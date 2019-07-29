@@ -4,6 +4,7 @@ export default interface IAccountVO {
   username: string
   password: string
   phone: string
+  permissions: Array<any>
   email: string
   createTime: string
   lastModifyTime: string

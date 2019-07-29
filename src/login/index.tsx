@@ -23,7 +23,7 @@ class Login extends React.Component<IProps, IState> {
           await Http.post('/login', { ...values, password })
             .then(res => {
               if (res.data.status === '00000000') {
-                sessionStorage.setItem('userId', res.data.data.username)
+                sessionStorage.setItem('userId', res.data.data.id)
                 setTimeout(() => {
                   this.props.history.push('/main')
                 }, 300)

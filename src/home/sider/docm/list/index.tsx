@@ -8,7 +8,8 @@ import {
   Empty,
   message,
   Icon,
-  Modal
+  Modal,
+  Result
 } from 'antd'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import moment from 'moment'
@@ -19,6 +20,7 @@ import Http, {
   serverPath
 } from '../../../../common/http'
 import { toLine } from '../../../../common/util'
+import { UserContext } from '../../../index'
 
 const { Content } = Layout
 
@@ -170,146 +172,200 @@ class List extends React.Component<IProps, IState> {
         key: 'operation',
         render: (text, record, index) => {
           return (
-            <div>
-              <Icon
-                style={{ fontSize: '17px', margin: '0 9px 0 0' }}
-                title={'编辑'}
-                type="edit"
-                onClick={() => {
-                  const { match } = this.props
-                  const path = match.path.replace('/list', `/edit/${record.id}`)
-                  this.props.history.push(path)
-                }}
-              />
-              <Icon
-                style={{ fontSize: '17px', margin: '0 9px 0 0' }}
-                title={'下载'}
-                type="download"
-                onClick={event => {
-                  const url = `${serverPath}/doc?id=${record.id}`
-                  const aElement = document.createElement('a')
-                  aElement.href = url
-                  aElement.target = '_blank'
-                  aElement.click()
-                  window.URL.revokeObjectURL(url)
-                }}
-              />
-              <div id="downloadDiv" style={{ display: 'none' }} />
-              <Icon
-                style={{ fontSize: '17px', margin: '0 9px 0 0' }}
-                title={'删除'}
-                type="delete"
-                onClick={() => this.handleDeleteOper([record.id])}
-              />
-            </div>
+            <UserContext.Consumer>
+              {userInfo => {
+                const DOCM_EDIT_OPER_permission = userInfo['permissions'].find(
+                  perm => perm.id === 'DOCM_EDIT_OPER'
+                )
+                const DOCM_DELETE_OPER_permission = userInfo[
+                  'permissions'
+                ].find(perm => perm.id === 'DOCM_DELETE_OPER')
+                const DOCM_DOWNLOAD_OPER_permission = userInfo[
+                  'permissions'
+                ].find(perm => perm.id === 'DOCM_DOWNLOAD_OPER')
+                return (
+                  <div>
+                    {DOCM_EDIT_OPER_permission && (
+                      <Icon
+                        style={{ fontSize: '17px', margin: '0 9px 0 0' }}
+                        title={'编辑'}
+                        type="edit"
+                        onClick={() => {
+                          const { match } = this.props
+                          const path = match.path.replace(
+                            '/list',
+                            `/edit/${record.id}`
+                          )
+                          this.props.history.push(path)
+                        }}
+                      />
+                    )}
+                    {DOCM_DOWNLOAD_OPER_permission && (
+                      <Icon
+                        style={{ fontSize: '17px', margin: '0 9px 0 0' }}
+                        title={'下载'}
+                        type="download"
+                        onClick={event => {
+                          const url = `${serverPath}/doc?id=${record.id}`
+                          const aElement = document.createElement('a')
+                          aElement.href = url
+                          aElement.target = '_blank'
+                          aElement.click()
+                          window.URL.revokeObjectURL(url)
+                        }}
+                      />
+                    )}
+                    <div id="downloadDiv" style={{ display: 'none' }} />
+                    {DOCM_DELETE_OPER_permission && (
+                      <Icon
+                        style={{ fontSize: '17px', margin: '0 9px 0 0' }}
+                        title={'删除'}
+                        type="delete"
+                        onClick={() => this.handleDeleteOper([record.id])}
+                      />
+                    )}
+                  </div>
+                )
+              }}
+            </UserContext.Consumer>
           )
         }
       }
     ]
     return (
-      <Content>
-        <Breadcrumb style={{ margin: '8px' }}>
-          <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
-          <Breadcrumb.Item>我的项目</Breadcrumb.Item>
-          <Breadcrumb.Item>查询</Breadcrumb.Item>
-        </Breadcrumb>
-        <div
-          style={{
-            margin: '4px',
-            display: 'flex',
-            alignItems: 'center'
-          }}
-        >
-          <div style={{ margin: '4px', flex: 1 }}>
-            <Select
-              mode={'tags'}
-              placeholder={'请输入关键字'}
-              style={{ width: '280px' }}
-              tokenSeparators={[' ']}
-              showArrow={true}
-              suffixIcon={<Icon style={{ fontSize: '16px' }} type="search" />}
-              onChange={this.handleSelectChange}
-              notFoundContent={null}
-            />
-          </div>
-          <div style={{ margin: '4px', flex: 1 }}>
-            <span style={{ float: 'right' }}>
-              <Button
-                className="ele-operation"
-                type="primary"
-                onClick={() => {
-                  const { match } = this.props
-                  const path = match.path.replace('/list', '/edit')
-                  this.props.history.push(path)
+      <UserContext.Consumer>
+        {userInfo => {
+          const DOCM_LIST_VIEW_permission = userInfo['permissions'].find(
+            perm => perm.id === 'DOCM_LIST_VIEW'
+          )
+          const DOCM_ADD_OPER_permission = userInfo['permissions'].find(
+            perm => perm.id === 'DOCM_ADD_OPER'
+          )
+          const DOCM_DELETE_OPER_permission = userInfo['permissions'].find(
+            perm => perm.id === 'DOCM_DELETE_OPER'
+          )
+          return DOCM_LIST_VIEW_permission ? (
+            <Content>
+              <Breadcrumb style={{ margin: '8px' }}>
+                <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
+                <Breadcrumb.Item>我的项目</Breadcrumb.Item>
+                <Breadcrumb.Item>查询</Breadcrumb.Item>
+              </Breadcrumb>
+              <div
+                style={{
+                  margin: '4px',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}
               >
-                新建
-              </Button>
-              <Button
-                type="ghost"
-                disabled={selectedRowKeys.length < 1}
-                onClick={() => {
-                  this.handleDeleteOper(selectedRowKeys)
-                }}
-              >
-                批量删除
-              </Button>
-            </span>
-          </div>
-        </div>
-        <div style={{ margin: '8px' }}>
-          {loading || data.content.length > 0 ? (
-            <Table
-              rowKey={record => {
-                return record.id
-              }}
-              rowSelection={{
-                selectedRowKeys,
-                onChange: selectedRowKeys => {
-                  this.setState({ selectedRowKeys })
-                }
-              }}
-              columns={columns}
-              dataSource={content}
-              loading={loading}
-              onRow={(record, index) => {
-                return {
-                  onClick: event => {
-                    if (event.target['tagName'] !== 'TD') {
-                      return
+                <div style={{ margin: '4px', flex: 1 }}>
+                  <Select
+                    mode={'tags'}
+                    placeholder={'请输入关键字'}
+                    style={{ width: '280px' }}
+                    tokenSeparators={[' ']}
+                    showArrow={true}
+                    suffixIcon={
+                      <Icon style={{ fontSize: '16px' }} type="search" />
                     }
-                    // TODO
-                    // message.info('查看' + record.id)
-                  }
-                }
-              }}
-              size={'middle'}
-              pagination={{
-                total,
-                current,
-                pageSize,
-                showSizeChanger: true,
-                showTotal: total => {
-                  return `共${total}条`
-                }
-              }}
-              onChange={(pagination, filters, sorter, extra) => {
-                const { param } = this.state
-                const { current, pageSize } = pagination
-                const { field, order } = sorter
-                param.sorters = {}
-                if (field && order) {
-                  param.sorters[toLine(field)] = fetchOrderDirection(order)
-                }
-                this.setState({ current, pageSize })
-                this.handleListChange()
-              }}
-            />
+                    onChange={this.handleSelectChange}
+                    notFoundContent={null}
+                  />
+                </div>
+                <div style={{ margin: '4px', flex: 1 }}>
+                  <span style={{ float: 'right' }}>
+                    {DOCM_ADD_OPER_permission && (
+                      <Button
+                        className="ele-operation"
+                        type="primary"
+                        onClick={() => {
+                          const { match } = this.props
+                          const path = match.path.replace('/list', '/edit')
+                          this.props.history.push(path)
+                        }}
+                      >
+                        新建
+                      </Button>
+                    )}
+                    {DOCM_DELETE_OPER_permission && (
+                      <Button
+                        type="ghost"
+                        disabled={selectedRowKeys.length < 1}
+                        onClick={() => {
+                          this.handleDeleteOper(selectedRowKeys)
+                        }}
+                      >
+                        批量删除
+                      </Button>
+                    )}
+                  </span>
+                </div>
+              </div>
+              <div style={{ margin: '8px' }}>
+                {loading || data.content.length > 0 ? (
+                  <Table
+                    rowKey={record => {
+                      return record.id
+                    }}
+                    rowSelection={{
+                      selectedRowKeys,
+                      onChange: selectedRowKeys => {
+                        this.setState({ selectedRowKeys })
+                      }
+                    }}
+                    columns={columns}
+                    dataSource={content}
+                    loading={loading}
+                    onRow={(record, index) => {
+                      return {
+                        onClick: event => {
+                          if (event.target['tagName'] !== 'TD') {
+                            return
+                          }
+                          // TODO
+                          // message.info('查看' + record.id)
+                        }
+                      }
+                    }}
+                    size={'middle'}
+                    pagination={{
+                      total,
+                      current,
+                      pageSize,
+                      showSizeChanger: true,
+                      showTotal: total => {
+                        return `共${total}条`
+                      }
+                    }}
+                    onChange={(pagination, filters, sorter, extra) => {
+                      const { param } = this.state
+                      const { current, pageSize } = pagination
+                      const { field, order } = sorter
+                      param.sorters = {}
+                      if (field && order) {
+                        param.sorters[toLine(field)] = fetchOrderDirection(
+                          order
+                        )
+                      }
+                      this.setState({ current, pageSize })
+                      this.handleListChange()
+                    }}
+                  />
+                ) : (
+                  <Empty description={'暂无内容'} />
+                )}
+              </div>
+            </Content>
           ) : (
-            <Empty description={'暂无内容'} />
-          )}
-        </div>
-      </Content>
+            <Result
+              style={{ width: '100%', height: '100%' }}
+              status="403"
+              title="403"
+              subTitle="没有访问权限"
+            />
+          )
+        }}
+      </UserContext.Consumer>
     )
   }
 }
