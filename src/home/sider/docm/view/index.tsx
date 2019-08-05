@@ -4,7 +4,7 @@ import { UploadFile } from 'antd/lib/upload/interface'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import IDocmVO from '../type'
 import Http, { serverPath } from '../../../../common/http'
-import { parentPath } from '../index'
+import { moduletPath } from '../index'
 
 const { Content } = Layout
 
@@ -59,7 +59,7 @@ class View extends React.Component<IProps, IState> {
 
   handleCancel = e => {
     e.preventDefault()
-    this.props.history.push(`${parentPath}/list`)
+    this.props.history.push(`${moduletPath}/list`)
   }
 
   renderContent() {
@@ -125,7 +125,7 @@ class View extends React.Component<IProps, IState> {
                   event.preventDefault()
                   const { match } = this.props
                   const id = match.params['id']
-                  this.props.history.push(`${parentPath}/edit/${id}`)
+                  this.props.history.push(`${moduletPath}/edit/${id}`)
                 }}
               >
                 编辑

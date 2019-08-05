@@ -8,12 +8,10 @@ import {
   withRouter,
   RouteComponentProps
 } from 'react-router-dom'
-import Manage from './manage'
-import Authority from './authority'
+import Info from './info'
+import ModPwd from './mod-pwd'
 
-export const modulePath = `/main/user`
-export const manageSiderPath = `${modulePath}/manage`
-export const authoritySiderPath = `${modulePath}/authority`
+export const modulePath = `/main/account`
 
 const { Sider } = Layout
 
@@ -24,14 +22,14 @@ interface IState {
   selectedKeys: Array<string>
 }
 
-class UserSider extends React.Component<IProps, IState> {
+class AccountSider extends React.Component<IProps, IState> {
   state: IState = {
     collapsed: false,
     selectedKeys: []
   }
 
   componentDidMount() {
-    const defaultSelectedKey = '/manage'
+    const defaultSelectedKey = '/info'
     this.handleOnSelect({ key: defaultSelectedKey })
   }
 
@@ -69,21 +67,21 @@ class UserSider extends React.Component<IProps, IState> {
             theme="dark"
             onSelect={this.handleOnSelect}
           >
-            <Menu.Item className="aside-item" key="/manage">
+            <Menu.Item className="aside-item" key="/info">
               <Icon type="user" />
-              <span>账号管理</span>
+              <span>账号信息</span>
             </Menu.Item>
-            <Menu.Item className="aside-item" key="/authority">
+            <Menu.Item className="aside-item" key="/mod-pwd">
               <Icon type="safety-certificate" />
-              <span>授权查询</span>
+              <span>修改密码</span>
             </Menu.Item>
           </Menu>
         </Sider>
         <Layout style={{ padding: '0 24px 24px' }}>
           <HashRouter>
             <Switch>
-              <Route path={`${modulePath}/manage`} component={Manage} />
-              <Route path={`${modulePath}/authority`} component={Authority} />
+              <Route path={`${modulePath}/info`} component={Info} />
+              <Route path={`${modulePath}/mod-pwd`} component={ModPwd} />
             </Switch>
           </HashRouter>
         </Layout>
@@ -92,4 +90,4 @@ class UserSider extends React.Component<IProps, IState> {
   }
 }
 
-export default withRouter(UserSider)
+export default withRouter(AccountSider)

@@ -8,54 +8,29 @@ import {
   withRouter,
   RouteComponentProps
 } from 'react-router-dom'
+import { manageSiderPath } from '../index'
 import AddCmpt from './add'
 import EditCmpt from './edit'
 import ListCmpt from './list'
 
 type IProps = RouteComponentProps & {}
 
-interface IState {
-  collapsed: boolean
-  selectedKeys: Array<string>
-}
+interface IState {}
 
 class Manage extends React.Component<IProps, IState> {
-  state: IState = {
-    collapsed: false,
-    selectedKeys: []
-  }
-
-  componentDidMount() {
-    const key = '/manage'
-    this.handleOnSelect({ key })
-  }
-
-  handleOnSelect = param => {
-    const prePath = '/main/user'
-    const { key } = param
-    this.setState({ selectedKeys: [key] })
-    this.props.history.push(`${prePath}${key}`)
-  }
-
-  toggleCollapsed = () => {
-    this.setState({
-      collapsed: !this.state.collapsed
-    })
-  }
-
   render() {
     return (
       <div style={{ margin: '0px', background: 'rgb(255, 255, 255)' }}>
         <HashRouter>
           <Switch>
             <Redirect
-              path={'/main/user/manage'}
+              path={`${manageSiderPath}`}
               exact={true}
-              to={'/main/user/manage/list'}
+              to={`${manageSiderPath}/list`}
             />
-            <Route path={'/main/user/manage/list'} component={ListCmpt} />
-            <Route path={'/main/user/manage/add'} component={AddCmpt} />
-            <Route path={'/main/user/manage/edit/:id'} component={EditCmpt} />
+            <Route path={`${manageSiderPath}/list`} component={ListCmpt} />
+            <Route path={`${manageSiderPath}/add`} component={AddCmpt} />
+            <Route path={`${manageSiderPath}/edit/:id`} component={EditCmpt} />
             {/* <Route path={'/main/docm/view'} component={ViewCmpt} /> */}
           </Switch>
         </HashRouter>

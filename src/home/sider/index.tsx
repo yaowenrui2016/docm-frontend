@@ -10,6 +10,7 @@ import {
 } from 'react-router-dom'
 import UserModule from './user/index'
 import DocmModule from './docm/index'
+import AccountModule from './account/index'
 import headerMenu from '../menu'
 import { UserContext } from '../index'
 
@@ -40,9 +41,12 @@ class Side extends React.Component<IProps, IState> {
             {
               key: '/user',
               value: <Route path={'/main/user'} component={UserModule} />
+            },
+            {
+              key: '/account',
+              value: <Route path={'/main/account'} component={AccountModule} />
             }
           ]
-          menus.length > 0 && console.log(menus[0].key)
           return (
             menus.length > 0 && (
               <HashRouter>
