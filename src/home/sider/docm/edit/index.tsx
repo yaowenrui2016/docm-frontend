@@ -1,14 +1,13 @@
 import React from 'react'
 import {
   Layout,
-  Breadcrumb,
   Button,
   Form,
   Input,
   Icon,
-  message,
   Upload,
-  DatePicker
+  DatePicker,
+  message
 } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
 import { UploadFile } from 'antd/lib/upload/interface'
@@ -16,6 +15,7 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import moment from 'moment'
 import IDocmVO from '../type'
 import Http, { serverPath } from '../../../../common/http'
+import { parentPath } from '../index'
 
 const { Content } = Layout
 const { MonthPicker } = DatePicker
@@ -31,7 +31,7 @@ interface IState {
   fileList: Array<UploadFile>
 }
 
-class List extends React.Component<IProps, IState> {
+class Edit extends React.Component<IProps, IState> {
   form: React.ReactElement<FormProps> | undefined = undefined
   constructor(props: IProps) {
     super(props)
@@ -49,7 +49,6 @@ class List extends React.Component<IProps, IState> {
     const mode = id ? 'edit' : 'add'
     this.setState({ mode, loading: true }, () => {
       if (mode === 'edit') {
-        message.info('编辑')
         Http.get(`/docm?id=${id}`)
           .then(res => {
             const data = res.data.data
@@ -83,23 +82,21 @@ class List extends React.Component<IProps, IState> {
           })
           .catch(error => {})
       } else if (mode === 'add') {
-        message.info('新建')
         this.form && this.form.props.form.setFieldsValue({ attachments: [] })
+        this.setState({ loading: false })
       }
     })
   }
 
   handleCancel = e => {
     e.preventDefault()
-    const { match } = this.props
-    const path = match.path.replace('/edit', '/list')
-    this.props.history.push(path)
+    this.props.history.push(`${parentPath}/list`)
   }
 
   handleSubmit = e => {
     e.preventDefault()
     this.form &&
-      this.form.props.form.validateFields(async (err, fielldValues) => {
+      this.form.props.form.validateFields((err, fielldValues) => {
         if (!err) {
           const values: IDocmVO = {
             ...fielldValues,
@@ -111,30 +108,68 @@ class List extends React.Component<IProps, IState> {
               : undefined
           }
           const { mode } = this.state
-          if (mode === 'add') {
-            await Http.put('/docm', values)
-          } else if (mode === 'edit') {
-            await Http.post('/docm', values)
-          }
-          const { match } = this.props
-          const path = match.path.replace('/edit', '/list')
-          this.props.history.push(path)
+          const method =
+            mode === 'add' ? Http.put : mode === 'edit' ? Http.post : undefined
+          method &&
+            method(`/docm`, values)
+              .then(res => {
+                this.props.history.push(`${parentPath}/list`)
+              })
+              .catch(err => {
+                message.info(err.response.data.msg)
+              })
         }
       })
   }
 
-  render() {
+  renderContent() {
     const { mode, fileList } = this.state
     const setFieldsValue = this.form
       ? this.form.props.form.setFieldsValue
       : undefined
     return (
+      <Form labelCol={{ span: 8 }} wrapperCol={{ span: 8 }}>
+        <Form.Item key={'files'} label="上传附件">
+          <Upload
+            style={{ width: '100%' }}
+            name="files"
+            action={`${serverPath}/doc`}
+            listType={'picture'}
+            multiple={false}
+            fileList={fileList}
+            onChange={info => {
+              const { fileList } = info
+              const attachments = fileList
+                .filter(file => {
+                  return file.status === 'done'
+                })
+                .map(file => {
+                  return {
+                    docName: file.response.data[0]['docName'],
+                    docPath: file.response.data[0]['docPath']
+                  }
+                })
+              setFieldsValue && setFieldsValue({ attachments })
+              this.setState({ fileList })
+            }}
+          >
+            <Button block>
+              <Icon type="upload" /> 请选择
+            </Button>
+          </Upload>
+        </Form.Item>
+        <Form.Item key={'submit'} wrapperCol={{ span: 8, offset: 8 }}>
+          <Button block type={'primary'} onClick={this.handleSubmit}>
+            {mode === 'add' ? '提交' : '保存'}
+          </Button>
+        </Form.Item>
+      </Form>
+    )
+  }
+
+  render() {
+    return (
       <Content>
-        <Breadcrumb style={{ margin: '8px' }}>
-          <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
-          <Breadcrumb.Item>我的项目</Breadcrumb.Item>
-          <Breadcrumb.Item>{mode === 'add' ? '新建' : '编辑'}</Breadcrumb.Item>
-        </Breadcrumb>
         <div
           style={{
             margin: '4px 4px 10px',
@@ -142,9 +177,9 @@ class List extends React.Component<IProps, IState> {
             alignItems: 'center'
           }}
         >
-          <div style={{ order: 2, flexGrow: 1, padding: '0 8px 0 0' }}>
+          <div style={{ margin: '4px', flex: 1 }}>
             <span style={{ float: 'right' }}>
-              <Button block type={'default'} onClick={this.handleCancel}>
+              <Button type={'default'} onClick={this.handleCancel}>
                 返回
               </Button>
             </span>
@@ -156,49 +191,14 @@ class List extends React.Component<IProps, IState> {
               this.form = form
             }}
           />
-          <Form labelCol={{ span: 8 }} wrapperCol={{ span: 8 }}>
-            <Form.Item key={'files'} label="上传附件">
-              <Upload
-                style={{ width: '100%' }}
-                name="files"
-                action={`${serverPath}/doc`}
-                listType={'picture'}
-                multiple={false}
-                fileList={fileList}
-                onChange={info => {
-                  const { fileList } = info
-                  const attachments = fileList
-                    .filter(file => {
-                      return file.status === 'done'
-                    })
-                    .map(file => {
-                      return {
-                        docName: file.response.data[0]['docName'],
-                        docPath: file.response.data[0]['docPath']
-                      }
-                    })
-                  setFieldsValue && setFieldsValue({ attachments })
-                  this.setState({ fileList })
-                }}
-              >
-                <Button block>
-                  <Icon type="upload" /> 请选择
-                </Button>
-              </Upload>
-            </Form.Item>
-            <Form.Item key={'submit'} wrapperCol={{ span: 8, offset: 8 }}>
-              <Button block type={'primary'} onClick={this.handleSubmit}>
-                {mode === 'add' ? '提交' : '保存'}
-              </Button>
-            </Form.Item>
-          </Form>
+          {this.renderContent()}
         </div>
       </Content>
     )
   }
 }
 
-export default withRouter(List)
+export default withRouter(Edit)
 
 interface FormProps extends FormComponentProps {}
 

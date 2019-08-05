@@ -1,15 +1,13 @@
 import React from 'react'
 import {
   Layout,
-  Breadcrumb,
   Select,
   Button,
   Table,
   Empty,
   message,
   Icon,
-  Modal,
-  Result
+  Modal
 } from 'antd'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import moment from 'moment'
@@ -19,6 +17,7 @@ import Http, {
   QueryRequest,
   serverPath
 } from '../../../../common/http'
+import { parentPath } from '../index'
 import { toLine } from '../../../../common/util'
 import { UserContext } from '../../../index'
 
@@ -190,13 +189,11 @@ class List extends React.Component<IProps, IState> {
                         style={{ fontSize: '17px', margin: '0 9px 0 0' }}
                         title={'编辑'}
                         type="edit"
-                        onClick={() => {
-                          const { match } = this.props
-                          const path = match.path.replace(
-                            '/list',
-                            `/edit/${record.id}`
+                        onClick={event => {
+                          event.preventDefault()
+                          this.props.history.push(
+                            `${parentPath}/edit/${record.id}`
                           )
-                          this.props.history.push(path)
                         }}
                       />
                     )}
@@ -206,6 +203,7 @@ class List extends React.Component<IProps, IState> {
                         title={'下载'}
                         type="download"
                         onClick={event => {
+                          event.preventDefault()
                           const url = `${serverPath}/doc?id=${record.id}`
                           const aElement = document.createElement('a')
                           aElement.href = url
@@ -235,9 +233,6 @@ class List extends React.Component<IProps, IState> {
     return (
       <UserContext.Consumer>
         {userInfo => {
-          const DOCM_LIST_VIEW_permission = userInfo['permissions'].find(
-            perm => perm.id === 'DOCM_LIST_VIEW'
-          )
           const DOCM_ADD_OPER_permission = userInfo['permissions'].find(
             perm => perm.id === 'DOCM_ADD_OPER'
           )
@@ -252,13 +247,8 @@ class List extends React.Component<IProps, IState> {
                 }
               }
             : undefined
-          return DOCM_LIST_VIEW_permission ? (
+          return (
             <Content>
-              <Breadcrumb style={{ margin: '8px' }}>
-                <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
-                <Breadcrumb.Item>我的项目</Breadcrumb.Item>
-                <Breadcrumb.Item>查询</Breadcrumb.Item>
-              </Breadcrumb>
               <div
                 style={{
                   margin: '4px',
@@ -287,9 +277,7 @@ class List extends React.Component<IProps, IState> {
                         className="ele-operation"
                         type="primary"
                         onClick={() => {
-                          const { match } = this.props
-                          const path = match.path.replace('/list', '/edit')
-                          this.props.history.push(path)
+                          this.props.history.push(`${parentPath}/add`)
                         }}
                       >
                         新建
@@ -325,8 +313,9 @@ class List extends React.Component<IProps, IState> {
                           if (event.target['tagName'] !== 'TD') {
                             return
                           }
-                          // TODO
-                          // message.info('查看' + record.id)
+                          this.props.history.push(
+                            `${parentPath}/view/${record.id}`
+                          )
                         }
                       }
                     }}
@@ -359,13 +348,6 @@ class List extends React.Component<IProps, IState> {
                 )}
               </div>
             </Content>
-          ) : (
-            <Result
-              style={{ width: '100%', height: '100%' }}
-              status="403"
-              title="403"
-              subTitle="没有访问权限"
-            />
           )
         }}
       </UserContext.Consumer>

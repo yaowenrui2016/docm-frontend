@@ -37,6 +37,9 @@ http.interceptors.response.use(response => {
   if (xAuthToken) {
     sessionStorage.setItem('xAuthToken', xAuthToken)
   }
+  if (response.data.status !== '00000000') {
+    message.error(response.data.message, 3)
+  }
   return response
 }, error => {
   if (error.response.status === 401) {
