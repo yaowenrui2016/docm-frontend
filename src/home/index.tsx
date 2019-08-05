@@ -34,13 +34,15 @@ class Home extends Component<IProps, IState> {
 
   render() {
     const { userInfo } = this.state
-    return (
+    return userInfo['id'] ? (
       <UserContext.Provider value={userInfo}>
         <Layout className="ant-layout-home">
           <HomeHeader />
           <HomeSider />
         </Layout>
       </UserContext.Provider>
+    ) : (
+      <div />
     )
   }
 }

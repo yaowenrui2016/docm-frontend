@@ -77,7 +77,6 @@ class UserSider extends React.Component<IProps, IState> {
           </Menu>
         </Sider>
         <Layout style={{ padding: '0 24px 24px' }}>
-          {/* <Result status="403" title="403" subTitle="对不起，拒绝访问" /> */}
           <HashRouter>
             <Switch>
               <Route path={'/main/user/manage'} component={Manage} />

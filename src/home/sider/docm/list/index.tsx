@@ -244,6 +244,14 @@ class List extends React.Component<IProps, IState> {
           const DOCM_DELETE_OPER_permission = userInfo['permissions'].find(
             perm => perm.id === 'DOCM_DELETE_OPER'
           )
+          const rowSelection = DOCM_DELETE_OPER_permission
+            ? {
+                selectedRowKeys,
+                onChange: selectedRowKeys => {
+                  this.setState({ selectedRowKeys })
+                }
+              }
+            : undefined
           return DOCM_LIST_VIEW_permission ? (
             <Content>
               <Breadcrumb style={{ margin: '8px' }}>
@@ -307,12 +315,7 @@ class List extends React.Component<IProps, IState> {
                     rowKey={record => {
                       return record.id
                     }}
-                    rowSelection={{
-                      selectedRowKeys,
-                      onChange: selectedRowKeys => {
-                        this.setState({ selectedRowKeys })
-                      }
-                    }}
+                    rowSelection={rowSelection}
                     columns={columns}
                     dataSource={content}
                     loading={loading}

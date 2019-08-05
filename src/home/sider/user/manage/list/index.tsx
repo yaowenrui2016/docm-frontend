@@ -69,7 +69,7 @@ class List extends React.Component<IProps, IState> {
         current,
         ...param
       }
-      Http.post('/user/list', queryRequest)
+      Http.post(`/user/list`, queryRequest)
         .then(res => {
           this.setState({ loading: false, data: res.data.data })
         })

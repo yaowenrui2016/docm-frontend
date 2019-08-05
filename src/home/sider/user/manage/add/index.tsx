@@ -185,7 +185,7 @@ class NormalForm extends React.Component<FormProps, FormState> {
                   {
                     required: true,
                     type: 'string',
-                    pattern: /^[a-zA-Z][a-zA-Z1-9_]{2,11}$/,
+                    pattern: /^[a-zA-Z][a-zA-Z0-9_]{2,11}$/,
                     message: '用户名为3~12位字母、数字或下划线,第一位必须为字母'
                   },
                   {
