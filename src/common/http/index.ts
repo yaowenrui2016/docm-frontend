@@ -14,7 +14,7 @@ export interface QueryResult<T> {
   content: Array<T>
 }
 
-export const serverPath = "http://aby.docm.com"
+export const serverPath = "http://aby.docm.com:8090"
 
 const http = axios.create({
   baseURL: serverPath,
