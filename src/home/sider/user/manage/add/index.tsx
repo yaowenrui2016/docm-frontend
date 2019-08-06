@@ -1,7 +1,6 @@
 import React from 'react'
 import {
   Layout,
-  Breadcrumb,
   Button,
   Form,
   Input,
@@ -25,7 +24,7 @@ interface IState {
   permissions: Array<any>
 }
 
-class List extends React.Component<IProps, IState> {
+class Add extends React.Component<IProps, IState> {
   form: React.ReactElement<FormProps> | undefined = undefined
   constructor(props) {
     super(props)
@@ -97,12 +96,6 @@ class List extends React.Component<IProps, IState> {
     const { treeData, permissions } = this.state
     return (
       <Content>
-        <Breadcrumb style={{ margin: '8px' }}>
-          <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
-          <Breadcrumb.Item>账号与安全</Breadcrumb.Item>
-          <Breadcrumb.Item>账号管理</Breadcrumb.Item>
-          <Breadcrumb.Item>新建</Breadcrumb.Item>
-        </Breadcrumb>
         <div
           style={{
             margin: '4px 4px 10px',
@@ -146,13 +139,7 @@ class List extends React.Component<IProps, IState> {
               </Button>
             </Col>
             <Col span={3}>
-              <Button
-                block
-                onClick={() => {
-                  // TODO
-                  message.info('清空表单')
-                }}
-              >
+              <Button block onClick={this.handleCancel}>
                 {'取消'}
               </Button>
             </Col>
@@ -163,7 +150,7 @@ class List extends React.Component<IProps, IState> {
   }
 }
 
-export default withRouter(List)
+export default withRouter(Add)
 
 interface FormProps extends FormComponentProps {}
 

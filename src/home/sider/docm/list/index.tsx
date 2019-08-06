@@ -17,7 +17,7 @@ import Http, {
   QueryRequest,
   serverPath
 } from '../../../../common/http'
-import { moduletPath } from '../index'
+import { modulePath } from '../index'
 import { toLine } from '../../../../common/util'
 import { UserContext } from '../../../index'
 
@@ -192,7 +192,7 @@ class List extends React.Component<IProps, IState> {
                         onClick={event => {
                           event.preventDefault()
                           this.props.history.push(
-                            `${moduletPath}/edit/${record.id}`
+                            `${modulePath}/edit/${record.id}`
                           )
                         }}
                       />
@@ -277,7 +277,7 @@ class List extends React.Component<IProps, IState> {
                         className="ele-operation"
                         type="primary"
                         onClick={() => {
-                          this.props.history.push(`${moduletPath}/add`)
+                          this.props.history.push(`${modulePath}/add`)
                         }}
                       >
                         新建
@@ -314,7 +314,7 @@ class List extends React.Component<IProps, IState> {
                             return
                           }
                           this.props.history.push(
-                            `${moduletPath}/view/${record.id}`
+                            `${modulePath}/view/${record.id}`
                           )
                         }
                       }

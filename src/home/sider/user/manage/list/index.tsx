@@ -1,7 +1,6 @@
 import React from 'react'
 import {
   Layout,
-  Breadcrumb,
   Select,
   Button,
   Table,
@@ -15,6 +14,7 @@ import moment from 'moment'
 import IAccountVO from '../type'
 import Http, { QueryResult, QueryRequest } from '../../../../../common/http'
 import { toLine } from '../../../../../common/util'
+import { manageSiderPath } from '../../index'
 
 const { Content } = Layout
 
@@ -160,9 +160,9 @@ class List extends React.Component<IProps, IState> {
                 type="edit"
                 onClick={event => {
                   event.preventDefault()
-                  const { match } = this.props
-                  const path = match.path.replace('/list', `/edit/${record.id}`)
-                  this.props.history.push(path)
+                  this.props.history.push(
+                    `${manageSiderPath}/edit/${record.id}`
+                  )
                 }}
               />
               <Icon
@@ -199,12 +199,6 @@ class List extends React.Component<IProps, IState> {
     ]
     return (
       <Content>
-        <Breadcrumb style={{ margin: '8px' }}>
-          <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
-          <Breadcrumb.Item>账号与安全</Breadcrumb.Item>
-          <Breadcrumb.Item>账号管理</Breadcrumb.Item>
-          <Breadcrumb.Item>查询</Breadcrumb.Item>
-        </Breadcrumb>
         <div
           style={{
             margin: '4px',
@@ -229,10 +223,9 @@ class List extends React.Component<IProps, IState> {
               <Button
                 className="ele-operation"
                 type="primary"
-                onClick={() => {
-                  const { match } = this.props
-                  const path = match.path.replace('/list', '/add')
-                  this.props.history.push(path)
+                onClick={event => {
+                  event.preventDefault()
+                  this.props.history.push(`${manageSiderPath}/add`)
                 }}
               >
                 新建
@@ -267,11 +260,13 @@ class List extends React.Component<IProps, IState> {
               onRow={(record, index) => {
                 return {
                   onClick: event => {
+                    event.preventDefault()
                     if (event.target['tagName'] !== 'TD') {
                       return
                     }
-                    // TODO
-                    // message.info('查看' + record.id)
+                    this.props.history.push(
+                      `${manageSiderPath}/view/${record.id}`
+                    )
                   }
                 }
               }}

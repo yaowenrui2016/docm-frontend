@@ -12,7 +12,7 @@ import ListCmpt from './list'
 import EditCmpt from './edit'
 import ViewCmpt from './view'
 
-export const moduletPath = `/main/docm`
+export const modulePath = `/main/docm`
 
 type IProps = RouteComponentProps & {}
 
@@ -22,13 +22,13 @@ class Docm extends React.Component<IProps, IState> {
   render() {
     const path = this.props.location.pathname
     let curItem
-    if (path.indexOf(`${moduletPath}/add`) >= 0) {
+    if (path.indexOf(`${modulePath}/add`) >= 0) {
       curItem = '新增'
-    } else if (path.indexOf(`${moduletPath}/edit`) >= 0) {
+    } else if (path.indexOf(`${modulePath}/edit`) >= 0) {
       curItem = '编辑'
-    } else if (path.indexOf(`${moduletPath}/view`) >= 0) {
+    } else if (path.indexOf(`${modulePath}/view`) >= 0) {
       curItem = '详情'
-    } else if (path.indexOf(`${moduletPath}/list`) >= 0) {
+    } else if (path.indexOf(`${modulePath}/list`) >= 0) {
       curItem = '查询'
     }
     return (
@@ -37,7 +37,7 @@ class Docm extends React.Component<IProps, IState> {
           <Breadcrumb style={{ margin: '8px' }}>
             <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
             <Breadcrumb.Item
-              onClick={() => this.props.history.push(`${moduletPath}`)}
+              onClick={() => this.props.history.push(`${modulePath}`)}
             >
               我的项目
             </Breadcrumb.Item>
@@ -46,31 +46,31 @@ class Docm extends React.Component<IProps, IState> {
           <HashRouter>
             <Switch>
               <Redirect
-                path={moduletPath}
+                path={modulePath}
                 exact={true}
-                to={`${moduletPath}/list`}
+                to={`${modulePath}/list`}
               />
               <PrivateRoute
-                path={`${moduletPath}/list`}
+                path={`${modulePath}/list`}
                 permission={'DOCM_LIST_VIEW'}
                 component={ListCmpt}
               />
               <PrivateRoute
-                path={`${moduletPath}/edit/:id`}
+                path={`${modulePath}/edit/:id`}
                 permission={'DOCM_EDIT_OPER'}
                 component={EditCmpt}
               />
               <PrivateRoute
-                path={`${moduletPath}/add`}
+                path={`${modulePath}/add`}
                 permission={'DOCM_ADD_OPER'}
                 component={EditCmpt}
               />
               <PrivateRoute
-                path={`${moduletPath}/view/:id`}
+                path={`${modulePath}/view/:id`}
                 permission={'DOCM_DETAIL_VIEW'}
                 component={ViewCmpt}
               />
-              <Redirect path={`${moduletPath}/**`} to={`${moduletPath}/list`} />
+              <Redirect path={`${modulePath}/**`} to={`${modulePath}/list`} />
             </Switch>
           </HashRouter>
         </div>

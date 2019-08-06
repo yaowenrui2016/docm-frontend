@@ -15,7 +15,7 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import moment from 'moment'
 import IDocmVO from '../type'
 import Http, { serverPath } from '../../../../common/http'
-import { moduletPath } from '../index'
+import { modulePath } from '../index'
 
 const { Content } = Layout
 const { MonthPicker } = DatePicker
@@ -90,7 +90,7 @@ class Edit extends React.Component<IProps, IState> {
 
   handleCancel = e => {
     e.preventDefault()
-    this.props.history.push(`${moduletPath}/list`)
+    this.props.history.push(`${modulePath}/list`)
   }
 
   handleSubmit = e => {
@@ -113,7 +113,7 @@ class Edit extends React.Component<IProps, IState> {
           method &&
             method(`/docm`, values)
               .then(res => {
-                this.props.history.push(`${moduletPath}/list`)
+                this.props.history.push(`${modulePath}/list`)
               })
               .catch(err => {
                 message.info(err.response.data.msg)

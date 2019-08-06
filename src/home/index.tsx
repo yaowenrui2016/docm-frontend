@@ -4,17 +4,18 @@ import HomeHeader from './header/index'
 import HomeSider from './sider/index'
 import Http from '../common/http'
 import './index.css'
+import IAccountVO from './sider/user/manage/type'
 
 interface IProps {}
 
 interface IState {}
 
-export const UserContext = React.createContext({})
+export const UserContext = React.createContext<IAccountVO>({} as IAccountVO)
 
 class Home extends Component<IProps, IState> {
   state = {
     collapsed: false,
-    userInfo: {}
+    userInfo: {} as IAccountVO
   }
 
   componentDidMount() {

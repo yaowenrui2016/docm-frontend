@@ -1,7 +1,6 @@
 import React from 'react'
 import {
   Layout,
-  Breadcrumb,
   Button,
   Form,
   Input,
@@ -14,6 +13,7 @@ import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import IAccountVO from '../type'
 import Http from '../../../../../common/http'
+import { manageSiderPath } from '../../index'
 
 const { Content } = Layout
 
@@ -26,7 +26,7 @@ interface IState {
   permissions: Array<any>
 }
 
-class List extends React.Component<IProps, IState> {
+class Edit extends React.Component<IProps, IState> {
   form: React.ReactElement<FormProps> | undefined = undefined
   constructor(props: IProps) {
     super(props)
@@ -78,23 +78,28 @@ class List extends React.Component<IProps, IState> {
 
   handleCancel = e => {
     e.preventDefault()
-    const { match } = this.props
-    const path = match.path.replace('/edit', '/list')
-    this.props.history.push(path)
+    this.props.history.push(`${manageSiderPath}/list`)
   }
 
   handleSubmit = e => {
     e.preventDefault()
     this.form &&
-      this.form.props.form.validateFields(async (err, fielldValues) => {
+      this.form.props.form.validateFields((err, fielldValues) => {
         if (!err) {
           const values: IAccountVO = {
             ...fielldValues
           }
-          await Http.post('/user', values)
-          const { match } = this.props
-          const path = match.path.replace('/edit', '/list')
-          this.props.history.push(path)
+          Http.post('/user', values)
+            .then(res => {
+              if (res.data.status === '00000000') {
+                this.props.history.push(`${manageSiderPath}/list`)
+              } else {
+                message.error(res.data.message)
+              }
+            })
+            .catch(err => {
+              message.error(err.response.data.message)
+            })
         }
       })
   }
@@ -111,12 +116,6 @@ class List extends React.Component<IProps, IState> {
     const { loading, treeData, permissions } = this.state
     return (
       <Content>
-        <Breadcrumb style={{ margin: '8px' }}>
-          <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
-          <Breadcrumb.Item>账号与安全</Breadcrumb.Item>
-          <Breadcrumb.Item>账号管理</Breadcrumb.Item>
-          <Breadcrumb.Item>编辑</Breadcrumb.Item>
-        </Breadcrumb>
         <div
           style={{
             margin: '4px 4px 10px',
@@ -165,13 +164,7 @@ class List extends React.Component<IProps, IState> {
               </Button>
             </Col>
             <Col span={3}>
-              <Button
-                block
-                onClick={() => {
-                  // TODO
-                  message.info('清空表单')
-                }}
-              >
+              <Button block onClick={this.handleCancel}>
                 {'取消'}
               </Button>
             </Col>
@@ -182,7 +175,7 @@ class List extends React.Component<IProps, IState> {
   }
 }
 
-export default withRouter(List)
+export default withRouter(Edit)
 
 interface FormProps extends FormComponentProps {}
 

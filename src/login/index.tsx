@@ -20,7 +20,7 @@ class Login extends React.Component<IProps, IState> {
       this.form.props.form.validateFields(async (err, values) => {
         if (!err) {
           const password = md5(values.password)
-          await Http.post('/login', { ...values, password })
+          await Http.post(`/account/login`, { ...values, password })
             .then(res => {
               if (res.data.status === '00000000') {
                 sessionStorage.setItem('userId', res.data.data.id)
@@ -51,7 +51,6 @@ class Login extends React.Component<IProps, IState> {
         style={{
           width: '100%',
           height: '100%',
-          // paddingBottom: '48%',
           overflow: 'hidden',
           backgroundPosition: '50%',
           backgroundRepeat: 'no - repeat',
