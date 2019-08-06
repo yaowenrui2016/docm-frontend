@@ -19,7 +19,7 @@ class Home extends Component<IProps, IState> {
   }
 
   componentDidMount() {
-    Http.get(`/user?id=${sessionStorage.getItem('userId')}`)
+    Http.get(`/account?id=${sessionStorage.getItem('userId')}`)
       .then(res => {
         const userInfo = { ...res.data.data }
         this.setState({ userInfo })
