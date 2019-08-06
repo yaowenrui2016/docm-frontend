@@ -70,7 +70,7 @@ class UserSider extends React.Component<IProps, IState> {
             onSelect={this.handleOnSelect}
           >
             <Menu.Item className="aside-item" key="/manage">
-              <Icon type="user" />
+              <Icon type="solution" />
               <span>账号管理</span>
             </Menu.Item>
             <Menu.Item className="aside-item" key="/authority">

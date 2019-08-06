@@ -1,5 +1,5 @@
 import React from 'react'
-import { Layout, Form } from 'antd'
+import { Layout, Form, Breadcrumb } from 'antd'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { UserContext } from '../../../index'
 
@@ -34,16 +34,23 @@ class Info extends React.Component<IProps, IState> {
 
   render() {
     return (
-      <Content>
-        <div
-          style={{
-            margin: '4px 4px 10px',
-            display: 'flex',
-            alignItems: 'center'
-          }}
-        />
-        <div style={{ margin: '8px' }}>{this.renderContent()}</div>
-      </Content>
+      <div style={{ margin: '0px', background: 'rgb(255, 255, 255)' }}>
+        <Breadcrumb separator={'>'} style={{ margin: '8px' }}>
+          <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
+          <Breadcrumb.Item>我的账号</Breadcrumb.Item>
+          <Breadcrumb.Item>账号信息</Breadcrumb.Item>
+        </Breadcrumb>
+        <Content>
+          <div
+            style={{
+              margin: '4px 4px 10px',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          />
+          <div style={{ margin: '8px' }}>{this.renderContent()}</div>
+        </Content>
+      </div>
     )
   }
 }

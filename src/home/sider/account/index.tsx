@@ -3,17 +3,19 @@ import './index.css'
 import { Layout, Menu, Icon } from 'antd'
 import {
   HashRouter,
-  Route,
   Switch,
   withRouter,
   RouteComponentProps
 } from 'react-router-dom'
+import PrivateRoute from '../../../common/route'
 import Info from './info'
 import ModPwd from './mod-pwd'
 
 export const modulePath = `/main/account`
 
 const { Sider } = Layout
+
+const menusKey = ['/info', '/mod-pwd']
 
 type IProps = RouteComponentProps & {}
 
@@ -29,8 +31,19 @@ class AccountSider extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    const defaultSelectedKey = '/info'
-    this.handleOnSelect({ key: defaultSelectedKey })
+    const key = this.fetchDefaultSelectedKey()
+    this.handleOnSelect({ key })
+  }
+
+  fetchDefaultSelectedKey() {
+    const { pathname } = this.props.location
+    const selectedKeys = menusKey.filter(key => {
+      return pathname.indexOf(key) >= 0
+    })
+    if (selectedKeys.length < 1) {
+      return menusKey[0]
+    }
+    return selectedKeys[0]
   }
 
   handleOnSelect = param => {
@@ -72,7 +85,7 @@ class AccountSider extends React.Component<IProps, IState> {
               <span>账号信息</span>
             </Menu.Item>
             <Menu.Item className="aside-item" key="/mod-pwd">
-              <Icon type="safety-certificate" />
+              <Icon type="safety" />
               <span>修改密码</span>
             </Menu.Item>
           </Menu>
@@ -80,8 +93,8 @@ class AccountSider extends React.Component<IProps, IState> {
         <Layout style={{ padding: '0 24px 24px' }}>
           <HashRouter>
             <Switch>
-              <Route path={`${modulePath}/info`} component={Info} />
-              <Route path={`${modulePath}/mod-pwd`} component={ModPwd} />
+              <PrivateRoute path={`${modulePath}/info`} component={Info} />
+              <PrivateRoute path={`${modulePath}/mod-pwd`} component={ModPwd} />
             </Switch>
           </HashRouter>
         </Layout>

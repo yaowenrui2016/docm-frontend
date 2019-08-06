@@ -30,7 +30,7 @@ class HomeHeader extends Component<IProps, IState> {
         <Menu.Item>
           <Button
             onClick={() => {
-              this.props.history.push('/main/account')
+              this.props.history.push('/main/account/mod-pwd')
             }}
           >
             {'修改密码'}

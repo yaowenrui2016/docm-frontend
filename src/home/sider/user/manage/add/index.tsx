@@ -14,6 +14,7 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import IAccountVO from '../type'
 import Http from '../../../../../common/http'
 import md5 from 'js-md5'
+import { manageSiderPath } from '../../index'
 
 const { Content } = Layout
 
@@ -58,19 +59,13 @@ class Add extends React.Component<IProps, IState> {
 
   handleCancel = e => {
     e.preventDefault()
-    this.jumpBack()
-  }
-
-  jumpBack() {
-    const { match } = this.props
-    const path = match.path.replace('/add', '/list')
-    this.props.history.push(path)
+    this.props.history.push(`${manageSiderPath}/list`)
   }
 
   handleSubmit = e => {
     e.preventDefault()
     this.form &&
-      this.form.props.form.validateFields(async (err, fielldValues) => {
+      this.form.props.form.validateFields((err, fielldValues) => {
         if (!err) {
           const values: IAccountVO = {
             ...fielldValues,
@@ -78,8 +73,17 @@ class Add extends React.Component<IProps, IState> {
               fielldValues.password ? fielldValues.password : '1234'
             )
           }
-          await Http.put('/user', values)
-          this.jumpBack()
+          Http.put('/user', values)
+            .then(res => {
+              if (res.data.status === '00000000') {
+                this.props.history.push(`${manageSiderPath}/list`)
+              } else {
+                message.error(res.data.message)
+              }
+            })
+            .catch(err => {
+              message.error(err.response.data.message)
+            })
         }
       })
   }
