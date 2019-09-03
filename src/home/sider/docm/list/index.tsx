@@ -22,12 +22,17 @@ import { toLine } from '../../../../common/util'
 import { UserContext } from '../../../index'
 
 const { Content } = Layout
+const { Option } = Select
 
 type IProps = RouteComponentProps & {}
 
 interface IState {
   loading: boolean
   selectedRowKeys: string[] | number[]
+  /**
+   * 项目类型下拉选数据
+   */
+  projectTypes: Array<string>
   /**
    * 查询结果
    */
@@ -49,6 +54,7 @@ class List extends React.Component<IProps, IState> {
     this.state = {
       loading: true,
       selectedRowKeys: [],
+      projectTypes: [],
       data: {
         total: undefined,
         content: []
@@ -64,6 +70,7 @@ class List extends React.Component<IProps, IState> {
 
   componentDidMount() {
     this.handleListChange()
+    this.loadProjectTypes()
   }
 
   handleListChange = () => {
@@ -84,9 +91,26 @@ class List extends React.Component<IProps, IState> {
     })
   }
 
-  handleSelectChange = value => {
+  loadProjectTypes = () => {
+    Http.get(`/docm/type/list`)
+      .then(res => {
+        this.setState({ projectTypes: res.data.data })
+      })
+      .catch(err => {
+        message.error('加载项目类型数据失败')
+      })
+  }
+
+  handleSelectChangeForKeyword = value => {
     const { conditions } = this.state.param
     conditions['keywords'] = value
+    this.setState({ current: 1 })
+    this.handleListChange()
+  }
+
+  handleSelectChangeForProjectType = value => {
+    const { conditions } = this.state.param
+    conditions['projectType'] = value
     this.setState({ current: 1 })
     this.handleListChange()
   }
@@ -109,7 +133,14 @@ class List extends React.Component<IProps, IState> {
   }
 
   render() {
-    const { loading, selectedRowKeys, data, pageSize, current } = this.state
+    const {
+      loading,
+      selectedRowKeys,
+      data,
+      pageSize,
+      current,
+      projectTypes
+    } = this.state
     const { total, content } = data
     const columns = [
       {
@@ -120,24 +151,36 @@ class List extends React.Component<IProps, IState> {
         }
       },
       {
-        title: '项目名称',
+        title: '合同名称',
         dataIndex: 'projectName',
-        key: 'projectName'
+        key: 'projectName',
+        sorter: (a, b) => {
+          return a.id - b.id
+        }
       },
       {
-        title: '项目类型',
+        title: '合同类型',
         dataIndex: 'projectType',
-        key: 'projectType'
+        key: 'projectType',
+        sorter: (a, b) => {
+          return a.id - b.id
+        }
       },
       {
         title: '公司名称',
         dataIndex: 'company',
-        key: 'company'
+        key: 'company',
+        sorter: (a, b) => {
+          return a.id - b.id
+        }
       },
       {
         title: '合同号',
         dataIndex: 'contractNum',
-        key: 'contractNum'
+        key: 'contractNum',
+        sorter: (a, b) => {
+          return a.id - b.id
+        }
       },
       {
         title: '合同签订时间',
@@ -259,16 +302,32 @@ class List extends React.Component<IProps, IState> {
                 <div style={{ margin: '4px', flex: 1 }}>
                   <Select
                     mode={'tags'}
-                    placeholder={'请输入关键字'}
+                    placeholder={'请输入合同名称或公司名称'}
                     style={{ width: '280px' }}
                     tokenSeparators={[' ']}
                     showArrow={true}
                     suffixIcon={
                       <Icon style={{ fontSize: '16px' }} type="search" />
                     }
-                    onChange={this.handleSelectChange}
+                    onChange={this.handleSelectChangeForKeyword}
                     notFoundContent={null}
                   />
+                </div>
+                <div style={{ margin: '4px', flex: 1 }}>
+                  <Select
+                    // mode={'tags'}
+                    placeholder={'请选择合同类型'}
+                    style={{ width: '280px' }}
+                    // tokenSeparators={[' ']}
+                    allowClear
+                    showArrow={true}
+                    onChange={this.handleSelectChangeForProjectType}
+                    notFoundContent={'暂无数据'}
+                  >
+                    {projectTypes.map(pType => (
+                      <Option value={pType}>{pType}</Option>
+                    ))}
+                  </Select>
                 </div>
                 <div style={{ margin: '4px', flex: 1 }}>
                   <span style={{ float: 'right' }}>

@@ -128,7 +128,7 @@ class Edit extends React.Component<IProps, IState> {
       ? this.form.props.form.setFieldsValue
       : undefined
     return (
-      <Form labelCol={{ span: 8 }} wrapperCol={{ span: 8 }}>
+      <Form {...formItemLayout}>
         <Form.Item key={'files'} label="上传附件">
           <Upload
             style={{ width: '100%' }}
@@ -158,7 +158,7 @@ class Edit extends React.Component<IProps, IState> {
             </Button>
           </Upload>
         </Form.Item>
-        <Form.Item key={'submit'} wrapperCol={{ span: 8, offset: 8 }}>
+        <Form.Item {...tailFormItemLayout} key={'submit'}>
           <Button block type={'primary'} onClick={this.handleSubmit}>
             {mode === 'add' ? '提交' : '保存'}
           </Button>
@@ -206,20 +206,44 @@ interface FormState {
   defaultFileList: Array<any>
 }
 
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 20 },
+    sm: { span: 4 }
+  },
+  wrapperCol: {
+    xs: { span: 20 },
+    sm: { span: 16 }
+  }
+}
+
+const tailFormItemLayout = {
+  wrapperCol: {
+    xs: {
+      span: 2,
+      offset: 0
+    },
+    sm: {
+      span: 2,
+      offset: 4
+    }
+  }
+}
+
 class NormalForm extends React.Component<FormProps, FormState> {
   render() {
     const { getFieldDecorator } = this.props.form
     return (
-      <Form labelCol={{ span: 8 }} wrapperCol={{ span: 8 }}>
+      <Form {...formItemLayout}>
         {getFieldDecorator('id')(<Input hidden />)}
-        <Form.Item key={'projectName'} label="项目名称">
+        <Form.Item key={'projectName'} label="合同名称">
           {getFieldDecorator('projectName', {
-            rules: [{ required: true, message: '请输入项目名称' }]
+            rules: [{ required: true, message: '请输入合同名称' }]
           })(<Input />)}
         </Form.Item>
-        <Form.Item key={'projectType'} label="项目类型">
+        <Form.Item key={'projectType'} label="合同类型">
           {getFieldDecorator('projectType', {
-            rules: [{ required: false, message: '请输入项目类型' }]
+            rules: [{ required: false, message: '请输入合同类型' }]
           })(<Input />)}
         </Form.Item>
         <Form.Item key={'company'} label="公司名称">
