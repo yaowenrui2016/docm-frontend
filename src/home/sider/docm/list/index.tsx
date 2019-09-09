@@ -132,16 +132,82 @@ class List extends React.Component<IProps, IState> {
     })
   }
 
-  render() {
-    const {
-      loading,
-      selectedRowKeys,
-      data,
-      pageSize,
-      current,
-      projectTypes
-    } = this.state
-    const { total, content } = data
+  renderSearchBar() {
+    const { projectTypes } = this.state
+    return (
+      <div>
+        <Select
+          mode={'tags'}
+          placeholder={'搜索合同名称或公司名称关键字'}
+          style={{ width: '280px' }}
+          tokenSeparators={[' ']}
+          showArrow={true}
+          suffixIcon={<Icon style={{ fontSize: '16px' }} type="search" />}
+          onChange={this.handleSelectChangeForKeyword}
+          notFoundContent={null}
+        />
+        <label style={{ margin: '0px 0px 0px 40px' }}>合同类型：</label>
+        <Select
+          placeholder={'请选择合同类型'}
+          style={{ width: '280px' }}
+          allowClear
+          showArrow={true}
+          onChange={this.handleSelectChangeForProjectType}
+          notFoundContent={'暂无数据'}
+        >
+          {projectTypes.map(pType => (
+            <Option value={pType}>{pType}</Option>
+          ))}
+        </Select>
+      </div>
+    )
+  }
+
+  renderButtonBar() {
+    const { selectedRowKeys } = this.state
+    return (
+      <UserContext.Consumer>
+        {userInfo => {
+          const DOCM_ADD_OPER_permission = userInfo['permissions'].find(
+            perm => perm.id === 'DOCM_ADD_OPER'
+          )
+          const DOCM_DELETE_OPER_permission = userInfo['permissions'].find(
+            perm => perm.id === 'DOCM_DELETE_OPER'
+          )
+          return (
+            <div style={{ margin: '4px', flex: 1 }}>
+              <span style={{ float: 'right' }}>
+                {DOCM_ADD_OPER_permission && (
+                  <Button
+                    className="ele-operation"
+                    type="primary"
+                    onClick={() => {
+                      this.props.history.push(`${modulePath}/add`)
+                    }}
+                  >
+                    新建
+                  </Button>
+                )}
+                {DOCM_DELETE_OPER_permission && (
+                  <Button
+                    type="ghost"
+                    disabled={selectedRowKeys.length < 1}
+                    onClick={() => {
+                      this.handleDeleteOper(selectedRowKeys)
+                    }}
+                  >
+                    批量删除
+                  </Button>
+                )}
+              </span>
+            </div>
+          )
+        }}
+      </UserContext.Consumer>
+    )
+  }
+
+  buildColumns() {
     const columns = [
       {
         title: '序号',
@@ -273,12 +339,15 @@ class List extends React.Component<IProps, IState> {
         }
       }
     ]
+    return columns
+  }
+
+  renderTable() {
+    const { loading, data, pageSize, current, selectedRowKeys } = this.state
+    const { total, content } = data
     return (
       <UserContext.Consumer>
         {userInfo => {
-          const DOCM_ADD_OPER_permission = userInfo['permissions'].find(
-            perm => perm.id === 'DOCM_ADD_OPER'
-          )
           const DOCM_DELETE_OPER_permission = userInfo['permissions'].find(
             perm => perm.id === 'DOCM_DELETE_OPER'
           )
@@ -290,126 +359,73 @@ class List extends React.Component<IProps, IState> {
                 }
               }
             : undefined
-          return (
-            <Content>
-              <div
-                style={{
-                  margin: '4px',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-              >
-                <div style={{ margin: '4px', flex: 1 }}>
-                  <Select
-                    mode={'tags'}
-                    placeholder={'请输入合同名称或公司名称'}
-                    style={{ width: '280px' }}
-                    tokenSeparators={[' ']}
-                    showArrow={true}
-                    suffixIcon={
-                      <Icon style={{ fontSize: '16px' }} type="search" />
+          return loading || data.content.length > 0 ? (
+            <Table
+              rowKey={record => {
+                return record.id
+              }}
+              rowSelection={rowSelection}
+              columns={this.buildColumns()}
+              dataSource={content}
+              loading={loading}
+              onRow={(record, index) => {
+                return {
+                  onClick: event => {
+                    if (event.target['tagName'] !== 'TD') {
+                      return
                     }
-                    onChange={this.handleSelectChangeForKeyword}
-                    notFoundContent={null}
-                  />
-                </div>
-                <div style={{ margin: '4px', flex: 1 }}>
-                  <Select
-                    // mode={'tags'}
-                    placeholder={'请选择合同类型'}
-                    style={{ width: '280px' }}
-                    // tokenSeparators={[' ']}
-                    allowClear
-                    showArrow={true}
-                    onChange={this.handleSelectChangeForProjectType}
-                    notFoundContent={'暂无数据'}
-                  >
-                    {projectTypes.map(pType => (
-                      <Option value={pType}>{pType}</Option>
-                    ))}
-                  </Select>
-                </div>
-                <div style={{ margin: '4px', flex: 1 }}>
-                  <span style={{ float: 'right' }}>
-                    {DOCM_ADD_OPER_permission && (
-                      <Button
-                        className="ele-operation"
-                        type="primary"
-                        onClick={() => {
-                          this.props.history.push(`${modulePath}/add`)
-                        }}
-                      >
-                        新建
-                      </Button>
-                    )}
-                    {DOCM_DELETE_OPER_permission && (
-                      <Button
-                        type="ghost"
-                        disabled={selectedRowKeys.length < 1}
-                        onClick={() => {
-                          this.handleDeleteOper(selectedRowKeys)
-                        }}
-                      >
-                        批量删除
-                      </Button>
-                    )}
-                  </span>
-                </div>
-              </div>
-              <div style={{ margin: '8px' }}>
-                {loading || data.content.length > 0 ? (
-                  <Table
-                    rowKey={record => {
-                      return record.id
-                    }}
-                    rowSelection={rowSelection}
-                    columns={columns}
-                    dataSource={content}
-                    loading={loading}
-                    onRow={(record, index) => {
-                      return {
-                        onClick: event => {
-                          if (event.target['tagName'] !== 'TD') {
-                            return
-                          }
-                          this.props.history.push(
-                            `${modulePath}/view/${record.id}`
-                          )
-                        }
-                      }
-                    }}
-                    size={'middle'}
-                    pagination={{
-                      total,
-                      current,
-                      pageSize,
-                      showSizeChanger: true,
-                      showTotal: total => {
-                        return `共${total}条`
-                      }
-                    }}
-                    onChange={(pagination, filters, sorter, extra) => {
-                      const { param } = this.state
-                      const { current, pageSize } = pagination
-                      const { field, order } = sorter
-                      param.sorters = {}
-                      if (field && order) {
-                        param.sorters[toLine(field)] = fetchOrderDirection(
-                          order
-                        )
-                      }
-                      this.setState({ current, pageSize })
-                      this.handleListChange()
-                    }}
-                  />
-                ) : (
-                  <Empty description={'暂无内容'} />
-                )}
-              </div>
-            </Content>
+                    this.props.history.push(`${modulePath}/view/${record.id}`)
+                  }
+                }
+              }}
+              // size={'middle'}
+              pagination={{
+                total,
+                current,
+                pageSize,
+                pageSizeOptions: ['10', '20', '50'],
+                showSizeChanger: true,
+                showTotal: total => {
+                  return `共${total}条`
+                }
+              }}
+              onChange={(pagination, filters, sorter, extra) => {
+                const { param } = this.state
+                const { current, pageSize } = pagination
+                const { field, order } = sorter
+                param.sorters = {}
+                if (field && order) {
+                  param.sorters[toLine(field)] = fetchOrderDirection(order)
+                }
+                this.setState({ current, pageSize })
+                this.handleListChange()
+              }}
+            />
+          ) : (
+            <Empty description={'暂无内容'} />
           )
         }}
       </UserContext.Consumer>
+    )
+  }
+
+  render() {
+    return (
+      <Content>
+        <div className="list-page">
+          <div className="list-page-content">
+            <div className="list-page-content-toolbar">
+              <div className="list-page-content-toolbar-search">
+                {this.renderSearchBar()}
+              </div>
+              <div className="list-page-content-toolbar-button">
+                {this.renderButtonBar()}
+              </div>
+            </div>
+            <div className="list-page-content-table">{this.renderTable()}</div>
+          </div>
+        </div>
+      </Content>
     )
   }
 }

@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "lib": ["es7", "dom"],
+    "lib": [
+      "es7",
+      "dom"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -22,5 +25,7 @@
     "strictNullChecks": true,
     "strict": true
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

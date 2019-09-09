@@ -7,32 +7,37 @@ import {
   Empty,
   message,
   Icon,
-  Tree,
   Modal,
-  Tabs
+  Input,
+  Form
 } from 'antd'
+import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import moment from 'moment'
-import IAccountVO, { IDeptVO } from '../type'
-import DeptList from '../../../../../common/simplelist/index'
-import Http, { QueryResult, QueryRequest } from '../../../../../common/http'
-import { toLine } from '../../../../../common/util'
-import { manageSiderPath } from '../../index'
-import './index.css'
+import Http, { QueryResult, QueryRequest } from '../http'
+import BaseVO from '../types'
+import { toLine } from '../util'
 
 const { Content } = Layout
-const { TabPane } = Tabs
 
-type IProps = RouteComponentProps & {}
+type IProps = RouteComponentProps & {
+  /**
+   * 数据请求的路径
+   */
+  httpPath: string
+  /**
+   * 模型名称
+   */
+  modelName: string
+}
 
 interface IState {
   loading: boolean
-  deptData: Array<IDeptVO>
   selectedRowKeys: string[] | number[]
   /**
    * 查询结果
    */
-  data: QueryResult<IAccountVO>
+  data: QueryResult<BaseVO>
   pageSize: number | undefined
   current: number | undefined
   /**
@@ -42,14 +47,18 @@ interface IState {
     conditions: any | undefined
     sorters: any | undefined
   }
+  /**
+   * 新建modal框
+   */
+  showAddModal: boolean
 }
 
 class List extends React.Component<IProps, IState> {
+  form: React.ReactElement<FormProps> | undefined = undefined
   constructor(props: IProps) {
     super(props)
     this.state = {
       loading: true,
-      deptData: [],
       selectedRowKeys: [],
       data: {
         total: undefined,
@@ -60,24 +69,17 @@ class List extends React.Component<IProps, IState> {
       param: {
         conditions: {},
         sorters: {}
-      }
+      },
+      showAddModal: false
     }
   }
 
   componentDidMount() {
-    this.setState({ loading: true }, () => {
-      Http.post(`/dept/list-all`)
-        .then(res => {
-          this.setState({ loading: false, deptData: res.data.data })
-        })
-        .catch(error => {
-          this.setState({ loading: false })
-        })
-    })
     this.handleListChange()
   }
 
   handleListChange = () => {
+    const { httpPath } = this.props
     this.setState({ loading: true }, () => {
       const { pageSize, current, param } = this.state
       const queryRequest: QueryRequest = {
@@ -85,7 +87,7 @@ class List extends React.Component<IProps, IState> {
         current,
         ...param
       }
-      Http.post(`/user/list`, queryRequest)
+      Http.post(`${httpPath}/list`, queryRequest)
         .then(res => {
           this.setState({ loading: false, data: res.data.data })
         })
@@ -103,6 +105,7 @@ class List extends React.Component<IProps, IState> {
   }
 
   handleDeleteOper = async (ids: Array<string> | Array<number>) => {
+    const { httpPath } = this.props
     Modal.confirm({
       title: '确定删除?',
       okText: '确认',
@@ -111,7 +114,7 @@ class List extends React.Component<IProps, IState> {
         let queryString = ''
         ids.forEach(id => (queryString = queryString.concat(`ids=${id}&`)))
         await Http.delete(
-          `/user?${queryString.substring(0, queryString.length - 1)}`
+          `${httpPath}?${queryString.substring(0, queryString.length - 1)}`
         )
         message.success('删除成功')
         this.handleListChange()
@@ -119,48 +122,12 @@ class List extends React.Component<IProps, IState> {
     })
   }
 
-  renderAside() {
-    const { deptData } = this.state
-    const treeData =
-      deptData.length > 1
-        ? deptData.map(dept => ({ title: dept['name'], key: dept['id'] }))
-        : undefined
-    return (
-      <div>
-        <div className="layout-content-aside-wrapper">
-          <div className="layout-content-aside-wrapper-search">
-            <Select
-              mode="default"
-              placeholder={'搜索科室'}
-              style={{ width: '100%' }}
-              showArrow={false}
-              suffixIcon={<Icon style={{ fontSize: '16px' }} type="search" />}
-              onChange={() => {}}
-              notFoundContent={null}
-            />
-          </div>
-          <div className="layout-content-aside-wrapper-btn">
-            <Button
-              type="primary"
-              onClick={event => {
-                event.preventDefault()
-                this.props.history.push(`${manageSiderPath}/add`)
-              }}
-            >
-              新建
-            </Button>
-          </div>
-        </div>
-        <Tree treeData={treeData} showLine />
-      </div>
-    )
-  }
-
   renderSearchBar() {
+    const { modelName } = this.props
     return (
       <Select
         mode={'tags'}
-        placeholder={'请输入用户名'}
+        placeholder={`请输入${modelName}`}
         style={{ width: '280px' }}
         tokenSeparators={[' ']}
         showArrow={true}
@@ -180,7 +147,7 @@ class List extends React.Component<IProps, IState> {
           type="primary"
           onClick={event => {
             event.preventDefault()
-            this.props.history.push(`${manageSiderPath}/add`)
+            this.setState({ showAddModal: true })
           }}
         >
           新建
@@ -208,27 +175,9 @@ class List extends React.Component<IProps, IState> {
         }
       },
       {
-        title: '用户名',
-        dataIndex: 'username',
-        key: 'username'
-      },
-      {
-        title: '手机',
-        dataIndex: 'phone',
-        key: 'phone'
-      },
-      {
-        title: '邮箱',
-        dataIndex: 'email',
-        key: 'email'
-      },
-      {
-        title: '冻结状态',
-        dataIndex: 'frozen',
-        key: 'frozen',
-        render: (text, record, index) => {
-          return record.frozen ? '已冻结' : '正常'
-        }
+        title: '名称',
+        dataIndex: 'name',
+        key: 'name'
       },
       {
         title: '创建时间',
@@ -253,26 +202,7 @@ class List extends React.Component<IProps, IState> {
                 type="edit"
                 onClick={event => {
                   event.preventDefault()
-                  this.props.history.push(
-                    `${manageSiderPath}/edit/${record.id}`
-                  )
-                }}
-              />
-              <Icon
-                style={{ fontSize: '17px', margin: '0 9px 0 0' }}
-                title={record.frozen ? '解冻' : '冻结'}
-                type={record.frozen ? 'lock' : 'unlock'}
-                onClick={event => {
-                  event.preventDefault()
-                  const operation = record.frozen ? 'unfreeze' : 'freeze'
-                  Http.post(`/user/${operation}`, { ids: [record.id] })
-                    .then(res => {
-                      message.success(`${record.frozen ? '解冻' : '冻结'}成功`)
-                      this.handleListChange()
-                    })
-                    .catch(err => {
-                      this.handleListChange()
-                    })
+                  this.setState({ showAddModal: true })
                 }}
               />
               <div id="downloadDiv" style={{ display: 'none' }} />
@@ -317,7 +247,7 @@ class List extends React.Component<IProps, IState> {
               if (event.target['tagName'] !== 'TD') {
                 return
               }
-              this.props.history.push(`${manageSiderPath}/view/${record.id}`)
+              this.setState({ showAddModal: true })
             }
           }
         }}
@@ -349,31 +279,69 @@ class List extends React.Component<IProps, IState> {
     )
   }
 
+  handleOk = e => {
+    e.preventDefault()
+    const { httpPath } = this.props
+    this.form &&
+      this.form.props.form.validateFields((err, values) => {
+        if (!err) {
+          Http.put(`${httpPath}`, values)
+            .then(res => {
+              message.success(`操作成功`)
+              this.handleListChange()
+            })
+            .catch(err => {
+              message.info(err.response.data.msg)
+            })
+          this.setState({
+            showAddModal: false
+          })
+        }
+      })
+  }
+
+  handleCancel = e => {
+    console.log(e)
+    this.setState({
+      showAddModal: false
+    })
+  }
+
+  renderAddModal() {
+    const { showAddModal } = this.state
+    return (
+      <Modal
+        title="新建"
+        visible={showAddModal}
+        onOk={this.handleOk}
+        onCancel={this.handleCancel}
+      >
+        <WrappedNormalForm
+          wrappedComponentRef={(form: React.ReactElement<FormProps>) => {
+            this.form = form
+          }}
+        />
+      </Modal>
+    )
+  }
+
   render() {
     return (
       <Content>
         <div className="list-page">
           <div className="list-page-content">
-            <Tabs defaultActiveKey="account" onChange={() => {}}>
-              <TabPane tab="科室" key="dept">
-                <DeptList httpPath={`/dept`} modelName={'科室'} />
-              </TabPane>
-              <TabPane tab="账号" key="account">
-                <div className="list-page-content-toolbar">
-                  <div className="list-page-content-toolbar-search">
-                    {this.renderSearchBar()}
-                  </div>
-                  <div className="list-page-content-toolbar-button">
-                    {this.renderButtonBar()}
-                  </div>
-                </div>
-                <div className="list-page-content-table">
-                  {this.renderTable()}
-                </div>
-              </TabPane>
-            </Tabs>
+            <div className="list-page-content-toolbar">
+              <div className="list-page-content-toolbar-search">
+                {this.renderSearchBar()}
+              </div>
+              <div className="list-page-content-toolbar-button">
+                {this.renderButtonBar()}
+              </div>
+            </div>
+            <div className="list-page-content-table">{this.renderTable()}</div>
           </div>
         </div>
+        <div>{this.renderAddModal()}</div>
       </Content>
     )
   }
@@ -388,3 +356,27 @@ function fetchOrderDirection(order: string) {
 }
 
 export default withRouter(List)
+
+interface FormProps extends FormComponentProps {}
+
+interface FormState {}
+
+class NormalForm extends React.Component<FormProps, FormState> {
+  render() {
+    const { getFieldDecorator } = this.props.form
+    return (
+      <Form>
+        {getFieldDecorator('id')(<Input hidden />)}
+        <Form.Item key={'name'} label="名称">
+          {getFieldDecorator('name', {
+            rules: [{ required: true, message: `请输入名称` }]
+          })(<Input />)}
+        </Form.Item>
+      </Form>
+    )
+  }
+}
+
+const WrappedNormalForm = Form.create({
+  name: 'normal_login'
+})(NormalForm)

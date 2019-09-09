@@ -32,31 +32,40 @@ class Manage extends React.Component<IProps, IState> {
     } else if (path.indexOf(`${manageSiderPath}/list`) >= 0) {
       curItem = '查询'
     }
+
     return (
-      <div style={{ margin: '0px', background: 'rgb(255, 255, 255)' }}>
-        <Breadcrumb style={{ margin: '8px' }}>
-          <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
-          <Breadcrumb.Item>账号与安全</Breadcrumb.Item>
-          <Breadcrumb.Item
-            onClick={() => this.props.history.push(`${manageSiderPath}`)}
-          >
-            账号管理
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>{curItem}</Breadcrumb.Item>
-        </Breadcrumb>
-        <HashRouter>
-          <Switch>
-            <Redirect
-              path={`${manageSiderPath}`}
-              exact={true}
-              to={`${manageSiderPath}/list`}
-            />
-            <Route path={`${manageSiderPath}/list`} component={ListCmpt} />
-            <Route path={`${manageSiderPath}/add`} component={AddCmpt} />
-            <Route path={`${manageSiderPath}/edit/:id`} component={EditCmpt} />
-            <Route path={`${manageSiderPath}/view/:id`} component={ViewCmpt} />
-          </Switch>
-        </HashRouter>
+      <div className="layout-content">
+        <div className="layout-content-inner">
+          <Breadcrumb>
+            <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
+            <Breadcrumb.Item>账号与安全</Breadcrumb.Item>
+            <Breadcrumb.Item
+              onClick={() => this.props.history.push(`${manageSiderPath}`)}
+            >
+              账号管理
+            </Breadcrumb.Item>
+            <Breadcrumb.Item>{curItem}</Breadcrumb.Item>
+          </Breadcrumb>
+          <HashRouter>
+            <Switch>
+              <Redirect
+                path={`${manageSiderPath}`}
+                exact={true}
+                to={`${manageSiderPath}/list`}
+              />
+              <Route path={`${manageSiderPath}/list`} component={ListCmpt} />
+              <Route path={`${manageSiderPath}/add`} component={AddCmpt} />
+              <Route
+                path={`${manageSiderPath}/edit/:id`}
+                component={EditCmpt}
+              />
+              <Route
+                path={`${manageSiderPath}/view/:id`}
+                component={ViewCmpt}
+              />
+            </Switch>
+          </HashRouter>
+        </div>
       </div>
     )
   }

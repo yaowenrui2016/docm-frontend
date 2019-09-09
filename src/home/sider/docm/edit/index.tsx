@@ -96,22 +96,22 @@ class Edit extends React.Component<IProps, IState> {
   handleSubmit = e => {
     e.preventDefault()
     this.form &&
-      this.form.props.form.validateFields((err, fielldValues) => {
+      this.form.props.form.validateFields((err, values) => {
         if (!err) {
-          const values: IDocmVO = {
-            ...fielldValues,
-            contractTime: fielldValues['contractTime']
-              ? fielldValues['contractTime'].format('YYYY-MM-DD')
+          const params: IDocmVO = {
+            ...values,
+            contractTime: values['contractTime']
+              ? values['contractTime'].format('YYYY-MM-DD')
               : undefined,
-            credentialTime: fielldValues['credentialTime']
-              ? fielldValues['credentialTime'].format('YYYY-MM')
+            credentialTime: values['credentialTime']
+              ? values['credentialTime'].format('YYYY-MM')
               : undefined
           }
           const { mode } = this.state
           const method =
             mode === 'add' ? Http.put : mode === 'edit' ? Http.post : undefined
           method &&
-            method(`/docm`, values)
+            method(`/docm`, params)
               .then(res => {
                 this.props.history.push(`${modulePath}/list`)
               })
@@ -200,12 +200,6 @@ class Edit extends React.Component<IProps, IState> {
 
 export default withRouter(Edit)
 
-interface FormProps extends FormComponentProps {}
-
-interface FormState {
-  defaultFileList: Array<any>
-}
-
 const formItemLayout = {
   labelCol: {
     xs: { span: 20 },
@@ -229,6 +223,10 @@ const tailFormItemLayout = {
     }
   }
 }
+
+interface FormProps extends FormComponentProps {}
+
+interface FormState {}
 
 class NormalForm extends React.Component<FormProps, FormState> {
   render() {

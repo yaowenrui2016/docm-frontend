@@ -19,3 +19,71 @@
 .ele-operation {
   margin: 0 8px 0 0;
 }
+
+.layout-content {
+  margin: 10px;
+  display: flex;
+  align-items: stretch;
+}
+
+.layout-content-aside {
+  display: inline-block;
+  min-height: 760px;
+  max-height: 1200px;
+  background: rgb(255, 255, 255);
+  overflow-x: auto;
+  overflow-y: scroll;
+  padding: 8px;
+  border-right: 2px solid rgba(0, 0, 0, 0.1);
+  flex: 0.2;
+}
+
+.layout-content-inner {
+  display: inline-block;
+  min-height: 760px;
+  max-height: 1200px;
+  background: rgb(255, 255, 255);
+  overflow-x: auto;
+  overflow-y: auto;
+  padding: 8px;
+  flex: 1;
+}
+
+.list-page {
+  display: flex;
+  align-items: stretch;
+}
+
+.list-page-aside {
+  display: inline-block;
+  min-height: 760px;
+  max-height: 800px;
+  overflow-x: auto;
+  overflow-y: scroll;
+  padding: 8px;
+  border-right: 2px solid rgba(0, 0, 0, 0.1);
+  flex: 0.2;
+}
+
+.list-page-content {
+  display: inline-block;
+  flex: 1;
+}
+
+.list-page-content-toolbar {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+}
+
+.list-page-content-toolbar-search {
+  display: inline-block;
+  flex: 1;
+}
+
+.list-page-content-toolbar-button {
+  display: inline-block;
+}
+
+.list-page-content-table {
+}

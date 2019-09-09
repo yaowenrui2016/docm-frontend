@@ -33,3 +33,20 @@
   background: rgba(49, 151, 253, 0.1);
   outline-width: 0;
 }
+
+.layout-content-aside-wrapper {
+  /* margin: 10px; */
+  display: flex;
+  align-items: center;
+}
+
+.layout-content-aside-wrapper-search {
+  margin-right: 8px;
+  display: inline-block;
+  flex: 1;
+}
+
+.layout-content-aside-wrapper-btn {
+  display: inline-block;
+  flex: 0.1;
+}

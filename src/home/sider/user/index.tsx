@@ -79,7 +79,7 @@ class UserSider extends React.Component<IProps, IState> {
             </Menu.Item>
           </Menu>
         </Sider>
-        <Layout style={{ padding: '0 24px 24px' }}>
+        <Layout>
           <HashRouter>
             <Switch>
               <Route path={`${modulePath}/manage`} component={Manage} />

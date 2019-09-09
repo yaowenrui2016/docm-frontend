@@ -95,22 +95,24 @@ class ModPwd extends React.Component<IProps, IState> {
 
   render() {
     return (
-      <div style={{ margin: '0px', background: 'rgb(255, 255, 255)' }}>
-        <Breadcrumb separator={'>'} style={{ margin: '8px' }}>
-          <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
-          <Breadcrumb.Item>我的账号</Breadcrumb.Item>
-          <Breadcrumb.Item>修改密码</Breadcrumb.Item>
-        </Breadcrumb>
-        <Content>
-          <div
-            style={{
-              margin: '4px 4px 10px',
-              display: 'flex',
-              alignItems: 'center'
-            }}
-          />
-          <div style={{ margin: '8px' }}>{this.renderContent()}</div>
-        </Content>
+      <div className="layout-content">
+        <div className="layout-content-inner">
+          <Breadcrumb separator={'>'} style={{ margin: '8px' }}>
+            <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
+            <Breadcrumb.Item>我的账号</Breadcrumb.Item>
+            <Breadcrumb.Item>修改密码</Breadcrumb.Item>
+          </Breadcrumb>
+          <Content>
+            <div
+              style={{
+                margin: '4px 4px 10px',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            />
+            <div style={{ margin: '8px' }}>{this.renderContent()}</div>
+          </Content>
+        </div>
       </div>
     )
   }

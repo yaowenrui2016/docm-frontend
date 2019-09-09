@@ -9,3 +9,8 @@ export default interface IAccountVO {
   createTime: string
   lastModifyTime: string
 }
+
+export interface IDeptVO {
+  id: string
+  name: string
+}
