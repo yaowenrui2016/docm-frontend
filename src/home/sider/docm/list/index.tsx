@@ -7,7 +7,8 @@ import {
   Empty,
   message,
   Icon,
-  Modal
+  Modal,
+  Tooltip
 } from 'antd'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import moment from 'moment'
@@ -20,6 +21,7 @@ import Http, {
 import { modulePath } from '../index'
 import { toLine } from '../../../../common/util'
 import { UserContext } from '../../../index'
+import './index.css'
 
 const { Content } = Layout
 const { Option } = Select
@@ -46,6 +48,8 @@ interface IState {
     conditions: any | undefined
     sorters: any | undefined
   }
+  /** 每天条数改变时 */
+  pageSizeChange: boolean
 }
 
 class List extends React.Component<IProps, IState> {
@@ -64,7 +68,8 @@ class List extends React.Component<IProps, IState> {
       param: {
         conditions: {},
         sorters: {}
-      }
+      },
+      pageSizeChange: false
     }
   }
 
@@ -214,7 +219,11 @@ class List extends React.Component<IProps, IState> {
         key: 'index',
         render: (text, record, index) => {
           return index + 1
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '5%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '合同名称',
@@ -222,7 +231,24 @@ class List extends React.Component<IProps, IState> {
         key: 'projectName',
         sorter: (a, b) => {
           return a.id - b.id
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center' }
+        }),
+        onCell: (record, rowIndex) => ({
+          style: {
+            textAlign: 'center',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            cursor: 'pointer'
+          }
+        }),
+        render: text => (
+          <Tooltip placement="topLeft" title={text}>
+            {text}
+          </Tooltip>
+        )
       },
       {
         title: '合同类型',
@@ -230,7 +256,24 @@ class List extends React.Component<IProps, IState> {
         key: 'projectType',
         sorter: (a, b) => {
           return a.id - b.id
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '10%' }
+        }),
+        onCell: (record, rowIndex) => ({
+          style: {
+            textAlign: 'center',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            cursor: 'pointer'
+          }
+        }),
+        render: text => (
+          <Tooltip placement="topLeft" title={text}>
+            {text}
+          </Tooltip>
+        )
       },
       {
         title: '公司名称',
@@ -238,7 +281,24 @@ class List extends React.Component<IProps, IState> {
         key: 'company',
         sorter: (a, b) => {
           return a.id - b.id
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '10%' }
+        }),
+        onCell: (record, rowIndex) => ({
+          style: {
+            textAlign: 'center',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            cursor: 'pointer'
+          }
+        }),
+        render: text => (
+          <Tooltip placement="topLeft" title={text}>
+            {text}
+          </Tooltip>
+        )
       },
       {
         title: '合同号',
@@ -246,7 +306,46 @@ class List extends React.Component<IProps, IState> {
         key: 'contractNum',
         sorter: (a, b) => {
           return a.id - b.id
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '10%' }
+        }),
+        onCell: (record, rowIndex) => ({
+          style: {
+            textAlign: 'center',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            cursor: 'pointer'
+          }
+        }),
+        render: text => (
+          <Tooltip placement="topLeft" title={text}>
+            {text}
+          </Tooltip>
+        )
+      },
+      {
+        title: '科室',
+        dataIndex: 'dept',
+        key: 'dept',
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '6%' }
+        }),
+        onCell: (record, rowIndex) => ({
+          style: {
+            textAlign: 'center',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            cursor: 'pointer'
+          }
+        }),
+        render: text => (
+          <Tooltip placement="topLeft" title={text ? text.name : ''}>
+            {text ? text.name : ''}
+          </Tooltip>
+        )
       },
       {
         title: '合同签订时间',
@@ -254,7 +353,11 @@ class List extends React.Component<IProps, IState> {
         key: 'contractTime',
         sorter: (a, b) => {
           return a.id - b.id
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '10%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '凭证时间',
@@ -262,7 +365,11 @@ class List extends React.Component<IProps, IState> {
         key: 'credentialTime',
         sorter: (a, b) => {
           return a.id - b.id
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '8%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '创建时间',
@@ -273,7 +380,11 @@ class List extends React.Component<IProps, IState> {
         },
         sorter: (a, b) => {
           return a.id - b.id
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '15%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '操作',
@@ -336,7 +447,11 @@ class List extends React.Component<IProps, IState> {
               }}
             </UserContext.Consumer>
           )
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '12%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       }
     ]
     return columns
@@ -353,6 +468,7 @@ class List extends React.Component<IProps, IState> {
           )
           const rowSelection = DOCM_DELETE_OPER_permission
             ? {
+                columnWidth: '30px',
                 selectedRowKeys,
                 onChange: selectedRowKeys => {
                   this.setState({ selectedRowKeys })
@@ -385,8 +501,11 @@ class List extends React.Component<IProps, IState> {
                 pageSize,
                 pageSizeOptions: ['10', '20', '50'],
                 showSizeChanger: true,
+                onShowSizeChange: (current, pageSize) => {
+                  this.setState({ current: 1, pageSize, pageSizeChange: true })
+                },
                 showTotal: total => {
-                  return `共${total}条`
+                  return `共 ${total} 条`
                 }
               }}
               onChange={(pagination, filters, sorter, extra) => {

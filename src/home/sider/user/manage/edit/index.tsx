@@ -1,14 +1,5 @@
 import React from 'react'
-import {
-  Layout,
-  Button,
-  Form,
-  Input,
-  message,
-  Col,
-  Row,
-  TreeSelect
-} from 'antd'
+import { Layout, Button, Form, Input, message, Select, TreeSelect } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import IAccountVO from '../type'
@@ -16,14 +7,32 @@ import Http from '../../../../../common/http'
 import { manageSiderPath } from '../../index'
 
 const { Content } = Layout
+const { Option } = Select
 
 type IProps = RouteComponentProps & {}
 
 interface IState {
   loading: boolean
+  /**
+   * 用户id
+   */
   id: string
+  /**
+   * 权限选择器备选数据
+   */
   treeData: Array<any>
+  /**
+   * 用户拥有权限的id，赋值给权限选择器，显示用
+   */
   permissions: Array<any>
+  /**
+   * 科室选择器备选数据
+   */
+  deptData: Array<any>
+  /**
+   * 用户所属科室的id，赋值给科室选择器，显示用
+   */
+  dept: string
 }
 
 class Edit extends React.Component<IProps, IState> {
@@ -34,7 +43,9 @@ class Edit extends React.Component<IProps, IState> {
       id: this.props.match.params['id'],
       loading: true,
       treeData: [],
-      permissions: []
+      permissions: [],
+      deptData: [],
+      dept: ''
     }
   }
 
@@ -44,12 +55,14 @@ class Edit extends React.Component<IProps, IState> {
       Http.get(`/user?id=${id}`)
         .then(res => {
           const data = res.data.data
+          const dept = data.dept ? data.dept.id : undefined
           this.form &&
             this.form.props.form.setFieldsValue({
-              ...data
+              ...data,
+              dept
             })
           const permissions = data.permissions.map(perm => perm.id)
-          this.setState({ loading: false, permissions })
+          this.setState({ loading: false, permissions, dept })
         })
         .catch(error => {
           this.setState({ loading: false })
@@ -73,6 +86,12 @@ class Edit extends React.Component<IProps, IState> {
           this.setState({ treeData })
         })
         .catch(err => {})
+
+      Http.post(`/dept/list-all`)
+        .then(res => {
+          this.setState({ deptData: res.data.data })
+        })
+        .catch(err => {})
     })
   }
 
@@ -84,12 +103,15 @@ class Edit extends React.Component<IProps, IState> {
   handleSubmit = e => {
     e.preventDefault()
     this.form &&
-      this.form.props.form.validateFields((err, fielldValues) => {
+      this.form.props.form.validateFields((err, values) => {
         if (!err) {
-          const values: IAccountVO = {
-            ...fielldValues
+          const params: IAccountVO = {
+            ...values,
+            dept: {
+              id: values.dept
+            }
           }
-          Http.post('/user', values)
+          Http.post('/user', params)
             .then(res => {
               if (res.data.status === '00000000') {
                 this.props.history.push(`${manageSiderPath}/list`)
@@ -112,8 +134,16 @@ class Edit extends React.Component<IProps, IState> {
     this.setState({ permissions })
   }
 
+  handleDeptOnChange = dept => {
+    this.form &&
+      this.form.props.form.setFieldsValue({
+        dept
+      })
+    this.setState({ dept })
+  }
+
   render() {
-    const { loading, treeData, permissions } = this.state
+    const { loading, treeData, permissions, deptData, dept } = this.state
     return (
       <Content>
         <div
@@ -137,23 +167,39 @@ class Edit extends React.Component<IProps, IState> {
               this.form = form
             }}
           />
-          <Row gutter={60}>
-            <Col span={16} offset={4}>
-              <Form.Item key={'permissions'} label="账号授权">
-                <TreeSelect
-                  style={{ width: '100%' }}
-                  searchPlaceholder={'请选择权限'}
-                  multiple={true}
-                  treeData={treeData}
-                  value={permissions}
-                  treeCheckable={true}
-                  onChange={this.handlePermOnChange}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={60}>
-            <Col span={3} offset={9}>
+          <Form {...formItemLayout}>
+            <Form.Item key={'dept'} label="所属科室">
+              <Select
+                style={{ width: '100%' }}
+                placeholder={'请选择'}
+                value={dept}
+                showSearch
+                allowClear
+                optionFilterProp="children"
+                filterOption={(input, option: any) =>
+                  option.props.children
+                    .toLowerCase()
+                    .indexOf(input.toLowerCase()) >= 0
+                }
+                onChange={this.handleDeptOnChange}
+              >
+                {deptData.map(dept => (
+                  <Option value={dept.id}>{dept.name}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item key={'permissions'} label="账号授权">
+              <TreeSelect
+                style={{ width: '100%' }}
+                searchPlaceholder={'请选择'}
+                multiple={true}
+                treeData={treeData}
+                value={permissions}
+                treeCheckable={true}
+                onChange={this.handlePermOnChange}
+              />
+            </Form.Item>
+            <Form.Item {...tailFormItemLayout}>
               <Button
                 block
                 type={'primary'}
@@ -162,13 +208,8 @@ class Edit extends React.Component<IProps, IState> {
               >
                 {'保存'}
               </Button>
-            </Col>
-            <Col span={3}>
-              <Button block onClick={this.handleCancel}>
-                {'取消'}
-              </Button>
-            </Col>
-          </Row>
+            </Form.Item>
+          </Form>
         </div>
       </Content>
     )
@@ -176,6 +217,30 @@ class Edit extends React.Component<IProps, IState> {
 }
 
 export default withRouter(Edit)
+
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 20 },
+    sm: { span: 4 }
+  },
+  wrapperCol: {
+    xs: { span: 20 },
+    sm: { span: 16 }
+  }
+}
+
+const tailFormItemLayout = {
+  wrapperCol: {
+    xs: {
+      span: 2,
+      offset: 0
+    },
+    sm: {
+      span: 2,
+      offset: 4
+    }
+  }
+}
 
 interface FormProps extends FormComponentProps {}
 
@@ -187,85 +252,69 @@ class NormalForm extends React.Component<FormProps, FormState> {
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form
     return (
-      <Form>
+      <Form {...formItemLayout}>
         {getFieldDecorator('id')(<Input hidden />)}
-        <Row gutter={60}>
-          <Col span={8} offset={4}>
-            <Form.Item key={'username'} label="用户名">
-              {getFieldDecorator('username', {
-                rules: [
-                  {
-                    required: true,
-                    type: 'string',
-                    pattern: /^[a-zA-Z][a-zA-Z0-9_]{2,11}$/,
-                    message: '用户名为3~12位字母、数字或下划线,第一位必须为字母'
-                  },
-                  {
-                    message: '用户名已存在',
-                    validator: async (
-                      rule,
-                      value,
-                      callback,
-                      source,
-                      options
-                    ) => {
-                      const id = getFieldValue('id')
-                      await Http.get(
-                        `/user/cku-username?username=${value}&id=${id}`
-                      )
-                        .then(res => {
-                          if (res.data.status === '00000000') {
-                            const cku =
-                              res.data.data === true ? true : undefined
-                            callback(cku)
-                          } else {
-                            message.error(res.data.message)
-                            callback()
-                          }
-                        })
-                        .catch(err => {
-                          message.error('服务器异常')
-                          callback()
-                        })
-                    }
-                  }
-                ],
-                validateTrigger: 'onBlur'
-              })(<Input />)}
-            </Form.Item>
-          </Col>
-          <Col span={8} />
-        </Row>
-        <Row gutter={60}>
-          <Col span={8} offset={4}>
-            <Form.Item key={'phone'} label="手机">
-              {getFieldDecorator('phone', {
-                rules: [
-                  {
-                    required: false,
-                    message: '请输入正确的手机号',
-                    max: 11
-                  }
-                ],
-                validateTrigger: 'onBlur'
-              })(<Input />)}
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item key={'email'} label="邮箱">
-              {getFieldDecorator('email', {
-                rules: [
-                  {
-                    required: false,
-                    message: '请输入正确的邮箱',
-                    type: 'email'
-                  }
-                ],
-                validateTrigger: 'onBlur'
-              })(<Input />)}
-            </Form.Item>
-          </Col>
-        </Row>
+        <Form.Item key={'username'} label="用户名">
+          {getFieldDecorator('username', {
+            rules: [
+              {
+                required: true,
+                type: 'string',
+                pattern: /^[a-zA-Z][a-zA-Z0-9_]{2,11}$/,
+                message: '用户名为3~12位字母、数字或下划线,第一位必须为字母'
+              },
+              {
+                message: '用户名已存在',
+                validator: async (rule, value, callback, source, options) => {
+                  const id = getFieldValue('id')
+                  await Http.get(
+                    `/user/cku-username?username=${value}&id=${id}`
+                  )
+                    .then(res => {
+                      if (res.data.status === '00000000') {
+                        const cku = res.data.data === true ? true : undefined
+                        callback(cku)
+                      } else {
+                        message.error(res.data.message)
+                        callback()
+                      }
+                    })
+                    .catch(err => {
+                      message.error('服务器异常')
+                      callback()
+                    })
+                }
+              }
+            ],
+            validateTrigger: 'onBlur'
+          })(<Input />)}
+        </Form.Item>
+        <Form.Item key={'phone'} label="手机">
+          {getFieldDecorator('phone', {
+            rules: [
+              {
+                required: false,
+                message: '请输入正确的手机号',
+                max: 11
+              }
+            ],
+            validateTrigger: 'onBlur'
+          })(<Input />)}
+        </Form.Item>
+        <Form.Item key={'email'} label="邮箱">
+          {getFieldDecorator('email', {
+            rules: [
+              {
+                required: false,
+                message: '请输入正确的邮箱',
+                type: 'email'
+              }
+            ],
+            validateTrigger: 'onBlur'
+          })(<Input />)}
+        </Form.Item>
+        {/** 所属科室 */}
+        {getFieldDecorator('dept')}
         {/** 角色授权 */}
         {getFieldDecorator('permissions')}
       </Form>

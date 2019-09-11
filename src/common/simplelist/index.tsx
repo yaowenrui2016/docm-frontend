@@ -48,9 +48,10 @@ interface IState {
     sorters: any | undefined
   }
   /**
-   * 新建modal框
+   * 展现模态框形态：0-不展示 1-新建 2-编辑
    */
-  showAddModal: boolean
+  modalFlag: number
+  modalData: BaseVO | undefined
 }
 
 class List extends React.Component<IProps, IState> {
@@ -70,7 +71,8 @@ class List extends React.Component<IProps, IState> {
         conditions: {},
         sorters: {}
       },
-      showAddModal: false
+      modalFlag: 0,
+      modalData: undefined
     }
   }
 
@@ -147,7 +149,7 @@ class List extends React.Component<IProps, IState> {
           type="primary"
           onClick={event => {
             event.preventDefault()
-            this.setState({ showAddModal: true })
+            this.setState({ modalFlag: 1 })
           }}
         >
           新建
@@ -172,23 +174,35 @@ class List extends React.Component<IProps, IState> {
         key: 'index',
         render: (text, record, index) => {
           return index + 1
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '5%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '名称',
+        key: 'name',
         dataIndex: 'name',
-        key: 'name'
+        onHeaderCell: column => ({
+          style: { textAlign: 'center' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '创建时间',
-        dataIndex: 'createTime',
         key: 'createTime',
+        dataIndex: 'createTime',
         render: (text, record, index) => {
           return moment(record.createTime).format('YYYY-MM-DD HH:mm:ss')
         },
         sorter: (a, b) => {
           return a.id - b.id
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '15%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '操作',
@@ -202,7 +216,7 @@ class List extends React.Component<IProps, IState> {
                 type="edit"
                 onClick={event => {
                   event.preventDefault()
-                  this.setState({ showAddModal: true })
+                  this.setState({ modalFlag: 2, modalData: record })
                 }}
               />
               <div id="downloadDiv" style={{ display: 'none' }} />
@@ -217,7 +231,11 @@ class List extends React.Component<IProps, IState> {
               />
             </div>
           )
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '12%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       }
     ]
     return columns
@@ -232,6 +250,7 @@ class List extends React.Component<IProps, IState> {
           return record.id
         }}
         rowSelection={{
+          columnWidth: '30px',
           selectedRowKeys,
           onChange: selectedRowKeys => {
             this.setState({ selectedRowKeys })
@@ -240,18 +259,6 @@ class List extends React.Component<IProps, IState> {
         columns={this.buildColumns()}
         dataSource={content}
         loading={loading}
-        onRow={(record, index) => {
-          return {
-            onClick: event => {
-              event.preventDefault()
-              if (event.target['tagName'] !== 'TD') {
-                return
-              }
-              this.setState({ showAddModal: true })
-            }
-          }
-        }}
-        // size={'middle'}
         pagination={{
           total,
           current,
@@ -259,7 +266,7 @@ class List extends React.Component<IProps, IState> {
           pageSizeOptions: ['10', '20', '50'],
           showSizeChanger: true,
           showTotal: total => {
-            return `共${total}条`
+            return `共 ${total} 条`
           }
         }}
         onChange={(pagination, filters, sorter, extra) => {
@@ -282,43 +289,67 @@ class List extends React.Component<IProps, IState> {
   handleOk = e => {
     e.preventDefault()
     const { httpPath } = this.props
+    const { modalFlag } = this.state
     this.form &&
       this.form.props.form.validateFields((err, values) => {
         if (!err) {
-          Http.put(`${httpPath}`, values)
-            .then(res => {
-              message.success(`操作成功`)
-              this.handleListChange()
-            })
-            .catch(err => {
-              message.info(err.response.data.msg)
-            })
+          // 如果是新建则调用Http.put()方法,如果是编辑则调用Http.post()方法
+          const method =
+            modalFlag === 1 ? Http.put : modalFlag === 2 ? Http.post : undefined
+          method &&
+            method(`${httpPath}`, values)
+              .then(res => {
+                if (res.data.status === '00000000') {
+                  message.success(`操作成功`)
+                  this.handleListChange()
+                } else {
+                  message.error(res.data.message)
+                }
+              })
+              .catch(err => {
+                debugger
+                message.error(err.response.data.msg)
+              })
           this.setState({
-            showAddModal: false
+            modalFlag: 0
           })
         }
       })
   }
 
   handleCancel = e => {
-    console.log(e)
     this.setState({
-      showAddModal: false
+      modalFlag: 0,
+      modalData: undefined
     })
   }
 
   renderAddModal() {
-    const { showAddModal } = this.state
+    const { modalFlag, modalData } = this.state
+    const title = `${
+      modalFlag === 1 ? '新建' : modalFlag === 2 ? '编辑' : undefined
+    }科室`
     return (
       <Modal
-        title="新建"
-        visible={showAddModal}
+        title={title}
+        visible={modalFlag > 0}
+        okText={'提交'}
+        cancelText={'取消'}
         onOk={this.handleOk}
         onCancel={this.handleCancel}
       >
         <WrappedNormalForm
           wrappedComponentRef={(form: React.ReactElement<FormProps>) => {
             this.form = form
+            if (this.form) {
+              if (modalFlag === 2 && modalData) {
+                // 编辑，设置值
+                this.form.props.form.setFieldsValue({ ...modalData })
+              } else if (modalFlag === 1) {
+                // 新建，清除旧值
+                this.form.props.form.resetFields(['id', 'name'])
+              }
+            }
           }}
         />
       </Modal>
@@ -357,6 +388,30 @@ function fetchOrderDirection(order: string) {
 
 export default withRouter(List)
 
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 20 },
+    sm: { span: 4 }
+  },
+  wrapperCol: {
+    xs: { span: 20 },
+    sm: { span: 16 }
+  }
+}
+
+// const tailFormItemLayout = {
+//   wrapperCol: {
+//     xs: {
+//       span: 2,
+//       offset: 0
+//     },
+//     sm: {
+//       span: 2,
+//       offset: 4
+//     }
+//   }
+// }
+
 interface FormProps extends FormComponentProps {}
 
 interface FormState {}
@@ -365,7 +420,7 @@ class NormalForm extends React.Component<FormProps, FormState> {
   render() {
     const { getFieldDecorator } = this.props.form
     return (
-      <Form>
+      <Form {...formItemLayout}>
         {getFieldDecorator('id')(<Input hidden />)}
         <Form.Item key={'name'} label="名称">
           {getFieldDecorator('name', {

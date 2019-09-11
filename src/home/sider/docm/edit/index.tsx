@@ -7,7 +7,8 @@ import {
   Icon,
   Upload,
   DatePicker,
-  message
+  message,
+  Select
 } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
 import { UploadFile } from 'antd/lib/upload/interface'
@@ -19,6 +20,7 @@ import { modulePath } from '../index'
 
 const { Content } = Layout
 const { MonthPicker } = DatePicker
+const { Option } = Select
 
 type IProps = RouteComponentProps & {
   username: string
@@ -29,6 +31,8 @@ interface IState {
   loading: boolean
   data: IDocmVO | undefined
   fileList: Array<UploadFile>
+  deptData: Array<any>
+  selectedDept: any
 }
 
 class Edit extends React.Component<IProps, IState> {
@@ -39,7 +43,9 @@ class Edit extends React.Component<IProps, IState> {
       mode: undefined,
       loading: true,
       data: undefined,
-      fileList: []
+      fileList: [],
+      deptData: [],
+      selectedDept: undefined
     }
   }
 
@@ -62,6 +68,7 @@ class Edit extends React.Component<IProps, IState> {
                   ? moment(data.credentialTime, 'YYYY-MM')
                   : undefined
               })
+            // 附件
             const fileList = data.attachments.map(attachment => ({
               uid: attachment.id,
               size: 123,
@@ -78,13 +85,24 @@ class Edit extends React.Component<IProps, IState> {
                 ]
               }
             }))
-            this.setState({ loading: false, fileList })
+            this.setState({
+              loading: false,
+              data,
+              fileList,
+              selectedDept: data.dept
+            })
           })
           .catch(error => {})
       } else if (mode === 'add') {
         this.form && this.form.props.form.setFieldsValue({ attachments: [] })
         this.setState({ loading: false })
       }
+      // 加载科室下拉选择器数据
+      Http.post(`/dept/list-all`)
+        .then(res => {
+          this.setState({ deptData: res.data.data })
+        })
+        .catch(err => {})
     })
   }
 
@@ -113,7 +131,11 @@ class Edit extends React.Component<IProps, IState> {
           method &&
             method(`/docm`, params)
               .then(res => {
-                this.props.history.push(`${modulePath}/list`)
+                if (res.data.status === '00000000') {
+                  this.props.history.push(`${modulePath}/list`)
+                } else {
+                  message.error(res.data.message)
+                }
               })
               .catch(err => {
                 message.info(err.response.data.msg)
@@ -122,13 +144,42 @@ class Edit extends React.Component<IProps, IState> {
       })
   }
 
+  handleDeptOnChange = id => {
+    const dept = { id }
+    this.form &&
+      this.form.props.form.setFieldsValue({
+        dept
+      })
+    this.setState({ selectedDept: dept })
+  }
+
   renderContent() {
-    const { mode, fileList } = this.state
+    const { mode, fileList, deptData, selectedDept } = this.state
     const setFieldsValue = this.form
       ? this.form.props.form.setFieldsValue
       : undefined
     return (
       <Form {...formItemLayout}>
+        <Form.Item key={'dept'} label="所属科室">
+          <Select
+            style={{ width: '100%' }}
+            placeholder={'请选择'}
+            value={selectedDept ? selectedDept.id : undefined}
+            showSearch
+            allowClear
+            optionFilterProp="children"
+            filterOption={(input, option: any) =>
+              option.props.children
+                .toLowerCase()
+                .indexOf(input.toLowerCase()) >= 0
+            }
+            onChange={this.handleDeptOnChange}
+          >
+            {deptData.map(dept => (
+              <Option value={dept.id}>{dept.name}</Option>
+            ))}
+          </Select>
+        </Form.Item>
         <Form.Item key={'files'} label="上传附件">
           <Upload
             style={{ width: '100%' }}
@@ -274,6 +325,9 @@ class NormalForm extends React.Component<FormProps, FormState> {
             rules: [{ required: false, message: '请输入金额' }]
           })(<Input />)}
         </Form.Item>
+        {/** 所属科室 */}
+        {getFieldDecorator('dept')}
+        {/* 上传附件 */}
         {getFieldDecorator('attachments')}
       </Form>
     )

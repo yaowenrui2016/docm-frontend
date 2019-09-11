@@ -29,7 +29,7 @@
 .layout-content-aside {
   display: inline-block;
   min-height: 760px;
-  max-height: 1200px;
+  max-height: 3000px;
   background: rgb(255, 255, 255);
   overflow-x: auto;
   overflow-y: scroll;
@@ -41,7 +41,7 @@
 .layout-content-inner {
   display: inline-block;
   min-height: 760px;
-  max-height: 1200px;
+  max-height: 3000px;
   background: rgb(255, 255, 255);
   overflow-x: auto;
   overflow-y: auto;

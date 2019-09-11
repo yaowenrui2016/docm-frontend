@@ -8,6 +8,30 @@ import { modulePath } from '../index'
 
 const { Content } = Layout
 
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 20 },
+    sm: { span: 4 }
+  },
+  wrapperCol: {
+    xs: { span: 20 },
+    sm: { span: 16 }
+  }
+}
+
+// const tailFormItemLayout = {
+//   wrapperCol: {
+//     xs: {
+//       span: 2,
+//       offset: 0
+//     },
+//     sm: {
+//       span: 2,
+//       offset: 4
+//     }
+//   }
+// }
+
 type IProps = RouteComponentProps & {}
 
 interface IState {
@@ -63,7 +87,7 @@ class View extends React.Component<IProps, IState> {
   renderContent() {
     const { loading, data, fileList } = this.state
     return !loading && data ? (
-      <Form labelCol={{ span: 8 }} wrapperCol={{ span: 8 }}>
+      <Form {...formItemLayout}>
         <Form.Item key={'projectName'} label="项目名称">
           {data.projectName}
         </Form.Item>
@@ -87,6 +111,9 @@ class View extends React.Component<IProps, IState> {
         </Form.Item>
         <Form.Item key={'money'} label="金额">
           {data.money}
+        </Form.Item>
+        <Form.Item key={'dept'} label="科室">
+          {data.dept ? data.dept.name : ''}
         </Form.Item>
         <Form.Item key={'files'} label="上传附件">
           <Upload

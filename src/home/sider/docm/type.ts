@@ -9,6 +9,7 @@ export default interface IDocmVO {
   credentialNum: string
   credentialTime: string
   money: string
+  dept: { id: string, name: string }
   attachments: Array<{
     docName: string
     docPath: string

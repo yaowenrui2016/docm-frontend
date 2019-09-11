@@ -19,3 +19,9 @@
   --webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
   background-color: #d5d5d5;
 }
+
+/* 表格形状固定 */
+.ant-table table {
+  table-layout: fixed;
+  overflow: 'hidden';
+}

@@ -134,9 +134,7 @@ class List extends React.Component<IProps, IState> {
               placeholder={'搜索科室'}
               style={{ width: '100%' }}
               showArrow={false}
-              suffixIcon={<Icon style={{ fontSize: '16px' }} type="search" />}
-              onChange={() => {}}
-              notFoundContent={null}
+              showSearch
             />
           </div>
           <div className="layout-content-aside-wrapper-btn">
@@ -205,22 +203,38 @@ class List extends React.Component<IProps, IState> {
         key: 'index',
         render: (text, record, index) => {
           return index + 1
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '5%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '用户名',
         dataIndex: 'username',
-        key: 'username'
+        key: 'username',
+        onHeaderCell: column => ({
+          style: { textAlign: 'center' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '手机',
         dataIndex: 'phone',
-        key: 'phone'
+        key: 'phone',
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '16%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '邮箱',
         dataIndex: 'email',
-        key: 'email'
+        key: 'email',
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '20%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '冻结状态',
@@ -228,7 +242,11 @@ class List extends React.Component<IProps, IState> {
         key: 'frozen',
         render: (text, record, index) => {
           return record.frozen ? '已冻结' : '正常'
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '6%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '创建时间',
@@ -239,7 +257,11 @@ class List extends React.Component<IProps, IState> {
         },
         sorter: (a, b) => {
           return a.id - b.id
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '15%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
       {
         title: '操作',
@@ -287,7 +309,11 @@ class List extends React.Component<IProps, IState> {
               />
             </div>
           )
-        }
+        },
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '12%' }
+        }),
+        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       }
     ]
     return columns
@@ -302,6 +328,7 @@ class List extends React.Component<IProps, IState> {
           return record.id
         }}
         rowSelection={{
+          columnWidth: '30px',
           selectedRowKeys,
           onChange: selectedRowKeys => {
             this.setState({ selectedRowKeys })
@@ -329,7 +356,7 @@ class List extends React.Component<IProps, IState> {
           pageSizeOptions: ['10', '20', '50'],
           showSizeChanger: true,
           showTotal: total => {
-            return `共${total}条`
+            return `共 ${total} 条`
           }
         }}
         onChange={(pagination, filters, sorter, extra) => {

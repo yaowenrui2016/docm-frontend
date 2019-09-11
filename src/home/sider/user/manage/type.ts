@@ -5,6 +5,7 @@ export default interface IAccountVO {
   password: string
   phone: string
   permissions: Array<any>
+  dept: { id: string, name: string }
   email: string
   createTime: string
   lastModifyTime: string

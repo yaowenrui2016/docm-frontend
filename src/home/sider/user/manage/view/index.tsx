@@ -8,6 +8,30 @@ import { manageSiderPath } from '../../index'
 const { Content } = Layout
 const { TreeNode } = Tree
 
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 20 },
+    sm: { span: 4 }
+  },
+  wrapperCol: {
+    xs: { span: 20 },
+    sm: { span: 16 }
+  }
+}
+
+// const tailFormItemLayout = {
+//   wrapperCol: {
+//     xs: {
+//       span: 2,
+//       offset: 0
+//     },
+//     sm: {
+//       span: 2,
+//       offset: 4
+//     }
+//   }
+// }
+
 type IProps = RouteComponentProps & {}
 
 interface IState {
@@ -45,7 +69,7 @@ class View extends React.Component<IProps, IState> {
   renderContent() {
     const { loading, data } = this.state
     return !loading && data ? (
-      <Form labelCol={{ span: 8 }} wrapperCol={{ span: 8 }}>
+      <Form {...formItemLayout}>
         <Form.Item key={'username'} label="用户名">
           {data.username}
         </Form.Item>
@@ -54,6 +78,9 @@ class View extends React.Component<IProps, IState> {
         </Form.Item>
         <Form.Item key={'email'} label="邮箱">
           {data.email}
+        </Form.Item>
+        <Form.Item key={'dept'} label="科室">
+          {data.dept && data.dept.name}
         </Form.Item>
         <Form.Item key={'permissions'} label="账号授权">
           <Tree showLine defaultExpandAll>
