@@ -2,8 +2,33 @@ import React from 'react'
 import { Layout, Form, Breadcrumb } from 'antd'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { UserContext } from '../../../index'
+import './index.css'
 
 const { Content } = Layout
+
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 20 },
+    sm: { span: 4 }
+  },
+  wrapperCol: {
+    xs: { span: 20 },
+    sm: { span: 16 }
+  }
+}
+
+// const tailFormItemLayout = {
+//   wrapperCol: {
+//     xs: {
+//       span: 2,
+//       offset: 0
+//     },
+//     sm: {
+//       span: 2,
+//       offset: 4
+//     }
+//   }
+// }
 
 type IProps = RouteComponentProps & {}
 
@@ -15,7 +40,7 @@ class Info extends React.Component<IProps, IState> {
       <UserContext.Consumer>
         {userInfo => {
           return (
-            <Form labelCol={{ span: 8 }} wrapperCol={{ span: 8 }}>
+            <Form {...formItemLayout}>
               <Form.Item key={'username'} label="用户名">
                 {userInfo.username}
               </Form.Item>
@@ -24,6 +49,9 @@ class Info extends React.Component<IProps, IState> {
               </Form.Item>
               <Form.Item key={'email'} label="邮箱">
                 {userInfo.email}
+              </Form.Item>
+              <Form.Item key={'dept'} label="科室">
+                {userInfo.dept ? userInfo.dept.name : ''}
               </Form.Item>
             </Form>
           )
@@ -36,20 +64,13 @@ class Info extends React.Component<IProps, IState> {
     return (
       <div className="layout-content">
         <div className="layout-content-inner">
-          <Breadcrumb separator={'>'} style={{ margin: '8px' }}>
+          <Breadcrumb separator={'>'}>
             <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
             <Breadcrumb.Item>我的账号</Breadcrumb.Item>
             <Breadcrumb.Item>账号信息</Breadcrumb.Item>
           </Breadcrumb>
           <Content>
-            <div
-              style={{
-                margin: '4px 4px 10px',
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            />
-            <div style={{ margin: '8px' }}>{this.renderContent()}</div>
+            <div className="view-page-content">{this.renderContent()}</div>
           </Content>
         </div>
       </div>

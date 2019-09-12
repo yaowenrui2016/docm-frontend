@@ -1,14 +1,5 @@
 import React from 'react'
-import {
-  Layout,
-  Button,
-  message,
-  Form,
-  Col,
-  Row,
-  Input,
-  Breadcrumb
-} from 'antd'
+import { Layout, Button, message, Form, Input, Breadcrumb } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { UserContext } from '../../../index'
@@ -17,6 +8,30 @@ import md5 from 'js-md5'
 import { modulePath } from '../index'
 
 const { Content } = Layout
+
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 20 },
+    sm: { span: 4 }
+  },
+  wrapperCol: {
+    xs: { span: 20 },
+    sm: { span: 16 }
+  }
+}
+
+const tailFormItemLayout = {
+  wrapperCol: {
+    xs: {
+      span: 2,
+      offset: 0
+    },
+    sm: {
+      span: 2,
+      offset: 4
+    }
+  }
+}
 
 type IProps = RouteComponentProps & {}
 
@@ -79,13 +94,13 @@ class ModPwd extends React.Component<IProps, IState> {
                   this.form = form
                 }}
               />
-              <Row gutter={60}>
-                <Col span={3} offset={9}>
+              <Form {...tailFormItemLayout}>
+                <Form.Item>
                   <Button block type={'primary'} onClick={this.handleSubmit}>
                     {'提交'}
                   </Button>
-                </Col>
-              </Row>
+                </Form.Item>
+              </Form>
             </div>
           )
         }}
@@ -97,20 +112,13 @@ class ModPwd extends React.Component<IProps, IState> {
     return (
       <div className="layout-content">
         <div className="layout-content-inner">
-          <Breadcrumb separator={'>'} style={{ margin: '8px' }}>
+          <Breadcrumb separator={'>'}>
             <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
             <Breadcrumb.Item>我的账号</Breadcrumb.Item>
             <Breadcrumb.Item>修改密码</Breadcrumb.Item>
           </Breadcrumb>
           <Content>
-            <div
-              style={{
-                margin: '4px 4px 10px',
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            />
-            <div style={{ margin: '8px' }}>{this.renderContent()}</div>
+            <div className="view-page-content">{this.renderContent()}</div>
           </Content>
         </div>
       </div>
@@ -128,73 +136,55 @@ class NormalForm extends React.Component<FormProps, FormState> {
   render() {
     const { getFieldDecorator, getFieldValue } = this.props.form
     return (
-      <Form>
+      <Form {...formItemLayout}>
         {getFieldDecorator('id')(<Input hidden />)}
-        <Row gutter={60}>
-          <Col span={8} offset={4}>
-            <Form.Item key={'oldPassword'} label="原密码">
-              {getFieldDecorator('oldPassword', {
-                rules: [
-                  {
-                    required: true,
-                    message: '密码为4~16位任意字符',
-                    pattern: /^.{4,16}$/
+        <Form.Item key={'oldPassword'} label="原密码">
+          {getFieldDecorator('oldPassword', {
+            rules: [
+              {
+                required: true,
+                message: '密码为4~16位任意字符',
+                pattern: /^.{4,16}$/
+              }
+            ],
+            validateTrigger: 'onBlur'
+          })(<Input type={'password'} />)}
+        </Form.Item>
+        <Form.Item key={'password'} label="新密码">
+          {getFieldDecorator('password', {
+            rules: [
+              {
+                required: true,
+                message: '密码为4~16位任意字符',
+                pattern: /^.{4,16}$/
+              }
+            ],
+            validateTrigger: 'onBlur'
+          })(<Input type={'password'} placeholder={'请输入密码'} />)}
+        </Form.Item>
+        <Form.Item key={'confirmPassword'} label="确认密码">
+          {getFieldDecorator('confirmPassword', {
+            rules: [
+              {
+                required: true,
+                message: '密码为4~16位任意字符',
+                pattern: /^.{4,16}$/
+              },
+              {
+                message: '两次输入密码不一致',
+                validator: async (rule, value, callback, source, options) => {
+                  const password = getFieldValue('password')
+                  if (password !== value) {
+                    callback('error')
+                  } else {
+                    callback()
                   }
-                ],
-                validateTrigger: 'onBlur'
-              })(<Input type={'password'} />)}
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={60}>
-          <Col span={8} offset={4}>
-            <Form.Item key={'password'} label="新密码">
-              {getFieldDecorator('password', {
-                rules: [
-                  {
-                    required: true,
-                    message: '密码为4~16位任意字符',
-                    pattern: /^.{4,16}$/
-                  }
-                ],
-                validateTrigger: 'onBlur'
-              })(<Input type={'password'} placeholder={'请输入密码'} />)}
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={60}>
-          <Col span={8} offset={4}>
-            <Form.Item key={'confirmPassword'} label="确认密码">
-              {getFieldDecorator('confirmPassword', {
-                rules: [
-                  {
-                    required: true,
-                    message: '密码为4~16位任意字符',
-                    pattern: /^.{4,16}$/
-                  },
-                  {
-                    message: '两次输入密码不一致',
-                    validator: async (
-                      rule,
-                      value,
-                      callback,
-                      source,
-                      options
-                    ) => {
-                      const password = getFieldValue('password')
-                      if (password !== value) {
-                        callback('error')
-                      } else {
-                        callback()
-                      }
-                    }
-                  }
-                ],
-                validateTrigger: 'onBlur'
-              })(<Input type={'password'} placeholder={'请再次输入密码'} />)}
-            </Form.Item>
-          </Col>
-        </Row>
+                }
+              }
+            ],
+            validateTrigger: 'onBlur'
+          })(<Input type={'password'} placeholder={'请再次输入密码'} />)}
+        </Form.Item>
       </Form>
     )
   }
