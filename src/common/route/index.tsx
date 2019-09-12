@@ -9,10 +9,16 @@ const PrivateRoute = ({ component: Component, ...props }) => {
   return (
     <UserContext.Consumer>
       {userInfo => {
-        const perm = props['permission']
-          ? userInfo['permissions'].find(
-              perm => perm.id === props['permission']
-            )
+        const needPerms = props['permission']
+        const userPerms = userInfo['permissions']
+        const perm = needPerms
+          ? userPerms.find(userPerm => {
+              if (needPerms instanceof Array) {
+                return needPerms.find(needPerm => userPerm.id === needPerm)
+              } else {
+                return userPerm.id === needPerms
+              }
+            })
           : 'true'
         return (
           <Route

@@ -37,6 +37,10 @@ http.interceptors.response.use(response => {
   if (xAuthToken) {
     sessionStorage.setItem('xAuthToken', xAuthToken)
   }
+  // TODO
+  if (response.data.status === "03001020") {
+    throw new Error(response.data.message)
+  }
   return response
 }, error => {
   if (error.response.status === 401) {

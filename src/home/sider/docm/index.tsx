@@ -58,7 +58,7 @@ class Docm extends React.Component<IProps, IState> {
                   />
                   <PrivateRoute
                     path={`${modulePath}/list`}
-                    permission={'DOCM_LIST_VIEW'}
+                    permission={['DOCM_LIST_VIEW', 'DOCM_LIST_DEPT_VIEW']}
                     component={ListCmpt}
                   />
                   <PrivateRoute
