@@ -11,3 +11,11 @@ a.selected {
 .radio-option {
   margin-right: 12px;
 }
+
+.ant-collapse > .ant-collapse-item > .ant-collapse-header {
+  padding: 0px;
+}
+
+.ant-collapse-content > .ant-collapse-content-box {
+  padding: 0px;
+}

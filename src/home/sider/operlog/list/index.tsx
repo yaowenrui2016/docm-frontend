@@ -6,7 +6,6 @@ import {
   Table,
   Empty,
   message,
-  Icon,
   Modal,
   Tooltip,
   Radio,
@@ -18,12 +17,14 @@ import moment from 'moment'
 import IOperLogVO from '../type'
 // import DateRange from './daterange'
 import Http, { QueryResult, QueryRequest } from '../../../../common/http'
+import UserSelector from '../../../../common/selector/user'
 import { modulePath } from '../index'
 import { toLine } from '../../../../common/util'
 import { UserContext } from '../../../index'
 import './index.css'
 
 const { Content } = Layout
+const { Option } = Select
 const { Panel } = Collapse
 
 type IProps = RouteComponentProps & {}
@@ -56,6 +57,10 @@ interface IState {
    * 创建时间范围的选项值
    */
   rangeOptionValue: string | undefined
+  /**
+   * 操作名称下拉选数据
+   */
+  operNames: Array<string>
 }
 
 class List extends React.Component<IProps, IState> {
@@ -69,20 +74,21 @@ class List extends React.Component<IProps, IState> {
         total: undefined,
         content: []
       },
-      pageSize: 15,
+      pageSize: 10,
       current: 1,
       param: {
         conditions: { ranges: {} },
         sorters: {}
       },
-      activeKey: undefined,
-      rangeOptionValue: 'none'
+      activeKey: 'searchPanel',
+      rangeOptionValue: 'none',
+      operNames: []
     }
   }
 
   componentDidMount() {
     this.handleListChange()
-    // this.loadProjectTypes()
+    this.loadOperNames()
   }
 
   handleListChange = () => {
@@ -103,26 +109,26 @@ class List extends React.Component<IProps, IState> {
     })
   }
 
-  // loadProjectTypes = () => {
-  //   Http.get(`/operlog/type/list`)
-  //     .then(res => {
-  //       this.setState({ projectTypes: res.data.data })
-  //     })
-  //     .catch(err => {
-  //       message.error('加载项目类型数据失败')
-  //     })
-  // }
+  loadOperNames = () => {
+    Http.get(`/operlog/name/list-all`)
+      .then(res => {
+        this.setState({ operNames: res.data.data })
+      })
+      .catch(err => {
+        message.error('加载操作名称数据失败')
+      })
+  }
 
-  handleSelectChangeForKeyword = value => {
+  handleSelectChangeForOperator = value => {
     const { conditions } = this.state.param
-    conditions['keywords'] = value
+    conditions['operator'] = value
     this.setState({ current: 1 })
     this.handleListChange()
   }
 
-  handleSelectChangeForProjectType = value => {
+  handleSelectChangeForOperName = value => {
     const { conditions } = this.state.param
-    conditions['projectType'] = value
+    conditions['name'] = value
     this.setState({ current: 1 })
     this.handleListChange()
   }
@@ -192,7 +198,7 @@ class List extends React.Component<IProps, IState> {
         offset: 0
       },
       wrapperCol: {
-        span: 22,
+        span: 16,
         offset: 0
       }
     }
@@ -227,11 +233,11 @@ class List extends React.Component<IProps, IState> {
                   </Radio.Button>
                 </Radio.Group>
               </div>
-              <div>{/* <DateRange /> */}</div>
+              {/* <div><DateRange /></div> */}
             </div>
           </Form.Item>
           <Form.Item label="操作者">
-            <Select style={{ width: '280px' }} />
+            <UserSelector onChange={this.handleSelectChangeForOperator} />
           </Form.Item>
         </Form>
       </div>
@@ -239,21 +245,36 @@ class List extends React.Component<IProps, IState> {
   }
 
   renderSearchBar() {
-    const { activeKey } = this.state
+    const { activeKey, operNames } = this.state
+    const formItemLayout = {
+      labelCol: {
+        span: 4,
+        offset: 0
+      },
+      wrapperCol: {
+        span: 8,
+        offset: 0
+      }
+    }
     return (
       <div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start' }}>
           <div style={{ flex: '1' }}>
-            <Select
-              mode={'tags'}
-              placeholder={'搜索操作名称或模块名称关键字'}
-              style={{ width: '280px' }}
-              tokenSeparators={[' ']}
-              showArrow={true}
-              suffixIcon={<Icon style={{ fontSize: '16px' }} type="search" />}
-              onChange={this.handleSelectChangeForKeyword}
-              notFoundContent={null}
-            />
+            <Form {...formItemLayout}>
+              <Form.Item label={'操作名称'}>
+                <Select
+                  placeholder={'请选择'}
+                  style={{ width: '280px' }}
+                  allowClear
+                  showArrow={true}
+                  onChange={this.handleSelectChangeForOperName}
+                >
+                  {operNames.map(operName => (
+                    <Option value={operName}>{operName}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Form>
           </div>
           <div style={{ flex: '1' }}>
             <div style={{ float: 'right' }}>
@@ -273,7 +294,7 @@ class List extends React.Component<IProps, IState> {
         <Collapse bordered={false} activeKey={activeKey}>
           <Panel
             key="searchPanel"
-            // style={{ border: 0 }}
+            style={{ border: 0 }}
             showArrow={false}
             header=""
           >
@@ -445,7 +466,7 @@ class List extends React.Component<IProps, IState> {
                 total,
                 current,
                 pageSize,
-                pageSizeOptions: ['15', '50', '100'],
+                pageSizeOptions: ['10', '20', '50'],
                 showSizeChanger: true,
                 onShowSizeChange: (current, pageSize) => {
                   this.setState({ current: 1, pageSize })
