@@ -3,4 +3,6 @@ export default interface BaseVO {
   name: string
   createTime: string
   lastModifyTime: string
+  keywords: Array<string>
+  ranges: any
 }

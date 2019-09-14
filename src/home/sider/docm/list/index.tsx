@@ -48,8 +48,6 @@ interface IState {
     conditions: any | undefined
     sorters: any | undefined
   }
-  /** 每天条数改变时 */
-  pageSizeChange: boolean
 }
 
 class List extends React.Component<IProps, IState> {
@@ -68,8 +66,7 @@ class List extends React.Component<IProps, IState> {
       param: {
         conditions: {},
         sorters: {}
-      },
-      pageSizeChange: false
+      }
     }
   }
 
@@ -382,7 +379,7 @@ class List extends React.Component<IProps, IState> {
           return a.id - b.id
         },
         onHeaderCell: column => ({
-          style: { textAlign: 'center', width: '15%' }
+          style: { textAlign: 'center', width: '12%' }
         }),
         onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
@@ -502,7 +499,7 @@ class List extends React.Component<IProps, IState> {
                 pageSizeOptions: ['10', '20', '50'],
                 showSizeChanger: true,
                 onShowSizeChange: (current, pageSize) => {
-                  this.setState({ current: 1, pageSize, pageSizeChange: true })
+                  this.setState({ current: 1, pageSize })
                 },
                 showTotal: total => {
                   return `共 ${total} 条`

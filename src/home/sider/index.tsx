@@ -8,11 +8,12 @@ import {
   Route,
   RouteComponentProps
 } from 'react-router-dom'
+import headerMenu from '../menu'
+import { UserContext } from '../index'
 import UserModule from './user/index'
 import DocmModule from './docm/index'
 import AccountModule from './account/index'
-import headerMenu from '../menu'
-import { UserContext } from '../index'
+import OperlogModule from './operlog/index'
 
 type IProps = RouteComponentProps & {}
 
@@ -45,6 +46,10 @@ class Side extends React.Component<IProps, IState> {
             {
               key: '/account',
               value: <Route path={'/main/account'} component={AccountModule} />
+            },
+            {
+              key: '/operlog',
+              value: <Route path={'/main/operlog'} component={OperlogModule} />
             }
           ]
           return (

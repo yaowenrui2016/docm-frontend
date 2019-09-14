@@ -11,7 +11,7 @@ const menu = [
     role: ['admin']
   },
   {
-    key: '/log',
+    key: '/operlog',
     title: '日志审计',
     role: ['admin']
   },

@@ -143,7 +143,7 @@ class NormalForm extends React.Component<FormProps, FormState> {
             rules: [
               {
                 required: true,
-                message: '密码为4~16位任意字符',
+                message: '请输入旧密码',
                 pattern: /^.{4,16}$/
               }
             ],
@@ -165,11 +165,6 @@ class NormalForm extends React.Component<FormProps, FormState> {
         <Form.Item key={'confirmPassword'} label="确认密码">
           {getFieldDecorator('confirmPassword', {
             rules: [
-              {
-                required: true,
-                message: '密码为4~16位任意字符',
-                pattern: /^.{4,16}$/
-              },
               {
                 message: '两次输入密码不一致',
                 validator: async (rule, value, callback, source, options) => {
