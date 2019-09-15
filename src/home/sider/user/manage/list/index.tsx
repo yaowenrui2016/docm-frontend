@@ -7,7 +7,6 @@ import {
   Empty,
   message,
   Icon,
-  Tree,
   Modal,
   Tabs
 } from 'antd'
@@ -21,6 +20,7 @@ import { manageSiderPath } from '../../index'
 import './index.css'
 
 const { Content } = Layout
+const { Option } = Select
 const { TabPane } = Tabs
 
 type IProps = RouteComponentProps & {}
@@ -65,15 +65,7 @@ class List extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    this.setState({ loading: true }, () => {
-      Http.post(`/dept/list-all`)
-        .then(res => {
-          this.setState({ loading: false, deptData: res.data.data })
-        })
-        .catch(error => {
-          this.setState({ loading: false })
-        })
-    })
+    this.loadDeptData()
     this.handleListChange()
   }
 
@@ -95,9 +87,28 @@ class List extends React.Component<IProps, IState> {
     })
   }
 
-  handleSelectChange = value => {
+  loadDeptData = () => {
+    this.setState({ loading: true }, () => {
+      Http.post(`/dept/list-all`)
+        .then(res => {
+          this.setState({ loading: false, deptData: res.data.data })
+        })
+        .catch(error => {
+          this.setState({ loading: false })
+        })
+    })
+  }
+
+  handleSelectChangeForKeyword = value => {
     const { conditions } = this.state.param
     conditions['keywords'] = value
+    this.setState({ current: 1 })
+    this.handleListChange()
+  }
+
+  handleSelectChangeForDept = value => {
+    const { conditions } = this.state.param
+    conditions['dept'] = { id: value }
     this.setState({ current: 1 })
     this.handleListChange()
   }
@@ -119,53 +130,73 @@ class List extends React.Component<IProps, IState> {
     })
   }
 
-  renderAside() {
-    const { deptData } = this.state
-    const treeData =
-      deptData.length > 1
-        ? deptData.map(dept => ({ title: dept['name'], key: dept['id'] }))
-        : undefined
-    return (
-      <div>
-        <div className="layout-content-aside-wrapper">
-          <div className="layout-content-aside-wrapper-search">
-            <Select
-              mode="default"
-              placeholder={'搜索科室'}
-              style={{ width: '100%' }}
-              showArrow={false}
-              showSearch
-            />
-          </div>
-          <div className="layout-content-aside-wrapper-btn">
-            <Button
-              type="primary"
-              onClick={event => {
-                event.preventDefault()
-                this.props.history.push(`${manageSiderPath}/add`)
-              }}
-            >
-              新建
-            </Button>
-          </div>
-        </div>
-        <Tree treeData={treeData} showLine />
-      </div>
-    )
-  }
+  // renderAside() {
+  //   const { deptData } = this.state
+  //   const treeData =
+  //     deptData.length > 1
+  //       ? deptData.map(dept => ({ title: dept['name'], key: dept['id'] }))
+  //       : undefined
+  //   return (
+  //     <div>
+  //       <div className="layout-content-aside-wrapper">
+  //         <div className="layout-content-aside-wrapper-search">
+  //           <Select
+  //             mode="default"
+  //             placeholder={'搜索科室'}
+  //             style={{ width: '100%' }}
+  //             showArrow={false}
+  //             showSearch
+  //           />
+  //         </div>
+  //         <div className="layout-content-aside-wrapper-btn">
+  //           <Button
+  //             type="primary"
+  //             onClick={event => {
+  //               event.preventDefault()
+  //               this.props.history.push(`${manageSiderPath}/add`)
+  //             }}
+  //           >
+  //             新建
+  //           </Button>
+  //         </div>
+  //       </div>
+  //       <Tree treeData={treeData} showLine />
+  //     </div>
+  //   )
+  // }
 
-  renderSearchBar() {
+  renderKeywordSearchBar() {
     return (
       <Select
         mode={'tags'}
-        placeholder={'请输入用户名'}
-        style={{ width: '280px' }}
+        placeholder={'请输入用户名、手机号或邮箱'}
+        style={{ width: '280px', marginRight: '24px' }}
         tokenSeparators={[' ']}
         showArrow={true}
         suffixIcon={<Icon style={{ fontSize: '16px' }} type="search" />}
-        onChange={this.handleSelectChange}
+        onChange={this.handleSelectChangeForKeyword}
         notFoundContent={null}
       />
+    )
+  }
+
+  renderDeptSearchBar() {
+    const { deptData } = this.state
+    return (
+      <span>
+        <label>所属科室：</label>
+        <Select
+          placeholder={'请选择'}
+          style={{ width: '280px' }}
+          allowClear
+          showArrow={true}
+          onChange={this.handleSelectChangeForDept}
+        >
+          {deptData.map(dept => (
+            <Option value={dept.id}>{dept.name}</Option>
+          ))}
+        </Select>
+      </span>
     )
   }
 
@@ -388,7 +419,8 @@ class List extends React.Component<IProps, IState> {
               <TabPane tab="账号" key="account">
                 <div className="list-page-content-toolbar">
                   <div className="list-page-content-toolbar-search">
-                    {this.renderSearchBar()}
+                    {this.renderKeywordSearchBar()}
+                    {this.renderDeptSearchBar()}
                   </div>
                   <div className="list-page-content-toolbar-button">
                     {this.renderButtonBar()}

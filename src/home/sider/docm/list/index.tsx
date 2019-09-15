@@ -13,6 +13,7 @@ import {
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import moment from 'moment'
 import IDocmVO from '../type'
+import { IDeptVO } from '../../user/manage/type'
 import Http, {
   QueryResult,
   QueryRequest,
@@ -48,6 +49,7 @@ interface IState {
     conditions: any | undefined
     sorters: any | undefined
   }
+  deptData: Array<IDeptVO>
 }
 
 class List extends React.Component<IProps, IState> {
@@ -66,13 +68,15 @@ class List extends React.Component<IProps, IState> {
       param: {
         conditions: {},
         sorters: {}
-      }
+      },
+      deptData: []
     }
   }
 
   componentDidMount() {
-    this.handleListChange()
     this.loadProjectTypes()
+    this.loadDeptData()
+    this.handleListChange()
   }
 
   handleListChange = () => {
@@ -103,6 +107,18 @@ class List extends React.Component<IProps, IState> {
       })
   }
 
+  loadDeptData = () => {
+    this.setState({ loading: true }, () => {
+      Http.post(`/dept/list-all`)
+        .then(res => {
+          this.setState({ loading: false, deptData: res.data.data })
+        })
+        .catch(error => {
+          this.setState({ loading: false })
+        })
+    })
+  }
+
   handleSelectChangeForKeyword = value => {
     const { conditions } = this.state.param
     conditions['keywords'] = value
@@ -113,6 +129,13 @@ class List extends React.Component<IProps, IState> {
   handleSelectChangeForProjectType = value => {
     const { conditions } = this.state.param
     conditions['projectType'] = value
+    this.setState({ current: 1 })
+    this.handleListChange()
+  }
+
+  handleSelectChangeForDept = value => {
+    const { conditions } = this.state.param
+    conditions['dept'] = { id: value }
     this.setState({ current: 1 })
     this.handleListChange()
   }
@@ -134,24 +157,29 @@ class List extends React.Component<IProps, IState> {
     })
   }
 
-  renderSearchBar() {
+  renderKeywordSearchBar() {
+    return (
+      <Select
+        mode={'tags'}
+        placeholder={'搜索合同名称或公司名称关键字'}
+        style={{ width: '280px', marginRight: '24px' }}
+        tokenSeparators={[' ']}
+        showArrow={true}
+        suffixIcon={<Icon style={{ fontSize: '16px' }} type="search" />}
+        onChange={this.handleSelectChangeForKeyword}
+        notFoundContent={null}
+      />
+    )
+  }
+
+  renderProjectTypeSearchBar() {
     const { projectTypes } = this.state
     return (
-      <div>
-        <Select
-          mode={'tags'}
-          placeholder={'搜索合同名称或公司名称关键字'}
-          style={{ width: '280px' }}
-          tokenSeparators={[' ']}
-          showArrow={true}
-          suffixIcon={<Icon style={{ fontSize: '16px' }} type="search" />}
-          onChange={this.handleSelectChangeForKeyword}
-          notFoundContent={null}
-        />
-        <label style={{ margin: '0px 0px 0px 40px' }}>合同类型：</label>
+      <span>
+        <label>合同类型：</label>
         <Select
           placeholder={'请选择合同类型'}
-          style={{ width: '280px' }}
+          style={{ width: '280px', marginRight: '24px' }}
           allowClear
           showArrow={true}
           onChange={this.handleSelectChangeForProjectType}
@@ -161,7 +189,27 @@ class List extends React.Component<IProps, IState> {
             <Option value={pType}>{pType}</Option>
           ))}
         </Select>
-      </div>
+      </span>
+    )
+  }
+
+  renderDeptSearchBar() {
+    const { deptData } = this.state
+    return (
+      <span>
+        <label>所属科室：</label>
+        <Select
+          placeholder={'请选择'}
+          style={{ width: '280px', marginRight: '24px' }}
+          allowClear
+          showArrow={true}
+          onChange={this.handleSelectChangeForDept}
+        >
+          {deptData.map(dept => (
+            <Option value={dept.id}>{dept.name}</Option>
+          ))}
+        </Select>
+      </span>
     )
   }
 
@@ -532,7 +580,9 @@ class List extends React.Component<IProps, IState> {
           <div className="list-page-content">
             <div className="list-page-content-toolbar">
               <div className="list-page-content-toolbar-search">
-                {this.renderSearchBar()}
+                {this.renderKeywordSearchBar()}
+                {this.renderProjectTypeSearchBar()}
+                {this.renderDeptSearchBar()}
               </div>
               <div className="list-page-content-toolbar-button">
                 {this.renderButtonBar()}
