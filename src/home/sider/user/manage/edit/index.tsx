@@ -268,7 +268,7 @@ class NormalForm extends React.Component<FormProps, FormState> {
                 validator: async (rule, value, callback, source, options) => {
                   const id = getFieldValue('id')
                   await Http.get(
-                    `/user/cku-username?username=${value}&id=${id}`
+                    `/user/check-unique-username?username=${value}&id=${id}`
                   )
                     .then(res => {
                       if (res.data.status === '00000000') {

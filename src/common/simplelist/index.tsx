@@ -112,14 +112,19 @@ class List extends React.Component<IProps, IState> {
       title: '确定删除?',
       okText: '确认',
       cancelText: '取消',
-      onOk: async () => {
+      onOk: () => {
         let queryString = ''
         ids.forEach(id => (queryString = queryString.concat(`ids=${id}&`)))
-        await Http.delete(
+        Http.delete(
           `${httpPath}?${queryString.substring(0, queryString.length - 1)}`
-        )
-        message.success('删除成功')
-        this.handleListChange()
+        ).then(res => {
+          if (res.data.status === '00000000') {
+            message.success('删除成功')
+            this.handleListChange()
+          } else {
+            message.error(res.data.message)
+          }
+        })
       }
     })
   }

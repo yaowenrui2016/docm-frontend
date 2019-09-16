@@ -222,7 +222,9 @@ class NormalForm extends React.Component<FormProps, FormState> {
               {
                 message: '用户名已存在',
                 validator: async (rule, value, callback, source, options) => {
-                  await Http.get(`/user/cku-username?username=${value}`)
+                  await Http.get(
+                    `/user/check-unique-username?username=${value}`
+                  )
                     .then(res => {
                       if (res.data.status === '00000000') {
                         const cku = res.data.data === true ? true : undefined

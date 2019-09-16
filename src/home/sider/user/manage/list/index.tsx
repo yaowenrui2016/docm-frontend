@@ -8,7 +8,8 @@ import {
   message,
   Icon,
   Modal,
-  Tabs
+  Tabs,
+  Tooltip
 } from 'antd'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import moment from 'moment'
@@ -118,14 +119,20 @@ class List extends React.Component<IProps, IState> {
       title: '确定删除?',
       okText: '确认',
       cancelText: '取消',
-      onOk: async () => {
+      onOk: () => {
         let queryString = ''
         ids.forEach(id => (queryString = queryString.concat(`ids=${id}&`)))
-        await Http.delete(
+        Http.delete(
           `/user?${queryString.substring(0, queryString.length - 1)}`
-        )
-        message.success('删除成功')
-        this.handleListChange()
+        ).then(res => {
+          debugger
+          if (res.data.status === '00000000') {
+            message.success('删除成功')
+            this.handleListChange()
+          } else {
+            message.error(res.data.message)
+          }
+        })
       }
     })
   }
@@ -266,6 +273,28 @@ class List extends React.Component<IProps, IState> {
           style: { textAlign: 'center', width: '20%' }
         }),
         onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
+      },
+      {
+        title: '科室',
+        dataIndex: 'dept',
+        key: 'dept',
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '10%' }
+        }),
+        onCell: (record, rowIndex) => ({
+          style: {
+            textAlign: 'center',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            cursor: 'pointer'
+          }
+        }),
+        render: text => (
+          <Tooltip placement="topLeft" title={text ? text.name : ''}>
+            {text ? text.name : ''}
+          </Tooltip>
+        )
       },
       {
         title: '冻结状态',
