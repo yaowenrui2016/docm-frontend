@@ -4,7 +4,8 @@ import { FormComponentProps } from 'antd/lib/form'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import Http from '../common/http/index'
 import md5 from 'js-md5'
-import img from '../assert/img/aaa.jpg'
+import img from '../assert/img/login_3.jpg'
+import Logo from '../assert/svg/Logo.svg'
 import './index.css'
 
 type IProps = RouteComponentProps & {}
@@ -46,32 +47,32 @@ class Login extends React.Component<IProps, IState> {
 
   render() {
     return (
-      <div
-        id="hehe"
-        style={{
-          width: '100%',
-          height: '100%',
-          overflow: 'hidden',
-          backgroundPosition: '50%',
-          backgroundRepeat: 'no - repeat',
-          backgroundSize: 'cover',
-          backgroundImage: `url(${img})`
-        }}
-      >
+      <div className="login">
+        <img className="login-img" src={img} alt="" />
         <div className="login-form">
+          <div className="login-form-top">
+            <div className="logo">
+              <a href="/">
+                <img className="logo-img" src={Logo} alt="logo" />
+                <span className="logo-text">Contract MS</span>
+              </a>
+            </div>
+            <div className="logo-desc">欢迎登录合同管理系统</div>
+          </div>
           <WrappedNormalLoginForm
             wrappedComponentRef={(form: React.ReactElement<FormProps>) => {
               this.form = form
             }}
           />
           <Button
-            className="login-form-button"
+            className="login-form-item"
             type="primary"
             onClick={this.handleSubmit}
           >
             登录
           </Button>
         </div>
+        <div className="copyright"></div>
       </div>
     )
   }
@@ -89,14 +90,15 @@ class NormalLoginForm extends React.Component<FormProps, any> {
   render() {
     const { getFieldDecorator } = this.props.form
     return (
-      <Form>
+      <Form layout={'vertical'}>
         <Form.Item>
           {getFieldDecorator('username', {
             rules: [{ required: true, message: '请输入用户名' }]
           })(
             <Input
+              className="login-form-item"
               prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-              placeholder="Username"
+              placeholder="用户名"
             />
           )}
         </Form.Item>
@@ -105,9 +107,10 @@ class NormalLoginForm extends React.Component<FormProps, any> {
             rules: [{ required: true, message: '请输入密码' }]
           })(
             <Input
+              className="login-form-item"
               prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
               type="password"
-              placeholder="Password"
+              placeholder="密码"
             />
           )}
         </Form.Item>
