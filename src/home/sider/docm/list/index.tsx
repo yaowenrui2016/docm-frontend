@@ -472,6 +472,7 @@ class List extends React.Component<IProps, IState> {
                         href={`${serverPath}/doc?id=${
                           record.id
                         }&xAuthToken=${sessionStorage.getItem('xAuthToken')}`}
+                        target="_blank"
                       >
                         下载
                       </Button>

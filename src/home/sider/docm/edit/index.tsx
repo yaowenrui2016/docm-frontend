@@ -186,7 +186,9 @@ class Edit extends React.Component<IProps, IState> {
           <Upload
             style={{ width: '100%' }}
             name="files"
-            action={`${serverPath}/doc`}
+            action={`${serverPath}/doc?xAuthToken=${sessionStorage.getItem(
+              'xAuthToken'
+            )}`}
             listType={'picture'}
             multiple={false}
             fileList={fileList}
