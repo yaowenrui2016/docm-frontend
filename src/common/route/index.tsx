@@ -2,6 +2,7 @@ import React from 'react'
 import { Route, Redirect } from 'react-router-dom'
 import { Result } from 'antd'
 import { UserContext } from '../../home/index'
+// import Http from '../http/index'
 
 // 这个组件将根据登录的情况, 返回一个路由
 const PrivateRoute = ({ component: Component, ...props }) => {
@@ -24,7 +25,14 @@ const PrivateRoute = ({ component: Component, ...props }) => {
           <Route
             {...props}
             render={p => {
-              const userId = sessionStorage.getItem('userId')
+              let userId = sessionStorage.getItem('userId')
+              // if (!userId) {
+              //   debugger
+              //   Http.get(`/account?id=`).then(res => {
+              //     userId = res.data.data.id
+              //     sessionStorage.setItem('userId', res.data.data.id)
+              //   })
+              // }
               if (userId) {
                 // 如果登录了, 返回正确的路由
                 return perm ? (

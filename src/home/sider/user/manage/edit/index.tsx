@@ -184,7 +184,7 @@ class Edit extends React.Component<IProps, IState> {
                 onChange={this.handleDeptOnChange}
               >
                 {deptData.map(dept => (
-                  <Option value={dept.id}>{dept.name}</Option>
+                  <Option key={dept.id} value={dept.id}>{dept.name}</Option>
                 ))}
               </Select>
             </Form.Item>

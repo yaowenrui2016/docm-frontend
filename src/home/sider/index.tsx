@@ -37,19 +37,19 @@ class Side extends React.Component<IProps, IState> {
           const routeMap = [
             {
               key: '/docm',
-              value: <Route path={'/main/docm'} component={DocmModule} />
+              value: <Route key="docm" path={'/main/docm'} component={DocmModule} />
             },
             {
               key: '/user',
-              value: <Route path={'/main/user'} component={UserModule} />
+              value: <Route key="user" path={'/main/user'} component={UserModule} />
             },
             {
               key: '/account',
-              value: <Route path={'/main/account'} component={AccountModule} />
+              value: <Route key="account" path={'/main/account'} component={AccountModule} />
             },
             {
               key: '/operlog',
-              value: <Route path={'/main/operlog'} component={OperlogModule} />
+              value: <Route key="operlog" path={'/main/operlog'} component={OperlogModule} />
             }
           ]
           return (

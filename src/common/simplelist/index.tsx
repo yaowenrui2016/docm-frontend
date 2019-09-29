@@ -215,30 +215,29 @@ class List extends React.Component<IProps, IState> {
         render: (text, record, index) => {
           return (
             <div>
-              <Icon
-                style={{ fontSize: '17px', margin: '0 9px 0 0' }}
-                title={'编辑'}
-                type="edit"
+              <Button
+                type={'link'}
                 onClick={event => {
                   event.preventDefault()
                   this.setState({ modalFlag: 2, modalData: record })
                 }}
-              />
-              <div id="downloadDiv" style={{ display: 'none' }} />
-              <Icon
-                style={{ fontSize: '17px', margin: '0 9px 0 0' }}
-                title={'删除'}
-                type="delete"
+              >
+                编辑
+              </Button>
+              <Button
+                type={'link'}
                 onClick={event => {
                   event.preventDefault()
                   this.handleDeleteOper([record.id])
                 }}
-              />
+              >
+                删除
+              </Button>
             </div>
           )
         },
         onHeaderCell: column => ({
-          style: { textAlign: 'center', width: '12%' }
+          style: { textAlign: 'center', width: '16%' }
         }),
         onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       }

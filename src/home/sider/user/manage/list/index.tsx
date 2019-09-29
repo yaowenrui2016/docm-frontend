@@ -125,7 +125,6 @@ class List extends React.Component<IProps, IState> {
         Http.delete(
           `/user?${queryString.substring(0, queryString.length - 1)}`
         ).then(res => {
-          debugger
           if (res.data.status === '00000000') {
             message.success('删除成功')
             this.handleListChange()
@@ -136,41 +135,6 @@ class List extends React.Component<IProps, IState> {
       }
     })
   }
-
-  // renderAside() {
-  //   const { deptData } = this.state
-  //   const treeData =
-  //     deptData.length > 1
-  //       ? deptData.map(dept => ({ title: dept['name'], key: dept['id'] }))
-  //       : undefined
-  //   return (
-  //     <div>
-  //       <div className="layout-content-aside-wrapper">
-  //         <div className="layout-content-aside-wrapper-search">
-  //           <Select
-  //             mode="default"
-  //             placeholder={'搜索科室'}
-  //             style={{ width: '100%' }}
-  //             showArrow={false}
-  //             showSearch
-  //           />
-  //         </div>
-  //         <div className="layout-content-aside-wrapper-btn">
-  //           <Button
-  //             type="primary"
-  //             onClick={event => {
-  //               event.preventDefault()
-  //               this.props.history.push(`${manageSiderPath}/add`)
-  //             }}
-  //           >
-  //             新建
-  //           </Button>
-  //         </div>
-  //       </div>
-  //       <Tree treeData={treeData} showLine />
-  //     </div>
-  //   )
-  // }
 
   renderKeywordSearchBar() {
     return (
@@ -200,7 +164,9 @@ class List extends React.Component<IProps, IState> {
           onChange={this.handleSelectChangeForDept}
         >
           {deptData.map(dept => (
-            <Option value={dept.id}>{dept.name}</Option>
+            <Option key={dept.id} value={dept.id}>
+              {dept.name}
+            </Option>
           ))}
         </Select>
       </span>
@@ -329,21 +295,19 @@ class List extends React.Component<IProps, IState> {
         render: (text, record, index) => {
           return (
             <div>
-              <Icon
-                style={{ fontSize: '17px', margin: '0 9px 0 0' }}
-                title={'编辑'}
-                type="edit"
+              <Button
+                type={'link'}
                 onClick={event => {
                   event.preventDefault()
                   this.props.history.push(
                     `${manageSiderPath}/edit/${record.id}`
                   )
                 }}
-              />
-              <Icon
-                style={{ fontSize: '17px', margin: '0 9px 0 0' }}
-                title={record.frozen ? '解冻' : '冻结'}
-                type={record.frozen ? 'lock' : 'unlock'}
+              >
+                编辑
+              </Button>
+              <Button
+                type={'link'}
                 onClick={event => {
                   event.preventDefault()
                   const operation = record.frozen ? 'unfreeze' : 'freeze'
@@ -356,22 +320,23 @@ class List extends React.Component<IProps, IState> {
                       this.handleListChange()
                     })
                 }}
-              />
-              <div id="downloadDiv" style={{ display: 'none' }} />
-              <Icon
-                style={{ fontSize: '17px', margin: '0 9px 0 0' }}
-                title={'删除'}
-                type="delete"
+              >
+                {record.frozen ? '解冻' : '冻结'}
+              </Button>
+              <Button
+                type={'link'}
                 onClick={event => {
                   event.preventDefault()
                   this.handleDeleteOper([record.id])
                 }}
-              />
+              >
+                删除
+              </Button>
             </div>
           )
         },
         onHeaderCell: column => ({
-          style: { textAlign: 'center', width: '12%' }
+          style: { textAlign: 'center', width: '18%' }
         }),
         onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       }

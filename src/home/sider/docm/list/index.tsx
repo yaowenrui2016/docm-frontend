@@ -186,7 +186,9 @@ class List extends React.Component<IProps, IState> {
           notFoundContent={'暂无数据'}
         >
           {projectTypes.map(pType => (
-            <Option value={pType}>{pType}</Option>
+            <Option key={pType} value={pType}>
+              {pType}
+            </Option>
           ))}
         </Select>
       </span>
@@ -206,7 +208,9 @@ class List extends React.Component<IProps, IState> {
           onChange={this.handleSelectChangeForDept}
         >
           {deptData.map(dept => (
-            <Option value={dept.id}>{dept.name}</Option>
+            <Option key={dept.id} value={dept.id}>
+              {dept.name}
+            </Option>
           ))}
         </Select>
       </span>
@@ -450,42 +454,35 @@ class List extends React.Component<IProps, IState> {
                 return (
                   <div>
                     {DOCM_EDIT_OPER_permission && (
-                      <Icon
-                        style={{ fontSize: '17px', margin: '0 9px 0 0' }}
-                        title={'编辑'}
-                        type="edit"
+                      <Button
+                        type={'link'}
                         onClick={event => {
                           event.preventDefault()
                           this.props.history.push(
                             `${modulePath}/edit/${record.id}`
                           )
                         }}
-                      />
+                      >
+                        编辑
+                      </Button>
                     )}
                     {DOCM_DOWNLOAD_OPER_permission && (
-                      <Icon
-                        style={{ fontSize: '17px', margin: '0 9px 0 0' }}
-                        title={'下载'}
-                        type="download"
-                        onClick={event => {
-                          event.preventDefault()
-                          const url = `${serverPath}/doc?id=${record.id}`
-                          const aElement = document.createElement('a')
-                          aElement.href = url
-                          aElement.target = '_blank'
-                          aElement.click()
-                          window.URL.revokeObjectURL(url)
-                        }}
-                      />
+                      <Button
+                        type={'link'}
+                        href={`${serverPath}/doc?id=${
+                          record.id
+                        }&xAuthToken=${sessionStorage.getItem('xAuthToken')}`}
+                      >
+                        下载
+                      </Button>
                     )}
-                    <div id="downloadDiv" style={{ display: 'none' }} />
                     {DOCM_DELETE_OPER_permission && (
-                      <Icon
-                        style={{ fontSize: '17px', margin: '0 9px 0 0' }}
-                        title={'删除'}
-                        type="delete"
+                      <Button
+                        type={'link'}
                         onClick={() => this.handleDeleteOper([record.id])}
-                      />
+                      >
+                        删除
+                      </Button>
                     )}
                   </div>
                 )
@@ -494,7 +491,7 @@ class List extends React.Component<IProps, IState> {
           )
         },
         onHeaderCell: column => ({
-          style: { textAlign: 'center', width: '12%' }
+          style: { textAlign: 'center', width: '16%' }
         }),
         onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       }

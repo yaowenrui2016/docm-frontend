@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import './index.css'
-import { Layout, Menu, Avatar, Dropdown, Button } from 'antd'
+import { Layout, Menu, Dropdown, Button, Icon } from 'antd'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import headerMenu from '../menu'
 import { UserContext } from '../index'
@@ -64,13 +64,15 @@ class HomeHeader extends Component<IProps, IState> {
           return (
             <div>
               <Header className="header">
-                {/* <div key="logo" className="logo" /> */}
+                {/* <span key="logo" className="logo">
+                  LOGO
+                </span> */}
                 <Menu
                   className="navbar"
                   theme="dark"
                   mode="horizontal"
                   selectedKeys={selectedKeys}
-                  style={{ lineHeight: '64px' }}
+                  style={{ lineHeight: '50px' }}
                   onSelect={param => {
                     const { history, match } = this.props
                     history.push(match.path + param.key)
@@ -84,18 +86,34 @@ class HomeHeader extends Component<IProps, IState> {
                     )
                   })}
                 </Menu>
-                <Dropdown overlay={menu} placement="bottomRight">
-                  <Avatar
-                    style={{
-                      margin: '0 8px 0 0',
-                      color: 'white',
-                      fontSize: '25px'
-                    }}
-                    size="large"
-                  >
-                    {userInfo['username']}
-                  </Avatar>
-                </Dropdown>
+                <Menu
+                  className="userbar"
+                  theme="dark"
+                  mode="horizontal"
+                  style={{ lineHeight: '50px' }}
+                  selectable={false}
+                >
+                  <Menu.Item key="user">
+                    <Dropdown overlay={menu} placement="bottomRight">
+                      <span>
+                        <Icon
+                          style={{ fontSize: '18px', color: '#fff' }}
+                          type="user"
+                        />
+                        <span
+                          style={{
+                            fontSize: '18px',
+                            color: '#fff',
+                            margin: '0 8px 0 0'
+                          }}
+                        >
+                          {userInfo['username']}
+                        </span>
+                        <Icon style={{ color: '#fff' }} type="caret-down" />
+                      </span>
+                    </Dropdown>
+                  </Menu.Item>
+                </Menu>
               </Header>
             </div>
           )

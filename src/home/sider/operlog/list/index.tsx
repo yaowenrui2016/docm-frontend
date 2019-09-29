@@ -270,7 +270,7 @@ class List extends React.Component<IProps, IState> {
                   onChange={this.handleSelectChangeForOperName}
                 >
                   {operNames.map(operName => (
-                    <Option value={operName}>{operName}</Option>
+                    <Option key={operName} value={operName}>{operName}</Option>
                   ))}
                 </Select>
               </Form.Item>
