@@ -227,7 +227,7 @@ class List extends React.Component<IProps, IState> {
         dataIndex: 'phone',
         key: 'phone',
         onHeaderCell: column => ({
-          style: { textAlign: 'center', width: '16%' }
+          style: { textAlign: 'center', width: '12%' }
         }),
         onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
@@ -236,7 +236,7 @@ class List extends React.Component<IProps, IState> {
         dataIndex: 'email',
         key: 'email',
         onHeaderCell: column => ({
-          style: { textAlign: 'center', width: '20%' }
+          style: { textAlign: 'center', width: '16%' }
         }),
         onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
@@ -267,10 +267,14 @@ class List extends React.Component<IProps, IState> {
         dataIndex: 'frozen',
         key: 'frozen',
         render: (text, record, index) => {
-          return record.frozen ? '已冻结' : '正常'
+          return record.frozen ? (
+            <span className="warn-text">已冻结</span>
+          ) : (
+            <span className="success-text">正常</span>
+          )
         },
         onHeaderCell: column => ({
-          style: { textAlign: 'center', width: '6%' }
+          style: { textAlign: 'center', width: '8%' }
         }),
         onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
