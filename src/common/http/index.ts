@@ -37,10 +37,6 @@ http.interceptors.response.use(response => {
   if (xAuthToken) {
     sessionStorage.setItem('xAuthToken', xAuthToken)
   }
-  // TODO
-  if (response.data.status === "03001020") {
-    throw new Error(response.data.message)
-  }
   return response
 }, error => {
   if (error.response.status === 401) {
@@ -49,6 +45,9 @@ http.interceptors.response.use(response => {
     setTimeout(() => {
       createHashHistory().push("/login")
     }, 500)
+  }
+  if (error.response.status === 403) {
+    message.error('您没有访问权限', 3)
   }
 })
 

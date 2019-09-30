@@ -17,10 +17,12 @@ import moment from 'moment'
 import IDocmVO from '../type'
 import Http, { serverPath } from '../../../../common/http'
 import { modulePath } from '../index'
+import './index.css'
 
 const { Content } = Layout
 const { MonthPicker } = DatePicker
 const { Option } = Select
+const { Dragger } = Upload
 
 type IProps = RouteComponentProps & {
   username: string
@@ -153,11 +155,44 @@ class Edit extends React.Component<IProps, IState> {
     this.setState({ selectedDept: dept })
   }
 
-  renderContent() {
-    const { mode, fileList, deptData, selectedDept } = this.state
+  handleChangeForFileDrag = info => {
+    const { status } = info.file
+    const { fileList } = info
+    if (status === 'uploading') {
+      // did nothing
+    }
+    if (status === 'done' || status === 'removed' || status === 'error') {
+      this.setState({ fileList: info.fileList })
+      this.setFormDataForFileDrag(fileList)
+    }
+    if (status === 'error') {
+      if (info.file.error.status === 403) {
+        message.error(`您没有上传权限`)
+      } else {
+        message.error(`${info.file.name} 上传失败`)
+      }
+    }
+  }
+
+  setFormDataForFileDrag = fileList => {
     const setFieldsValue = this.form
       ? this.form.props.form.setFieldsValue
       : undefined
+    const attachments = fileList
+      .filter(file => {
+        return file.status === 'done'
+      })
+      .map(file => {
+        return {
+          docName: file.response.data[0]['docName'],
+          docPath: file.response.data[0]['docPath']
+        }
+      })
+    setFieldsValue && setFieldsValue({ attachments })
+  }
+
+  renderContent = () => {
+    const { mode, fileList, deptData, selectedDept } = this.state
     return (
       <Form {...formItemLayout}>
         <Form.Item key={'dept'} label="所属科室">
@@ -182,38 +217,31 @@ class Edit extends React.Component<IProps, IState> {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item key={'files'} label="上传附件">
+        <Form.Item key={'upload'} label={'附件'}>
+          {fileList.length > 0 ? null : (
+            <Dragger
+              name={'files'}
+              multiple={false}
+              action={`${serverPath}/doc?xAuthToken=${sessionStorage.getItem(
+                'xAuthToken'
+              )}`}
+              onChange={this.handleChangeForFileDrag}
+            >
+              <p className="ant-upload-drag-icon">
+                <Icon type="inbox" />
+              </p>
+              <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
+              <p className="ant-upload-hint">
+                仅支持一次性单个文件，且文件类型为pdf
+              </p>
+            </Dragger>
+          )}
           <Upload
-            style={{ width: '100%' }}
-            name="files"
-            action={`${serverPath}/doc?xAuthToken=${sessionStorage.getItem(
-              'xAuthToken'
-            )}`}
-            listType={'picture'}
-            multiple={false}
             fileList={fileList}
-            onChange={info => {
-              const { fileList } = info
-              const attachments = fileList
-                .filter(file => {
-                  return file.status === 'done'
-                })
-                .map(file => {
-                  return {
-                    docName: file.response.data[0]['docName'],
-                    docPath: file.response.data[0]['docPath']
-                  }
-                })
-              setFieldsValue && setFieldsValue({ attachments })
-              this.setState({ fileList })
-            }}
-          >
-            <Button block>
-              <Icon type="upload" /> 请选择
-            </Button>
-          </Upload>
+            onChange={this.handleChangeForFileDrag}
+          ></Upload>
         </Form.Item>
-        <Form.Item {...tailFormItemLayout} key={'submit'}>
+        <Form.Item key={'submit'} {...tailFormItemLayout}>
           <Button block type={'primary'} onClick={this.handleSubmit}>
             {mode === 'add' ? '提交' : '保存'}
           </Button>

@@ -3,7 +3,7 @@ import { Layout, Button, Form, Spin, Upload } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import IDocmVO from '../type'
-import Http, { serverPath } from '../../../../common/http'
+import Http from '../../../../common/http'
 import { modulePath } from '../index'
 
 const { Content } = Layout
@@ -115,14 +115,10 @@ class View extends React.Component<IProps, IState> {
         <Form.Item key={'dept'} label="科室">
           {data.dept ? data.dept.name : ''}
         </Form.Item>
-        <Form.Item key={'files'} label="上传附件">
+        <Form.Item key={'files'} label="附件">
           <Upload
-            style={{ width: '100%' }}
-            name="files"
-            action={`${serverPath}/doc`}
-            listType={'picture'}
-            multiple={false}
             fileList={fileList}
+            showUploadList={{ showPreviewIcon: true, showRemoveIcon: false }}
           />
         </Form.Item>
       </Form>
