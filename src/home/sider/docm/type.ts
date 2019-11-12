@@ -11,6 +11,7 @@ export default interface IDocmVO {
   money: string
   dept: { id: string, name: string }
   attachments: Array<{
+    id: string
     docName: string
     docPath: string
   }>

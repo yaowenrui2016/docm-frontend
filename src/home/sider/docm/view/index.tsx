@@ -1,9 +1,10 @@
 import React from 'react'
-import { Layout, Button, Form, Spin, Upload } from 'antd'
+import { Layout, Button, Form, Spin, Upload ,Modal} from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import IDocmVO from '../type'
-import Http from '../../../../common/http'
+import PreView from '../preview'
+import Http, {serverPath} from '../../../../common/http'
 import { modulePath } from '../index'
 
 const { Content } = Layout
@@ -38,6 +39,8 @@ interface IState {
   loading: boolean
   data: IDocmVO | undefined
   fileList: Array<UploadFile>
+  showPreview:boolean
+  attachmentId:string|undefined
 }
 
 class View extends React.Component<IProps, IState> {
@@ -46,7 +49,9 @@ class View extends React.Component<IProps, IState> {
     this.state = {
       loading: true,
       data: undefined,
-      fileList: []
+      fileList: [],
+      showPreview:false,
+      attachmentId:undefined
     }
   }
 
@@ -118,8 +123,21 @@ class View extends React.Component<IProps, IState> {
         <Form.Item key={'files'} label="附件">
           <Upload
             fileList={fileList}
+            listType={'text'}
             showUploadList={{ showPreviewIcon: true, showRemoveIcon: false }}
+            onPreview={(file) => {
+              this.setState({showPreview:true, attachmentId: file.uid})
+            }}
           />
+          <Button
+          type={'link'}
+          href={`${serverPath}/doc/pre-view?id=${
+            fileList[0]['uid']
+          }&xAuthToken=${sessionStorage.getItem('xAuthToken')}`}
+          target="_blank"
+        >
+          下载
+        </Button>
         </Form.Item>
       </Form>
     ) : (
@@ -128,6 +146,7 @@ class View extends React.Component<IProps, IState> {
   }
 
   render() {
+    const {attachmentId} = this.state
     return (
       <Content>
         <div
@@ -155,6 +174,15 @@ class View extends React.Component<IProps, IState> {
                 返回
               </Button>
             </span>
+          </div>
+          <div>
+            <Modal 
+              title="预览"
+              visible={this.state.showPreview}
+              onCancel={()=>{this.setState({showPreview:false})}}>
+            <h2>hehe</h2>
+            {attachmentId && <PreView docmId={attachmentId}/>}
+            </Modal>
           </div>
         </div>
         <div style={{ margin: '8px' }}>{this.renderContent()}</div>
