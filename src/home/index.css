@@ -1,10 +1,21 @@
 .ant-layout {
   height: 100%;
-  background-color: #eceef1;
+  background-color: #fff;
 }
 
 .aside-item:hover,
 .navbar-item:hover,
 .ant-menu.ant-menu-dark .ant-menu-item-selected {
   background-color: #346ac3 !important;
+}
+
+.tool-bar {
+  height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.tool-bar-item {
+  flex: 1;
+  margin-right: 6px;
 }

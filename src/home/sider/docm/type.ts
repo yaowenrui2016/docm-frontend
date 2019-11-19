@@ -6,15 +6,29 @@ export default interface IDocmVO {
   company: string
   contractNum: string
   contractTime: string
-  credentialNum: string
-  credentialTime: string
   money: string
   dept: { id: string, name: string }
-  attachments: Array<{
-    id: string
-    docName: string
-    docPath: string
-  }>
+  attachments: Array<IAttachmentVO>
+  payItems: Array<IPayItemVO>
+  desc: string
   createTime: string
   lastModifyTime: string
+}
+
+export interface IAttachmentVO {
+  id?: string
+  docmId?: string
+  docName: string
+  docPath: string
+  type: string
+  size: number
+  md5: string
+}
+
+export interface IPayItemVO {
+  order: number
+  money: string
+  credentialNum: string
+  credentialTime: string
+  desc: string
 }

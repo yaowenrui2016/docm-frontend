@@ -397,26 +397,14 @@ class List extends React.Component<IProps, IState> {
         )
       },
       {
-        title: '合同签订时间',
-        dataIndex: 'contractTime',
-        key: 'contractTime',
+        title: '总金额',
+        dataIndex: 'money',
+        key: 'money',
         sorter: (a, b) => {
           return a.id - b.id
         },
         onHeaderCell: column => ({
-          style: { textAlign: 'center', width: '10%' }
-        }),
-        onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
-      },
-      {
-        title: '凭证时间',
-        dataIndex: 'credentialTime',
-        key: 'credentialTime',
-        sorter: (a, b) => {
-          return a.id - b.id
-        },
-        onHeaderCell: column => ({
-          style: { textAlign: 'center', width: '8%' }
+          style: { textAlign: 'center', width: '15%' }
         }),
         onCell: (record, rowIndex) => ({ style: { textAlign: 'center' } })
       },
@@ -537,7 +525,7 @@ class List extends React.Component<IProps, IState> {
                   }
                 }
               }}
-              // size={'middle'}
+              size={'default'}
               pagination={{
                 total,
                 current,
