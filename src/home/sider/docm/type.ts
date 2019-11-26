@@ -6,13 +6,18 @@ export default interface IDocmVO {
   company: string
   contractNum: string
   contractTime: string
-  money: string
-  dept: { id: string, name: string }
+  money: number
+  dept: IDeptVO
   attachments: Array<IAttachmentVO>
   payItems: Array<IPayItemVO>
   desc: string
   createTime: string
   lastModifyTime: string
+}
+
+export interface IDeptVO {
+  id: string
+  name: string
 }
 
 export interface IAttachmentVO {
@@ -27,7 +32,7 @@ export interface IAttachmentVO {
 
 export interface IPayItemVO {
   order: number
-  money: string
+  money: number
   credentialNum: string
   credentialTime: string
   desc: string

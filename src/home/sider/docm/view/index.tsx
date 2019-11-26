@@ -8,18 +8,20 @@ import {
   Modal,
   Row,
   Col,
-  Table
+  Table,
+  message
 } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import IDocmVO from '../type'
-import PreView from '../preview'
 import {
   colLayout as customColLayout,
   singleRowFormItemLayout,
   formItemLayout,
   commonTableColumnProps
 } from '../util'
+import { FormComponentProps } from 'antd/lib/form'
+import PayItemForm from './payItemForm'
 import Http from '../../../../common/http'
 import { modulePath } from '../index'
 import './index.css'
@@ -36,8 +38,8 @@ interface IState {
   loading: boolean
   data: IDocmVO
   fileList: Array<UploadFile>
-  showPreview: boolean
   attachmentId: string | undefined
+  showPayItemForm: boolean
 }
 
 class View extends React.Component<IProps, IState> {
@@ -47,15 +49,19 @@ class View extends React.Component<IProps, IState> {
       loading: true,
       data: {} as IDocmVO,
       fileList: [],
-      showPreview: false,
-      attachmentId: undefined
+      attachmentId: undefined,
+      showPayItemForm: false
     }
   }
 
   componentDidMount() {
+    this.refreshPage()
+  }
+
+  refreshPage() {
     const { match } = this.props
     const id = match.params['id']
-    this.setState({ loading: true }, () => {
+    this.setState({ loading: true, showPayItemForm: false }, () => {
       Http.get(`/docm?id=${id}`)
         .then(res => {
           const data = res.data.data
@@ -81,9 +87,50 @@ class View extends React.Component<IProps, IState> {
     })
   }
 
-  handleCancel = e => {
+  goBack = e => {
     e.preventDefault()
     this.props.history.push(`${modulePath}/list`)
+  }
+
+  renderToolBar() {
+    return (
+      <div style={{ margin: '4px', flex: 1 }}>
+        <span style={{ float: 'right' }}>
+          <Button
+            className={'ele-operation'}
+            type={'primary'}
+            onClick={event => {
+              event.preventDefault()
+              const { match } = this.props
+              const id = match.params['id']
+              this.props.history.push(`${modulePath}/edit/${id}`)
+            }}
+          >
+            编辑
+          </Button>
+          <Button type={'default'} onClick={this.goBack}>
+            返回
+          </Button>
+        </span>
+      </div>
+    )
+  }
+
+  handleDeletePayItem = async (ids: Array<string> | Array<number>) => {
+    Modal.confirm({
+      title: '确定删除?',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: async () => {
+        let queryString = ''
+        ids.forEach(id => (queryString = queryString.concat(`ids=${id}&`)))
+        await Http.delete(
+          `/docm/pay-item?${queryString.substring(0, queryString.length - 1)}`
+        )
+        message.success('删除成功')
+        this.refreshPage()
+      }
+    })
   }
 
   renderContent() {
@@ -143,9 +190,6 @@ class View extends React.Component<IProps, IState> {
             fileList={fileList}
             listType={'text'}
             showUploadList={{ showPreviewIcon: true, showRemoveIcon: false }}
-            onPreview={file => {
-              this.setState({ showPreview: true, attachmentId: file.uid })
-            }}
           />
         </Form.Item>
       </Form>
@@ -157,13 +201,18 @@ class View extends React.Component<IProps, IState> {
   renderPayItem() {
     const {
       loading,
+      data,
       data: { payItems }
     } = this.state
     const columns = [
       {
         ...commonTableColumnProps,
         title: '序号',
-        key: 'index'
+        dataIndex: 'order',
+        key: 'order',
+        onHeaderCell: column => ({
+          style: { textAlign: 'center', width: '3%' }
+        })
       },
       {
         ...commonTableColumnProps,
@@ -194,20 +243,52 @@ class View extends React.Component<IProps, IState> {
         title: '备注',
         dataIndex: 'desc',
         key: 'desc'
+      },
+      {
+        ...commonTableColumnProps,
+        title: '操作',
+        dataIndex: 'operation',
+        key: 'operation',
+        render: (text, record) => {
+          return (
+            <Button
+              type={'link'}
+              onClick={this.handleDeletePayItem.bind(this, [record.id])}
+            >{`删除`}</Button>
+          )
+        }
       }
     ]
+    let sum = 0
+    payItems && payItems.forEach(item => (sum = sum + item.money))
     return !loading ? (
       <Table
         columns={columns}
         dataSource={payItems}
+        size={'small'}
         bordered
+        pagination={false}
         title={() => (
-          <div style={{ display: 'flex' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ flex: 1 }}>
               <h2>{`付款项`}</h2>
             </div>
             <div style={{ flex: 1 }}>
-              <Button style={{ float: 'right' }} type={'ghost'}>
+              <h4>{`合计：${sum}`}</h4>
+            </div>
+            <div style={{ flex: 1 }}>
+              <h4>{`百分比：${(
+                Math.round(((sum * 100) / data.money) * 100) / 100
+              ).toFixed(2)}%`}</h4>
+            </div>
+            <div style={{ flex: 1 }}>
+              <Button
+                style={{ float: 'right' }}
+                type={'ghost'}
+                onClick={() => {
+                  this.setState({ showPayItemForm: true })
+                }}
+              >
                 添加
               </Button>
             </div>
@@ -219,8 +300,47 @@ class View extends React.Component<IProps, IState> {
     )
   }
 
+  form: React.ReactElement<FormComponentProps> | undefined = undefined
+  handleSubmit = () => {
+    this.form &&
+      this.form.props.form.validateFields((errors, values) => {
+        if (!errors) {
+          console.log(values)
+          Object.assign(values, { contractId: this.state.data.id })
+          Http.put(`/docm/pay-item`, values)
+            .then(res => {
+              if (res.data.status === '00000000') {
+                this.refreshPage()
+                message.success('操作成功')
+              } else {
+                message.error(res.data.message)
+              }
+            })
+            .catch(err => {
+              message.info(err.response.data.msg)
+            })
+        }
+      })
+  }
+  handleCancel = () => {
+    this.setState({ showPayItemForm: false })
+  }
+
+  renderPayItemModal() {
+    const { showPayItemForm } = this.state
+    return (
+      <Modal
+        title="添加付款项"
+        visible={showPayItemForm}
+        onCancel={this.handleCancel}
+        onOk={this.handleSubmit}
+      >
+        <PayItemForm wrappedComponentRef={form => (this.form = form)} />
+      </Modal>
+    )
+  }
+
   render() {
-    const { attachmentId } = this.state
     return (
       <Content>
         <div
@@ -230,42 +350,13 @@ class View extends React.Component<IProps, IState> {
             alignItems: 'center'
           }}
         >
-          <div style={{ margin: '4px', flex: 1 }}>
-            <span style={{ float: 'right' }}>
-              <Button
-                className={'ele-operation'}
-                type={'primary'}
-                onClick={event => {
-                  event.preventDefault()
-                  const { match } = this.props
-                  const id = match.params['id']
-                  this.props.history.push(`${modulePath}/edit/${id}`)
-                }}
-              >
-                编辑
-              </Button>
-              <Button type={'default'} onClick={this.handleCancel}>
-                返回
-              </Button>
-            </span>
-          </div>
-          <div>
-            <Modal
-              title="预览"
-              visible={this.state.showPreview}
-              onCancel={() => {
-                this.setState({ showPreview: false })
-              }}
-            >
-              <h2>hehe</h2>
-              {attachmentId && <PreView docmId={attachmentId} />}
-            </Modal>
-          </div>
+          {this.renderToolBar()}
         </div>
         <div style={{ margin: '8px' }}>
           {this.renderContent()}
           {this.renderPayItem()}
         </div>
+        <div>{this.renderPayItemModal()}</div>
       </Content>
     )
   }

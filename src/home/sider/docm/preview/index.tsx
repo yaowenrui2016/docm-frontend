@@ -1,41 +1,41 @@
 import React, { Component } from 'react'
-// import { Document, Page } from 'react-pdf'
-// import { serverPath } from '../../../../common/http'
-
+import { Document, Page } from 'react-pdf'
+import { serverPath } from '../../../../common/http'
 
 type IProps = {
-  docmId:string
+  docmId: string
 }
 
-interface IState {
-}
+interface IState {}
 
 class PreView extends Component<IProps, IState> {
   state = {
     numPages: null,
-    pageNumber: 1,
+    pageNumber: 1
   }
 
   onDocumentLoadSuccess = ({ numPages }) => {
-    this.setState({ numPages });
+    this.setState({ numPages })
   }
 
   render() {
-    const { pageNumber, numPages } = this.state;
-    // const {docmId} = this.props
+    const { pageNumber, numPages } = this.state
+    const { docmId } = this.props
     return (
       <div>
-        {/* <Document
-          file={`${serverPath}/doc/pre-view?id=${
-            docmId
-          }&xAuthToken=${sessionStorage.getItem('xAuthToken')}`}
+        <Document
+          file={`${serverPath}/doc/pre-view?id=${docmId}&xAuthToken=${sessionStorage.getItem(
+            'xAuthToken'
+          )}`}
           onLoadSuccess={this.onDocumentLoadSuccess}
         >
           <Page pageNumber={pageNumber} />
-        </Document> */}
-        <p>Page {pageNumber} of {numPages}</p>
+        </Document>
+        <p>
+          Page {pageNumber} of {numPages}
+        </p>
       </div>
-    );
+    )
   }
 }
 

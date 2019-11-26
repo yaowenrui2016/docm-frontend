@@ -25,7 +25,7 @@ interface IProps {
   placeholder?: string
   tips?: string
   onBlur?: () => void
-  onChange: (value: any) => void
+  onChange?: (value: any) => void
 }
 
 interface IState {}
@@ -34,21 +34,21 @@ class NumericInput extends React.Component<IProps, IState> {
   onChange = e => {
     const { value } = e.target
     const reg = /^-?(0|[1-9][0-9]*)(\.[0-9]*)?$/
+    const { onChange } = this.props
     if (
       (!Number.isNaN(value) && reg.test(value)) ||
       value === '' ||
       value === '-'
     ) {
-      this.props.onChange(value)
+      onChange && onChange(value)
     }
   }
 
   // '.' at the end or only '-' in the input box.
   onBlur = () => {
     const { value, onBlur, onChange } = this.props
-    console.log(value)
     if (value && (value.charAt(value.length - 1) === '.' || value === '-')) {
-      onChange({ value: value.slice(0, -1) })
+      onChange && onChange({ value: value.slice(0, -1) })
     }
     if (onBlur) {
       onBlur()

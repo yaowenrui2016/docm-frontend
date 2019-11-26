@@ -3,40 +3,33 @@ import {
   Layout,
   Button,
   Form,
-  Input,
   Icon,
   Upload,
-  DatePicker,
   message,
-  Select,
   Progress,
   Card,
-  Avatar,
-  Row,
-  Col
+  Avatar
 } from 'antd'
-import { createForm, formShape } from 'rc-form'
+import { createForm } from 'rc-form'
 import $ from 'jquery'
-// import { FormComponentProps } from 'antd/lib/form'
 import { UploadFile } from 'antd/lib/upload/interface'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
-import NumericInput from '../../../../common/NumericInput'
+import { FormComponentProps } from 'antd/lib/form'
 import moment from 'moment'
 import IDocmVO, { IAttachmentVO } from '../type'
-import { colLayout, singleRowFormItemLayout, formItemLayout } from '../util'
+import { singleRowFormItemLayout, formItemLayout } from '../util'
 import Http, { serverPath } from '../../../../common/http'
+import EditForm from './form'
 import { modulePath } from '../index'
 import './index.css'
 
 const { Content } = Layout
-const { TextArea } = Input
-const { Option } = Select
 const { Dragger } = Upload
 const { Meta } = Card
 
 type AttachFile = UploadFile & IAttachmentVO
 
-type IProps = RouteComponentProps & { form: any }
+type IProps = RouteComponentProps & {}
 
 interface IState {
   mode: 'edit' | 'add' | undefined
@@ -51,10 +44,7 @@ interface IState {
 }
 
 class Edit extends React.Component<IProps, IState> {
-  static defaultProps = {
-    form: formShape
-  }
-  projectNameDecorator
+  editForm: React.ReactElement<FormComponentProps> | undefined = undefined
   constructor(props: IProps) {
     super(props)
     this.state = {
@@ -73,8 +63,6 @@ class Edit extends React.Component<IProps, IState> {
   }
 
   componentDidMount() {
-    // 表单初始化
-    this.initForm()
     // 数据初始化
     this.initData()
     // 添加工具条滚动时的监听
@@ -84,19 +72,6 @@ class Edit extends React.Component<IProps, IState> {
   componentWillUnmount() {
     // 移除工具条滚动时的监听
     this.removeToolBarScrollEventListener()
-  }
-
-  initForm() {
-    const { getFieldDecorator } = this.props.form
-    this.projectNameDecorator = getFieldDecorator('projectName', {
-      rules: [
-        { required: true, message: '请输入合同名称' },
-        {
-          max: 10,
-          message: '名称过长'
-        }
-      ]
-    })
   }
 
   initData() {
@@ -109,15 +84,16 @@ class Edit extends React.Component<IProps, IState> {
         Http.get(`/docm?id=${id}`)
           .then(res => {
             const data = res.data.data
-            this.props.form.setFieldsValue({
-              ...data,
-              contractTime: data.contractTime
-                ? moment(data.contractTime, 'YYYY-MM-DD')
-                : undefined,
-              credentialTime: data.credentialTime
-                ? moment(data.credentialTime, 'YYYY-MM')
-                : undefined
-            })
+            this.editForm &&
+              this.editForm.props.form.setFieldsValue({
+                ...data,
+                contractTime: data.contractTime
+                  ? moment(data.contractTime, 'YYYY-MM-DD')
+                  : undefined,
+                credentialTime: data.credentialTime
+                  ? moment(data.credentialTime, 'YYYY-MM')
+                  : undefined
+              })
             // 处理附件集合
             const fileList: Array<AttachFile> = data.attachments.map(
               (attachment: IAttachmentVO) => ({
@@ -140,7 +116,8 @@ class Edit extends React.Component<IProps, IState> {
           .catch(error => {})
         // 新建模式
       } else if (mode === 'add') {
-        this.props.form.setFieldsValue({ attachments: [] })
+        this.editForm &&
+          this.editForm.props.form.setFieldsValue({ attachments: [] })
         this.setState({ loading: false })
       }
       // 加载科室下拉选择器数据
@@ -195,54 +172,47 @@ class Edit extends React.Component<IProps, IState> {
 
   handleSubmit = e => {
     e.preventDefault()
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        const { fileList } = this.state
-        const params: IDocmVO = {
-          ...values,
-          contractTime: values['contractTime']
-            ? values['contractTime'].format('YYYY-MM-DD')
-            : undefined,
-          credentialTime: values['credentialTime']
-            ? values['credentialTime'].format('YYYY-MM')
-            : undefined,
-          attachments: fileList
-            .filter(file => {
-              return file.status === 'done'
-            })
-            .map(file => ({
-              docPath: file.docPath,
-              docName: file.docName,
-              type: file.type,
-              size: file.size,
-              md5: file.md5
-            }))
+    this.editForm &&
+      this.editForm.props.form.validateFields((err, values) => {
+        if (!err) {
+          const { fileList } = this.state
+          const params: IDocmVO = {
+            ...values,
+            contractTime: values['contractTime']
+              ? values['contractTime'].format('YYYY-MM-DD')
+              : undefined,
+            credentialTime: values['credentialTime']
+              ? values['credentialTime'].format('YYYY-MM')
+              : undefined,
+            attachments: fileList
+              .filter(file => {
+                return file.status === 'done'
+              })
+              .map(file => ({
+                docPath: file.docPath,
+                docName: file.docName,
+                type: file.type,
+                size: file.size,
+                md5: file.md5
+              }))
+          }
+          const { mode } = this.state
+          const method =
+            mode === 'add' ? Http.put : mode === 'edit' ? Http.post : undefined
+          method &&
+            method(`/docm`, params)
+              .then(res => {
+                if (res.data.status === '00000000') {
+                  this.props.history.push(`${modulePath}/list`)
+                } else {
+                  message.error(res.data.message)
+                }
+              })
+              .catch(err => {
+                message.info(err.response.data.msg)
+              })
         }
-        const { mode } = this.state
-        const method =
-          mode === 'add' ? Http.put : mode === 'edit' ? Http.post : undefined
-        method &&
-          method(`/docm`, params)
-            .then(res => {
-              if (res.data.status === '00000000') {
-                this.props.history.push(`${modulePath}/list`)
-              } else {
-                message.error(res.data.message)
-              }
-            })
-            .catch(err => {
-              message.info(err.response.data.msg)
-            })
-      }
-    })
-  }
-
-  handleDeptOnChange = id => {
-    const dept = { id }
-    this.props.form.setFieldsValue({
-      dept
-    })
-    this.setState({ selectedDept: dept })
+      })
   }
 
   updateFileUploadByResponse = (uid, info) => {
@@ -405,126 +375,33 @@ class Edit extends React.Component<IProps, IState> {
   renderForm = () => {
     const {
       fileList,
-      deptData,
-      selectedDept,
       appConf: { uploadFileMaxAmount }
     } = this.state
-    const { getFieldDecorator } = this.props.form
-    getFieldDecorator('id')
-    getFieldDecorator('dept')
-    getFieldDecorator('attachments')
-    console.log('renderForm()')
     return (
-      <Form {...formItemLayout}>
-        <Row gutter={10}>
-          <Col {...colLayout}>
-            <Form.Item key={'projectName'} label="合同名称">
-              {this.projectNameDecorator &&
-                this.projectNameDecorator(<Input />)}
-            </Form.Item>
-          </Col>
-          <Col {...colLayout}>
-            <Form.Item key={'dept'} label="所属科室">
-              <Select
-                style={{ width: '100%' }}
-                placeholder={'请选择'}
-                value={selectedDept ? selectedDept.id : undefined}
-                showSearch
-                allowClear
-                optionFilterProp="children"
-                filterOption={(input, option: any) =>
-                  option.props.children
-                    .toLowerCase()
-                    .indexOf(input.toLowerCase()) >= 0
-                }
-                onChange={this.handleDeptOnChange}
+      <div>
+        <EditForm wrappedComponentRef={form => (this.editForm = form)} />
+        <Form {...formItemLayout}>
+          <Form.Item {...singleRowFormItemLayout} key={'upload'} label={'附件'}>
+            {fileList.length >= uploadFileMaxAmount ? null : (
+              <Dragger
+                name={'files'}
+                multiple={true}
+                showUploadList={false}
+                customRequest={this.handleCustomUpload}
               >
-                {deptData.map(dept => (
-                  <Option key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={10}>
-          <Col {...colLayout}>
-            <Form.Item key={'company'} label="乙方名称">
-              {getFieldDecorator('company', {
-                rules: [{ required: false, message: '请输入乙方名称' }]
-              })(<Input />)}
-            </Form.Item>
-          </Col>
-          <Col {...colLayout}>
-            <Form.Item key={'projectType'} label="合同类型">
-              {getFieldDecorator('projectType', {
-                rules: [{ required: false, message: '请输入合同类型' }]
-              })(<Input />)}
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={10}>
-          <Col {...colLayout}>
-            <Form.Item key={'contractNum'} label="中标编号">
-              {getFieldDecorator('contractNum', {
-                rules: [{ required: false, message: '请输入合同号' }]
-              })(<Input />)}
-            </Form.Item>
-          </Col>
-          <Col {...colLayout}>
-            <Form.Item key={'contractTime'} label="合同签订时间">
-              {getFieldDecorator('contractTime', {
-                rules: [{ required: false, message: '请输入合同签订时间' }]
-              })(
-                <DatePicker style={{ width: '100%' }} format={'YYYY-MM-DD'} />
-              )}
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={10}>
-          <Col {...colLayout}>
-            <Form.Item key={'money'} label="金额">
-              {getFieldDecorator('money', {
-                rules: [{ required: true, message: '请填写合同金额' }]
-              })(
-                <NumericInput
-                  onChange={value => {
-                    console.log(value)
-                  }}
-                  tips={'请输入合同金额'}
-                />
-              )}
-            </Form.Item>
-          </Col>
-          <Col {...colLayout}>
-            <Form.Item key={'description'} label={'备注'}>
-              {getFieldDecorator('description', {
-                rules: [{ max: 500, message: '不能超过500字符' }]
-              })(<TextArea />)}
-            </Form.Item>
-          </Col>
-        </Row>
-        <Form.Item {...singleRowFormItemLayout} key={'upload'} label={'附件'}>
-          {fileList.length >= uploadFileMaxAmount ? null : (
-            <Dragger
-              name={'files'}
-              multiple={true}
-              showUploadList={false}
-              customRequest={this.handleCustomUpload}
-            >
-              <p className="ant-upload-drag-icon">
-                <Icon type="inbox" />
-              </p>
-              <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
-              <p className="ant-upload-hint">
-                仅支持一次性单个文件，且文件类型为pdf
-              </p>
-            </Dragger>
-          )}
-          {this.showAttachmentList()}
-        </Form.Item>
-      </Form>
+                <p className="ant-upload-drag-icon">
+                  <Icon type="inbox" />
+                </p>
+                <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
+                <p className="ant-upload-hint">
+                  仅支持一次性单个文件，且文件类型为pdf
+                </p>
+              </Dragger>
+            )}
+            {this.showAttachmentList()}
+          </Form.Item>
+        </Form>
+      </div>
     )
   }
 

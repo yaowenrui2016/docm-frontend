@@ -490,7 +490,6 @@ class List extends React.Component<IProps, IState> {
 
   renderTable() {
     const { loading, data, pageSize, current, selectedRowKeys } = this.state
-    const { total, content } = data
     return (
       <UserContext.Consumer>
         {userInfo => {
@@ -506,14 +505,14 @@ class List extends React.Component<IProps, IState> {
                 }
               }
             : undefined
-          return loading || data.content.length > 0 ? (
+          return !loading && data && data.content.length > 0 ? (
             <Table
               rowKey={record => {
                 return record.id
               }}
               rowSelection={rowSelection}
               columns={this.buildColumns()}
-              dataSource={content}
+              dataSource={data.content}
               loading={loading}
               onRow={(record, index) => {
                 return {
@@ -527,7 +526,7 @@ class List extends React.Component<IProps, IState> {
               }}
               size={'default'}
               pagination={{
-                total,
+                total: data.total,
                 current,
                 pageSize,
                 pageSizeOptions: ['10', '20', '50'],

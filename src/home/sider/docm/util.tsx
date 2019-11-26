@@ -17,6 +17,17 @@ export const formItemLayout = {
   }
 }
 
+export const lastFormItemLayout = {
+  // labelCol: {
+  //   xs: { span: 6 },
+  //   md: { span: 4 }
+  // },
+  wrapperCol: {
+    xs: { span: 12, offset: 6 },
+    md: { span: 18, offset: 4 }
+  }
+}
+
 export const singleRowFormItemLayout = {
   labelCol: {
     xs: { span: 6 },
