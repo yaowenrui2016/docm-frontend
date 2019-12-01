@@ -48,13 +48,13 @@ export const commonTableColumnProps = {
       textAlign: 'center',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      cursor: 'pointer'
+      whiteSpace: 'nowrap'
     }
   }),
-  render: text => (
-    <Tooltip placement="topLeft" title={text}>
-      {text}
-    </Tooltip>
-  )
+  render: text =>
+    text && (
+      <Tooltip placement="topLeft" title={text}>
+        {text}
+      </Tooltip>
+    )
 }

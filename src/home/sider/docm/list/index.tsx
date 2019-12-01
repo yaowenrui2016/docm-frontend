@@ -161,7 +161,7 @@ class List extends React.Component<IProps, IState> {
     return (
       <Select
         mode={'tags'}
-        placeholder={'搜索合同名称或公司名称关键字'}
+        placeholder={'搜索合同名称、公司名称或金额'}
         style={{ width: '280px', marginRight: '24px' }}
         tokenSeparators={[' ']}
         showArrow={true}

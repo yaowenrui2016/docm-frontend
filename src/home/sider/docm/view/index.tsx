@@ -4,7 +4,6 @@ import {
   Button,
   Form,
   Spin,
-  Upload,
   Modal,
   Row,
   Col,
@@ -22,7 +21,8 @@ import {
 } from '../util'
 import { FormComponentProps } from 'antd/lib/form'
 import PayItemForm from './payItemForm'
-import Http from '../../../../common/http'
+import Http, { serverPath } from '../../../../common/http'
+import { IPayItemVO } from '../type'
 import { modulePath } from '../index'
 import './index.css'
 
@@ -40,6 +40,7 @@ interface IState {
   fileList: Array<UploadFile>
   attachmentId: string | undefined
   showPayItemForm: boolean
+  payItem: IPayItemVO | undefined
 }
 
 class View extends React.Component<IProps, IState> {
@@ -50,7 +51,8 @@ class View extends React.Component<IProps, IState> {
       data: {} as IDocmVO,
       fileList: [],
       attachmentId: undefined,
-      showPayItemForm: false
+      showPayItemForm: false,
+      payItem: undefined
     }
   }
 
@@ -116,7 +118,7 @@ class View extends React.Component<IProps, IState> {
     )
   }
 
-  handleDeletePayItem = async (ids: Array<string> | Array<number>) => {
+  handleDeletePayItem = (ids: Array<string> | Array<number>) => {
     Modal.confirm({
       title: '确定删除?',
       okText: '确认',
@@ -124,11 +126,14 @@ class View extends React.Component<IProps, IState> {
       onOk: async () => {
         let queryString = ''
         ids.forEach(id => (queryString = queryString.concat(`ids=${id}&`)))
-        await Http.delete(
+        Http.delete(
           `/docm/pay-item?${queryString.substring(0, queryString.length - 1)}`
         )
-        message.success('删除成功')
-        this.refreshPage()
+          .then(res => {
+            message.success('删除成功')
+            this.refreshPage()
+          })
+          .catch(err => {})
       }
     })
   }
@@ -186,11 +191,21 @@ class View extends React.Component<IProps, IState> {
           </Col>
         </Row>
         <Form.Item {...singleRowFormItemLayout} key={'upload'} label={'附件'}>
-          <Upload
-            fileList={fileList}
-            listType={'text'}
-            showUploadList={{ showPreviewIcon: true, showRemoveIcon: false }}
-          />
+          {fileList.map(file => (
+            <div>
+              <Button
+                key={file.uid}
+                id={file.uid}
+                icon={'paper-clip'}
+                type={'link'}
+                href={`${serverPath}/doc/pre-view?id=${
+                  file.uid
+                }&xAuthToken=${sessionStorage.getItem('xAuthToken')}`}
+              >
+                {file.name}
+              </Button>
+            </div>
+          ))}
         </Form.Item>
       </Form>
     ) : (
@@ -234,12 +249,6 @@ class View extends React.Component<IProps, IState> {
       },
       {
         ...commonTableColumnProps,
-        title: '合同号',
-        dataIndex: 'contractNum',
-        key: 'contractNum'
-      },
-      {
-        ...commonTableColumnProps,
         title: '备注',
         dataIndex: 'desc',
         key: 'desc'
@@ -251,10 +260,20 @@ class View extends React.Component<IProps, IState> {
         key: 'operation',
         render: (text, record) => {
           return (
-            <Button
-              type={'link'}
-              onClick={this.handleDeletePayItem.bind(this, [record.id])}
-            >{`删除`}</Button>
+            <div>
+              <Button
+                type={'link'}
+                onClick={event => {
+                  this.setState({ showPayItemForm: true, payItem: record })
+                }}
+              >
+                {'编辑'}
+              </Button>
+              <Button
+                type={'link'}
+                onClick={this.handleDeletePayItem.bind(this, [record.id])}
+              >{`删除`}</Button>
+            </div>
           )
         }
       }
@@ -286,7 +305,7 @@ class View extends React.Component<IProps, IState> {
                 style={{ float: 'right' }}
                 type={'ghost'}
                 onClick={() => {
-                  this.setState({ showPayItemForm: true })
+                  this.setState({ showPayItemForm: true, payItem: undefined })
                 }}
               >
                 添加
@@ -305,9 +324,15 @@ class View extends React.Component<IProps, IState> {
     this.form &&
       this.form.props.form.validateFields((errors, values) => {
         if (!errors) {
-          console.log(values)
+          let method
+          if (this.state.payItem) {
+            // 存在 payItem 表示编辑
+            method = Http.post
+          } else {
+            method = Http.put
+          }
           Object.assign(values, { contractId: this.state.data.id })
-          Http.put(`/docm/pay-item`, values)
+          method(`/docm/pay-item`, values)
             .then(res => {
               if (res.data.status === '00000000') {
                 this.refreshPage()
@@ -322,12 +347,13 @@ class View extends React.Component<IProps, IState> {
         }
       })
   }
+
   handleCancel = () => {
     this.setState({ showPayItemForm: false })
   }
 
   renderPayItemModal() {
-    const { showPayItemForm } = this.state
+    const { showPayItemForm, payItem } = this.state
     return (
       <Modal
         title="添加付款项"
@@ -335,7 +361,10 @@ class View extends React.Component<IProps, IState> {
         onCancel={this.handleCancel}
         onOk={this.handleSubmit}
       >
-        <PayItemForm wrappedComponentRef={form => (this.form = form)} />
+        <PayItemForm
+          data={payItem}
+          wrappedComponentRef={form => (this.form = form)}
+        />
       </Modal>
     )
   }

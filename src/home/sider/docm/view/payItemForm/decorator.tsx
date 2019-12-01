@@ -10,17 +10,18 @@ type IState = {}
 class PayItemForm extends Component<IProps, IState> {
   render() {
     const { getFieldDecorator } = this.props.form
+    getFieldDecorator('id')
     return (
       <Form {...formItemLayout}>
-        <Form.Item key={'money'} label={'金额'}>
-          {getFieldDecorator('money', {
-            rules: [{ required: true, message: '金额不能为空' }]
-          })(<NumericInput />)}
-        </Form.Item>
         <Form.Item key={'order'} label={'序号'}>
           {getFieldDecorator('order', {
             rules: [{ required: true, message: '序号不能为空' }]
           })(<Input />)}
+        </Form.Item>
+        <Form.Item key={'money'} label={'金额'}>
+          {getFieldDecorator('money', {
+            rules: [{ required: true, message: '金额不能为空' }]
+          })(<NumericInput />)}
         </Form.Item>
         <Form.Item key={'credentialNum'} label={'凭证号'}>
           {getFieldDecorator('credentialNum', {
