@@ -11,6 +11,7 @@ import PrivateRoute from '../../../common/route'
 import ListCmpt from './list'
 import EditCmpt from './edit'
 import ViewCmpt from './view'
+import PreviewCmpt from './preview/index'
 
 export const modulePath = `/main/docm`
 
@@ -75,6 +76,11 @@ class Docm extends React.Component<IProps, IState> {
                     path={`${modulePath}/view/:id`}
                     permission={'DOCM_DETAIL_VIEW'}
                     component={ViewCmpt}
+                  />
+                  <PrivateRoute
+                    path={`${modulePath}/preview`}
+                    permission={'DOCM_DETAIL_VIEW'}
+                    component={PreviewCmpt}
                   />
                   <Redirect
                     path={`${modulePath}/**`}

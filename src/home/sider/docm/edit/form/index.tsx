@@ -80,12 +80,7 @@ class EditForm extends Component<IProps, IState> {
               {getFieldDecorator('money', {
                 rules: [{ required: true, message: '请填写合同金额' }]
               })(
-                <NumericInput
-                  onChange={value => {
-                    console.log(value)
-                  }}
-                  tips={'请输入合同金额'}
-                />
+                <NumericInput onChange={value => {}} tips={'请输入合同金额'} />
               )}
             </Form.Item>
           </Col>

@@ -25,6 +25,8 @@ import Http, { serverPath } from '../../../../common/http'
 import { IPayItemVO } from '../type'
 import { modulePath } from '../index'
 import './index.css'
+import FileDown from './filedown'
+import PDFPreviewer from '../preview/index'
 
 const { Content } = Layout
 const colLayout = {
@@ -41,6 +43,7 @@ interface IState {
   attachmentId: string | undefined
   showPayItemForm: boolean
   payItem: IPayItemVO | undefined
+  fileData: any
 }
 
 class View extends React.Component<IProps, IState> {
@@ -52,7 +55,8 @@ class View extends React.Component<IProps, IState> {
       fileList: [],
       attachmentId: undefined,
       showPayItemForm: false,
-      payItem: undefined
+      payItem: undefined,
+      fileData: undefined
     }
   }
 
@@ -204,6 +208,14 @@ class View extends React.Component<IProps, IState> {
               >
                 {file.name}
               </Button>
+              {/* 测试 */}
+              <FileDown
+                url={`${serverPath}/doc/pre-view?id=${
+                  file.uid
+                }&xAuthToken=${sessionStorage.getItem('xAuthToken')}`}
+                text={'预览'}
+                onLoad={fileData => this.setState({ fileData })}
+              />
             </div>
           ))}
         </Form.Item>
@@ -370,6 +382,7 @@ class View extends React.Component<IProps, IState> {
   }
 
   render() {
+    const { fileData } = this.state
     return (
       <Content>
         <div
@@ -386,6 +399,7 @@ class View extends React.Component<IProps, IState> {
           {this.renderPayItem()}
         </div>
         <div>{this.renderPayItemModal()}</div>
+        <PDFPreviewer fileData={fileData} />
       </Content>
     )
   }
