@@ -29,12 +29,15 @@ class FileDown extends React.Component<IProps, IState> {
     xhr.onload = () => {
       if (xhr.status === 200) {
         const blob = xhr.response
-        const reader = new FileReader()
-        reader.readAsDataURL(blob)
-        reader.onload = e => {
-          const base64Data = reader.result
-          this.props.onLoad(base64Data)
-        }
+        const blobUrl = window.URL.createObjectURL(blob)
+        this.props.onLoad(blobUrl)
+        console.log(blobUrl)
+        // const reader = new FileReader()
+        // reader.readAsDataURL(blob)
+        // reader.onload = e => {
+        //   const base64Data = reader.result
+        //   this.props.onLoad(base64Data)
+        // }
         this.setState({ loading: false, disable: false })
       } else {
         message.error(xhr.statusText)
