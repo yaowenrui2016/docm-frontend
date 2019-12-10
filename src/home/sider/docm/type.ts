@@ -35,5 +35,6 @@ export interface IPayItemVO {
   money: number
   credentialNum: string
   credentialTime: string
+  payTime: string
   desc: string
 }

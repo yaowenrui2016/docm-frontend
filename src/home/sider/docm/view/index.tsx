@@ -186,7 +186,7 @@ class View extends React.Component<IProps, IState> {
         </Row>
         <Row gutter={10}>
           <Col {...colLayout}>
-            <Form.Item key={'money'} label="金额">
+            <Form.Item key={'money'} label="总金额">
               {data.money}
             </Form.Item>
           </Col>
@@ -262,6 +262,12 @@ class View extends React.Component<IProps, IState> {
         title: '凭证时间',
         dataIndex: 'credentialTime',
         key: 'credentialTime'
+      },
+      {
+        ...commonTableColumnProps,
+        title: '付款时间',
+        dataIndex: 'payTime',
+        key: 'payTime'
       },
       {
         ...commonTableColumnProps,
@@ -348,6 +354,13 @@ class View extends React.Component<IProps, IState> {
             method = Http.put
           }
           Object.assign(values, { contractId: this.state.data.id })
+          // 转换时间格式
+          values['credentialTime'] = values['credentialTime']
+            ? values['credentialTime'].format('YYYY-MM-DD')
+            : undefined
+          values['payTime'] = values['payTime']
+            ? values['payTime'].format('YYYY-MM-DD')
+            : undefined
           method(`/docm/pay-item`, values)
             .then(res => {
               if (res.data.status === '00000000') {

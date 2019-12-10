@@ -29,8 +29,8 @@ class EditForm extends Component<IProps, IState> {
                 rules: [
                   { required: true, message: '请输入合同名称' },
                   {
-                    max: 10,
-                    message: '名称过长'
+                    max: 100,
+                    message: '不能超过100字'
                   }
                 ]
               })(<Input />)}
@@ -46,14 +46,24 @@ class EditForm extends Component<IProps, IState> {
           <Col {...colLayout}>
             <Form.Item key={'company'} label="乙方名称">
               {getFieldDecorator('company', {
-                rules: [{ required: false, message: '请输入乙方名称' }]
+                rules: [
+                  {
+                    max: 100,
+                    message: '不能超过100字'
+                  }
+                ]
               })(<Input />)}
             </Form.Item>
           </Col>
           <Col {...colLayout}>
             <Form.Item key={'projectType'} label="合同类型">
               {getFieldDecorator('projectType', {
-                rules: [{ required: false, message: '请输入合同类型' }]
+                rules: [
+                  {
+                    max: 50,
+                    message: '不能超过50字'
+                  }
+                ]
               })(<Input />)}
             </Form.Item>
           </Col>
@@ -62,7 +72,12 @@ class EditForm extends Component<IProps, IState> {
           <Col {...colLayout}>
             <Form.Item key={'contractNum'} label="中标编号">
               {getFieldDecorator('contractNum', {
-                rules: [{ required: false, message: '请输入合同号' }]
+                rules: [
+                  {
+                    max: 50,
+                    message: '不能超过50字'
+                  }
+                ]
               })(<Input />)}
             </Form.Item>
           </Col>
@@ -76,18 +91,21 @@ class EditForm extends Component<IProps, IState> {
         </Row>
         <Row gutter={10}>
           <Col {...colLayout}>
-            <Form.Item key={'money'} label="金额">
+            <Form.Item key={'money'} label="总金额">
               {getFieldDecorator('money', {
-                rules: [{ required: true, message: '请填写合同金额' }]
+                rules: [{ required: true, message: '请填写合同总金额' }]
               })(
-                <NumericInput onChange={value => {}} tips={'请输入合同金额'} />
+                <NumericInput
+                  onChange={value => {}}
+                  tips={'请输入合同总金额'}
+                />
               )}
             </Form.Item>
           </Col>
           <Col {...colLayout}>
-            <Form.Item key={'description'} label={'备注'}>
-              {getFieldDecorator('description', {
-                rules: [{ max: 500, message: '不能超过500字符' }]
+            <Form.Item key={'desc'} label={'备注'}>
+              {getFieldDecorator('desc', {
+                rules: [{ max: 500, message: '不能超过500字' }]
               })(<Input.TextArea />)}
             </Form.Item>
           </Col>

@@ -184,6 +184,7 @@ class Edit extends React.Component<IProps, IState> {
             credentialTime: values['credentialTime']
               ? values['credentialTime'].format('YYYY-MM')
               : undefined,
+            // 上传的附件，需要状态为'done'的附件
             attachments: fileList
               .filter(file => {
                 return file.status === 'done'
@@ -259,6 +260,11 @@ class Edit extends React.Component<IProps, IState> {
 
   handleCustomUpload = obj => {
     const { file } = obj
+    // 校验是否 是 pdf
+    if ((file.name as string).indexOf('.pdf') < 0) {
+      message.error('附件仅支持pdf类型')
+      return
+    }
     this.addFileUpload(file)
     const formData = new FormData()
     formData.append('files', file)
@@ -272,9 +278,6 @@ class Edit extends React.Component<IProps, IState> {
       processData: false,
       contentType: false,
       timeout: 60000,
-      beforeSend: () => {
-        console.log('准备上传.')
-      },
       xhr: () => {
         const xhr = new XMLHttpRequest()
         if (xhr.upload) {
@@ -288,20 +291,12 @@ class Edit extends React.Component<IProps, IState> {
             },
             false
           )
-          xhr.upload.addEventListener(
-            'load',
-            e => {
-              // Did nothing
-            },
-            false
-          )
         }
         return xhr
       },
       success: res => {
         // 设置path和name
         const { name, ...attachmentInfo } = res.data[0]
-        console.log(attachmentInfo)
         res.status === '00000000' &&
           res.data &&
           this.updateFileUploadByResponse(file.uid, attachmentInfo)
@@ -311,7 +306,6 @@ class Edit extends React.Component<IProps, IState> {
         }, 1500)
       },
       error: err => {
-        // Did nothing
         if (err.status === 403) {
           message.error(`您没有上传权限`)
         } else {
@@ -384,6 +378,7 @@ class Edit extends React.Component<IProps, IState> {
           <Form.Item {...singleRowFormItemLayout} key={'upload'} label={'附件'}>
             {fileList.length >= uploadFileMaxAmount ? null : (
               <Dragger
+                accept={'.pdf'}
                 name={'files'}
                 multiple={true}
                 showUploadList={false}
