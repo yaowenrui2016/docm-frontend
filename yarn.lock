@@ -8464,14 +8464,6 @@ pbkdf2@^3.0.3:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-pdfjs-dist@2.0.943:
-  version "2.0.943"
-  resolved "https://registry.npm.taobao.org/pdfjs-dist/download/pdfjs-dist-2.0.943.tgz#32fb9a2d863df5a1d89521a0b3cd900c16e7edde"
-  integrity sha1-MvuaLYY99aHYlSGgs82QDBbn7d4=
-  dependencies:
-    node-ensure "^0.0.0"
-    worker-loader "^2.0.0"
-
 pdfjs-dist@2.1.266:
   version "2.1.266"
   resolved "https://registry.npm.taobao.org/pdfjs-dist/download/pdfjs-dist-2.1.266.tgz#cded02268b389559e807f410d2a729db62160026"
@@ -10032,13 +10024,6 @@ react-lifecycles-compat@^3.0.2, react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
-
-react-pdf-js@4.0.1:
-  version "4.0.1"
-  resolved "https://registry.npm.taobao.org/react-pdf-js/download/react-pdf-js-4.0.1.tgz#13c0b563526548a24d70bc38ec6e4f1e2bd890c3"
-  integrity sha1-E8C1Y1JlSKJNcLw47G5PHivYkMM=
-  dependencies:
-    pdfjs-dist "2.0.943"
 
 react-pdf@4.1.0:
   version "4.1.0"

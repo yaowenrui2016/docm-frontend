@@ -43,6 +43,7 @@ interface IState {
   attachmentId: string | undefined
   showPayItemForm: boolean
   payItem: IPayItemVO | undefined
+  showPreview: boolean
   fileData: any
 }
 
@@ -56,6 +57,7 @@ class View extends React.Component<IProps, IState> {
       attachmentId: undefined,
       showPayItemForm: false,
       payItem: undefined,
+      showPreview: false,
       fileData: undefined
     }
   }
@@ -208,12 +210,14 @@ class View extends React.Component<IProps, IState> {
               >
                 {file.name}
               </Button>
-              {/* 测试 */}
               <FileDown
                 url={`${serverPath}/doc/pre-view?id=${
                   file.uid
                 }&xAuthToken=${sessionStorage.getItem('xAuthToken')}`}
+                icon={'eye'}
+                type={'default'}
                 text={'预览'}
+                onClick={e => this.setState({ showPreview: true })}
                 onLoad={fileData => this.setState({ fileData })}
               />
             </div>
@@ -360,7 +364,7 @@ class View extends React.Component<IProps, IState> {
       })
   }
 
-  handleCancel = () => {
+  handlePayItemModalCancel = () => {
     this.setState({ showPayItemForm: false })
   }
 
@@ -370,7 +374,7 @@ class View extends React.Component<IProps, IState> {
       <Modal
         title="添加付款项"
         visible={showPayItemForm}
-        onCancel={this.handleCancel}
+        onCancel={this.handlePayItemModalCancel}
         onOk={this.handleSubmit}
       >
         <PayItemForm
@@ -381,8 +385,28 @@ class View extends React.Component<IProps, IState> {
     )
   }
 
-  render() {
+  handlePreviewModalCancel = () => {
+    this.setState({ showPreview: false })
+  }
+
+  renderPreviewModal() {
+    const { showPreview } = this.state
     const { fileData } = this.state
+    return (
+      <Modal
+        title="预览"
+        width={'720px'}
+        visible={showPreview}
+        onCancel={this.handlePreviewModalCancel}
+        footer={null}
+        destroyOnClose
+      >
+        <PDFPreviewer fileData={fileData} />
+      </Modal>
+    )
+  }
+
+  render() {
     return (
       <Content>
         <div
@@ -399,7 +423,7 @@ class View extends React.Component<IProps, IState> {
           {this.renderPayItem()}
         </div>
         <div>{this.renderPayItemModal()}</div>
-        <PDFPreviewer fileData={fileData} />
+        <div>{this.renderPreviewModal()}</div>
       </Content>
     )
   }
