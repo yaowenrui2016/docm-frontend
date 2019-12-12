@@ -26,7 +26,7 @@ import { IPayItemVO } from '../type'
 import { modulePath } from '../index'
 import './index.css'
 import FileDown from './filedown'
-import PDFPreviewer from '../preview/index'
+import PDFPreviewer from './preview/index'
 
 const { Content } = Layout
 const colLayout = {
@@ -197,10 +197,10 @@ class View extends React.Component<IProps, IState> {
           </Col>
         </Row>
         <Form.Item {...singleRowFormItemLayout} key={'upload'} label={'附件'}>
-          {fileList.map(file => (
-            <div>
+          {fileList.map((file, index) => (
+            <div key={index}>
               <Button
-                key={file.uid}
+                key={`button_${file.uid}`}
                 id={file.uid}
                 icon={'paper-clip'}
                 type={'link'}
@@ -211,6 +211,7 @@ class View extends React.Component<IProps, IState> {
                 {file.name}
               </Button>
               <FileDown
+                key={`fileDown_${file.uid}`}
                 url={`${serverPath}/doc/pre-view?id=${
                   file.uid
                 }&xAuthToken=${sessionStorage.getItem('xAuthToken')}`}
@@ -306,6 +307,7 @@ class View extends React.Component<IProps, IState> {
       <Table
         columns={columns}
         dataSource={payItems}
+        rowKey={'id'}
         size={'small'}
         bordered
         pagination={false}
@@ -408,7 +410,7 @@ class View extends React.Component<IProps, IState> {
     return (
       <Modal
         title="预览"
-        width={'720px'}
+        width={'780px'}
         visible={showPreview}
         onCancel={this.handlePreviewModalCancel}
         footer={null}

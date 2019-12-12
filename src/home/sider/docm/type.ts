@@ -31,6 +31,7 @@ export interface IAttachmentVO {
 }
 
 export interface IPayItemVO {
+  id: string
   order: number
   money: number
   credentialNum: string

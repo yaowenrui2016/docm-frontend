@@ -50,7 +50,7 @@ class Edit extends React.Component<IProps, IState> {
     this.state = {
       mode: undefined,
       appConf: {
-        uploadFileMaxAmount: 5
+        uploadFileMaxAmount: 20
       },
       loading: true,
       data: undefined,
@@ -260,9 +260,10 @@ class Edit extends React.Component<IProps, IState> {
 
   handleCustomUpload = obj => {
     const { file } = obj
-    // 校验是否 是 pdf
-    if ((file.name as string).indexOf('.pdf') < 0) {
-      message.error('附件仅支持pdf类型')
+    const { name } = file
+    // 校验支持的文件类型
+    if (!/.+(\.pdf)|(\.docx)|(\.xlsx)|(\.jpg)|(\.png)$/.test(name)) {
+      message.error('不支持的文件类型')
       return
     }
     this.addFileUpload(file)
@@ -378,7 +379,7 @@ class Edit extends React.Component<IProps, IState> {
           <Form.Item {...singleRowFormItemLayout} key={'upload'} label={'附件'}>
             {fileList.length >= uploadFileMaxAmount ? null : (
               <Dragger
-                accept={'.pdf'}
+                accept={'.pdf,.docx,.xlsx,.jpg,.png'}
                 name={'files'}
                 multiple={true}
                 showUploadList={false}
@@ -389,7 +390,7 @@ class Edit extends React.Component<IProps, IState> {
                 </p>
                 <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
                 <p className="ant-upload-hint">
-                  仅支持一次性单个文件，且文件类型为pdf
+                  支持的文件类型为pdf、docx、xlsx、jpg和png，且最多20个附件
                 </p>
               </Dragger>
             )}

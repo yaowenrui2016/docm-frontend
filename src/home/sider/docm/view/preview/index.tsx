@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
+// pdfjs.GlobalWorkerOptions.workerSrc = `./static/js/pdf.worker.js`
 
 interface IProps {
   fileData: any
@@ -16,12 +17,6 @@ const options = {
 export default class Sample extends Component<IProps, IState> {
   state = {
     numPages: null
-  }
-
-  onFileChange = event => {
-    this.setState({
-      file: event.target.files[0]
-    })
   }
 
   onDocumentLoadSuccess = ({ numPages }) => {
