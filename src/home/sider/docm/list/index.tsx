@@ -350,7 +350,7 @@ class List extends React.Component<IProps, IState> {
         )
       },
       {
-        title: '合同号',
+        title: '中标编号',
         dataIndex: 'contractNum',
         key: 'contractNum',
         sorter: (a, b) => {

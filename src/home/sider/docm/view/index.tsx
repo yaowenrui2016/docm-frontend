@@ -391,6 +391,7 @@ class View extends React.Component<IProps, IState> {
         visible={showPayItemForm}
         onCancel={this.handlePayItemModalCancel}
         onOk={this.handleSubmit}
+        destroyOnClose
       >
         <PayItemForm
           data={payItem}

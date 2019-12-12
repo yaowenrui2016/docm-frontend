@@ -4,6 +4,8 @@ import NumericInput from '../../../../../common/NumericInput'
 import { FormComponentProps } from 'antd/lib/form'
 import { formItemLayout } from '../../util'
 
+const { MonthPicker } = DatePicker
+
 type IProps = FormComponentProps & {}
 type IState = {}
 
@@ -30,7 +32,7 @@ class PayItemForm extends Component<IProps, IState> {
         </Form.Item>
         <Form.Item key={'credentialTime'} label={'凭证时间'}>
           {getFieldDecorator('credentialTime')(
-            <DatePicker style={{ width: '100%' }} format={'YYYY-MM-DD'} />
+            <MonthPicker style={{ width: '100%' }} format={'YYYY-MM'} />
           )}
         </Form.Item>
         <Form.Item key={'payTime'} label={'付款时间'}>

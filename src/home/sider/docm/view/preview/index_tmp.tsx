@@ -36,7 +36,6 @@ export default class Sample extends Component<IProps, IState> {
   render() {
     const { fileData } = this.props
     const { page, pages } = this.state
-    console.log(fileData)
     return (
       <div>
         {fileData && (

@@ -161,7 +161,7 @@ class Edit extends React.Component<IProps, IState> {
     const toolBarEle = this.findToolBarElement()
     toolBarEle &&
       toolBarEle.removeEventListener('scroll', () => {
-        console.log('移除成功')
+        message.info('移除成功')
       })
   }
 
