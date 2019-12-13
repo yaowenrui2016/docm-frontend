@@ -22,7 +22,7 @@ interface IState {
   loading: boolean
 }
 
-class UserSelector extends React.Component<IProps, IState> {
+class ContractNumSelector extends React.Component<IProps, IState> {
   constructor(props) {
     super(props)
     this.fetchUser = debounce(this.fetchUser, 800)
@@ -38,23 +38,20 @@ class UserSelector extends React.Component<IProps, IState> {
   }
 
   fetchUser = value => {
-    const queryRequest = {
-      pageSize: 100,
-      current: 1,
-      conditions: { keywordUsername: value },
-      sorters: { username: 'asc' }
+    if (!value || (value as string).trim() === '') {
+      return
+    }
+    const param = {
+      contractNum: value
     }
     this.setState({ data: [], loading: true })
     setTimeout(() => {
-      Http.post(`/user/search`, queryRequest).then(res => {
+      Http.post(`/docm/contract-num/list`, param).then(res => {
         let data = []
-        if (
-          res.data.status === '00000000' &&
-          res.data.data.content.length > 0
-        ) {
-          data = res.data.data.content.map(account => ({
-            text: account.username,
-            value: account.username
+        if (res.data.status === '00000000' && res.data.data.length > 0) {
+          data = res.data.data.map(contractNum => ({
+            text: contractNum,
+            value: contractNum
           }))
         }
         this.setState({ data, loading: false })
@@ -77,7 +74,7 @@ class UserSelector extends React.Component<IProps, IState> {
     return (
       <Select
         value={value}
-        placeholder="搜索用户"
+        placeholder="中标编号"
         notFoundContent={loading ? <Spin size="small" /> : null}
         filterOption={false}
         showSearch
@@ -85,11 +82,9 @@ class UserSelector extends React.Component<IProps, IState> {
         onChange={this.handleChange}
         showArrow={false}
         allowClear
-        style={{ width: '280px' }}
-        // suffixIcon={<Icon style={{ fontSize: '16px' }} type="search" />}
       >
-        {data.map(d => (
-          <Option key={d.value} value={d.value}>
+        {data.map((d, index) => (
+          <Option key={`${d.value}-${index}`} value={d.value}>
             {d.text}
           </Option>
         ))}
@@ -98,4 +93,4 @@ class UserSelector extends React.Component<IProps, IState> {
   }
 }
 
-export default UserSelector
+export default ContractNumSelector

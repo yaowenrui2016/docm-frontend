@@ -270,7 +270,9 @@ class List extends React.Component<IProps, IState> {
                   onChange={this.handleSelectChangeForOperName}
                 >
                   {operNames.map(operName => (
-                    <Option key={operName} value={operName}>{operName}</Option>
+                    <Option key={operName} value={operName}>
+                      {operName}
+                    </Option>
                   ))}
                 </Select>
               </Form.Item>
@@ -501,12 +503,10 @@ class List extends React.Component<IProps, IState> {
         <div className="list-page">
           <div className="list-page-content">
             <div className="list-page-content-toolbar">
-              <div className="list-page-content-toolbar-search">
-                {this.renderSearchBar()}
-              </div>
-              <div className="list-page-content-toolbar-button">
-                {this.renderButtonBar()}
-              </div>
+              {this.renderSearchBar()}
+            </div>
+            <div className="list-page-content-buttonbar">
+              {this.renderButtonBar()}
             </div>
             <div className="list-page-content-table">{this.renderTable()}</div>
           </div>

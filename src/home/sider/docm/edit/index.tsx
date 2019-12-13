@@ -18,6 +18,10 @@ import { FormComponentProps } from 'antd/lib/form'
 import moment from 'moment'
 import IDocmVO, { IAttachmentVO } from '../type'
 import { singleRowFormItemLayout, formItemLayout } from '../util'
+import {
+  addToolBarScrollEventListener,
+  removeToolBarScrollEventListener
+} from '../../../../common/util'
 import Http, { serverPath } from '../../../../common/http'
 import EditForm from './form'
 import { modulePath } from '../index'
@@ -66,12 +70,19 @@ class Edit extends React.Component<IProps, IState> {
     // 数据初始化
     this.initData()
     // 添加工具条滚动时的监听
-    this.addToolBarScrollEventListener()
+    addToolBarScrollEventListener(
+      () => {
+        this.setState({ needFixed: true })
+      },
+      () => {
+        this.setState({ needFixed: false })
+      }
+    )
   }
 
   componentWillUnmount() {
     // 移除工具条滚动时的监听
-    this.removeToolBarScrollEventListener()
+    removeToolBarScrollEventListener()
   }
 
   initData() {
@@ -127,42 +138,6 @@ class Edit extends React.Component<IProps, IState> {
         })
         .catch(err => {})
     })
-  }
-
-  findToolBarElement = () => {
-    const els = $('section.ant-layout')
-    if (els.length === 3) {
-      return els[2]
-    }
-    return undefined
-  }
-
-  handlerScroll(target) {
-    const fixedTop = target.offsetTop
-    const scrollTop = target.scrollTop
-    //控制元素块A随鼠标滚动固定在顶部
-    if (scrollTop >= fixedTop) {
-      this.setState({ needFixed: true })
-    } else if (scrollTop < fixedTop) {
-      this.setState({ needFixed: false })
-    }
-  }
-
-  addToolBarScrollEventListener = () => {
-    const toolBarEle = this.findToolBarElement()
-    toolBarEle &&
-      toolBarEle.addEventListener(
-        'scroll',
-        this.handlerScroll.bind(this, toolBarEle)
-      )
-  }
-
-  removeToolBarScrollEventListener = () => {
-    const toolBarEle = this.findToolBarElement()
-    toolBarEle &&
-      toolBarEle.removeEventListener('scroll', () => {
-        message.info('移除成功')
-      })
   }
 
   handleCancel = e => {
@@ -405,7 +380,9 @@ class Edit extends React.Component<IProps, IState> {
     const { mode } = this.state
     return (
       <Content>
-        <div className={`tool-bar ${this.state.needFixed ? 'fixed' : ''}`}>
+        <div
+          className={`tool-bar ${this.state.needFixed ? 'toolbar-fixed' : ''}`}
+        >
           <div className="tool-bar-item"></div>
           <div className="tool-bar-item"></div>
           <div className="tool-bar-item">

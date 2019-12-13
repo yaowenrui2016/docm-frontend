@@ -8,7 +8,10 @@ import {
   message,
   Icon,
   Modal,
-  Tooltip
+  Tooltip,
+  Form,
+  Row,
+  Col
 } from 'antd'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import moment from 'moment'
@@ -21,16 +24,38 @@ import Http, {
 } from '../../../../common/http'
 import { modulePath } from '../index'
 import { toLine } from '../../../../common/util'
+import {
+  addToolBarScrollEventListener,
+  removeToolBarScrollEventListener
+} from '../../../../common/util'
 import { UserContext } from '../../../index'
+import ContractNumSelector from '../../../../common/selector/contractnum'
 import './index.css'
 
 const { Content } = Layout
 const { Option } = Select
 
+const colLayout = {
+  xs: { span: 6 },
+  md: { span: 6 }
+}
+
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 5 },
+    md: { span: 5 }
+  },
+  wrapperCol: {
+    xs: { span: 19 },
+    md: { span: 19 }
+  }
+}
+
 type IProps = RouteComponentProps & {}
 
 interface IState {
   loading: boolean
+  needFixed: boolean
   selectedRowKeys: string[] | number[]
   /**
    * 项目类型下拉选数据
@@ -57,13 +82,14 @@ class List extends React.Component<IProps, IState> {
     super(props)
     this.state = {
       loading: true,
+      needFixed: false,
       selectedRowKeys: [],
       projectTypes: [],
       data: {
         total: undefined,
         content: []
       },
-      pageSize: 10,
+      pageSize: 15,
       current: 1,
       param: {
         conditions: {},
@@ -77,6 +103,15 @@ class List extends React.Component<IProps, IState> {
     this.loadProjectTypes()
     this.loadDeptData()
     this.handleListChange()
+    addToolBarScrollEventListener(
+      () => this.setState({ needFixed: true }),
+      () => this.setState({ needFixed: false })
+    )
+  }
+
+  componentWillUnmount() {
+    // 移除工具条滚动时的监听
+    removeToolBarScrollEventListener()
   }
 
   handleListChange = () => {
@@ -119,23 +154,9 @@ class List extends React.Component<IProps, IState> {
     })
   }
 
-  handleSelectChangeForKeyword = value => {
+  handleSelectChange = (field, value) => {
     const { conditions } = this.state.param
-    conditions['keywords'] = value
-    this.setState({ current: 1 })
-    this.handleListChange()
-  }
-
-  handleSelectChangeForProjectType = value => {
-    const { conditions } = this.state.param
-    conditions['projectType'] = value
-    this.setState({ current: 1 })
-    this.handleListChange()
-  }
-
-  handleSelectChangeForDept = value => {
-    const { conditions } = this.state.param
-    conditions['dept'] = { id: value }
+    conditions[field] = value
     this.setState({ current: 1 })
     this.handleListChange()
   }
@@ -155,110 +176,6 @@ class List extends React.Component<IProps, IState> {
         this.handleListChange()
       }
     })
-  }
-
-  renderKeywordSearchBar() {
-    return (
-      <Select
-        mode={'tags'}
-        placeholder={'搜索合同名称、公司名称或金额'}
-        style={{ width: '280px', marginRight: '24px' }}
-        tokenSeparators={[' ']}
-        showArrow={true}
-        suffixIcon={<Icon style={{ fontSize: '16px' }} type="search" />}
-        onChange={this.handleSelectChangeForKeyword}
-        notFoundContent={null}
-      />
-    )
-  }
-
-  renderProjectTypeSearchBar() {
-    const { projectTypes } = this.state
-    return (
-      <span>
-        <label>合同类型：</label>
-        <Select
-          placeholder={'请选择合同类型'}
-          style={{ width: '280px', marginRight: '24px' }}
-          allowClear
-          showArrow={true}
-          onChange={this.handleSelectChangeForProjectType}
-          notFoundContent={'暂无数据'}
-        >
-          {projectTypes.map(pType => (
-            <Option key={pType} value={pType}>
-              {pType}
-            </Option>
-          ))}
-        </Select>
-      </span>
-    )
-  }
-
-  renderDeptSearchBar() {
-    const { deptData } = this.state
-    return (
-      <span>
-        <label>所属科室：</label>
-        <Select
-          placeholder={'请选择'}
-          style={{ width: '280px', marginRight: '24px' }}
-          allowClear
-          showArrow={true}
-          onChange={this.handleSelectChangeForDept}
-        >
-          {deptData.map(dept => (
-            <Option key={dept.id} value={dept.id}>
-              {dept.name}
-            </Option>
-          ))}
-        </Select>
-      </span>
-    )
-  }
-
-  renderButtonBar() {
-    const { selectedRowKeys } = this.state
-    return (
-      <UserContext.Consumer>
-        {userInfo => {
-          const DOCM_ADD_OPER_permission = userInfo['permissions'].find(
-            perm => perm.id === 'DOCM_ADD_OPER'
-          )
-          const DOCM_DELETE_OPER_permission = userInfo['permissions'].find(
-            perm => perm.id === 'DOCM_DELETE_OPER'
-          )
-          return (
-            <div style={{ margin: '4px', flex: 1 }}>
-              <span style={{ float: 'right' }}>
-                {DOCM_ADD_OPER_permission && (
-                  <Button
-                    className="ele-operation"
-                    type="primary"
-                    onClick={() => {
-                      this.props.history.push(`${modulePath}/add`)
-                    }}
-                  >
-                    新建
-                  </Button>
-                )}
-                {DOCM_DELETE_OPER_permission && (
-                  <Button
-                    type="ghost"
-                    disabled={selectedRowKeys.length < 1}
-                    onClick={() => {
-                      this.handleDeleteOper(selectedRowKeys)
-                    }}
-                  >
-                    批量删除
-                  </Button>
-                )}
-              </span>
-            </div>
-          )
-        }}
-      </UserContext.Consumer>
-    )
   }
 
   buildColumns() {
@@ -325,7 +242,7 @@ class List extends React.Component<IProps, IState> {
         )
       },
       {
-        title: '公司名称',
+        title: '乙方名称',
         dataIndex: 'company',
         key: 'company',
         sorter: (a, b) => {
@@ -524,12 +441,12 @@ class List extends React.Component<IProps, IState> {
                   }
                 }
               }}
-              size={'default'}
+              size={'small'}
               pagination={{
                 total: data.total,
                 current,
                 pageSize,
-                pageSizeOptions: ['10', '20', '50'],
+                pageSizeOptions: ['15', '30', '50'],
                 showSizeChanger: true,
                 onShowSizeChange: (current, pageSize) => {
                   this.setState({ current: 1, pageSize })
@@ -558,20 +475,163 @@ class List extends React.Component<IProps, IState> {
     )
   }
 
+  renderKeywordSearchBar() {
+    return (
+      <Select
+        mode={'tags'}
+        placeholder={'合同名称、乙方名称或金额'}
+        tokenSeparators={[' ']}
+        showArrow={true}
+        suffixIcon={<Icon style={{ fontSize: '16px' }} type="search" />}
+        onChange={this.handleSelectChange.bind(this, 'keywords')}
+        notFoundContent={null}
+      />
+    )
+  }
+
+  renderProjectTypeSearchBar() {
+    const { projectTypes } = this.state
+    return (
+      <Select
+        placeholder={'请选择合同类型'}
+        allowClear
+        showArrow={true}
+        onChange={this.handleSelectChange.bind(this, 'projectType')}
+        notFoundContent={'暂无数据'}
+      >
+        {projectTypes.map(pType => (
+          <Option key={pType} value={pType}>
+            {pType}
+          </Option>
+        ))}
+      </Select>
+    )
+  }
+
+  renderDeptSearchBar() {
+    const { deptData } = this.state
+    return (
+      <Select
+        placeholder={'请选择'}
+        allowClear
+        showArrow={true}
+        onChange={this.handleSelectChange.bind(this, 'dept')}
+      >
+        {deptData.map(dept => (
+          <Option key={dept.id} value={dept.id}>
+            {dept.name}
+          </Option>
+        ))}
+      </Select>
+    )
+  }
+
+  renderContractNumSearchBar() {
+    return (
+      <ContractNumSelector
+        onChange={this.handleSelectChange.bind(this, 'contractNum')}
+      />
+    )
+  }
+
+  renderButtonBar() {
+    const { selectedRowKeys } = this.state
+    return (
+      <UserContext.Consumer>
+        {userInfo => {
+          const DOCM_ADD_OPER_permission = userInfo['permissions'].find(
+            perm => perm.id === 'DOCM_ADD_OPER'
+          )
+          const DOCM_DELETE_OPER_permission = userInfo['permissions'].find(
+            perm => perm.id === 'DOCM_DELETE_OPER'
+          )
+          return (
+            <div style={{ margin: '4px', flex: 1 }}>
+              <span style={{ float: 'right' }}>
+                {DOCM_ADD_OPER_permission && (
+                  <Button
+                    className="ele-operation"
+                    type="primary"
+                    onClick={() => {
+                      this.props.history.push(`${modulePath}/add`)
+                    }}
+                  >
+                    新建
+                  </Button>
+                )}
+                {DOCM_DELETE_OPER_permission && (
+                  <Button
+                    type="ghost"
+                    disabled={selectedRowKeys.length < 1}
+                    onClick={() => {
+                      this.handleDeleteOper(selectedRowKeys)
+                    }}
+                  >
+                    批量删除
+                  </Button>
+                )}
+              </span>
+            </div>
+          )
+        }}
+      </UserContext.Consumer>
+    )
+  }
+
+  renderToolBar() {
+    return (
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ flex: '1' }}>
+            <Form {...formItemLayout}>
+              <Row gutter={10}>
+                <Col {...colLayout}>
+                  <Form.Item key={'renderKeywordSearchBar'} label={'关键字'}>
+                    {this.renderKeywordSearchBar()}
+                  </Form.Item>
+                </Col>
+                <Col {...colLayout}>
+                  <Form.Item
+                    key={'renderProjectTypeSearchBar'}
+                    label="合同类型"
+                  >
+                    {this.renderProjectTypeSearchBar()}
+                  </Form.Item>
+                </Col>
+                <Col {...colLayout}>
+                  <Form.Item key={'renderDeptSearchBar'} label="科室">
+                    {this.renderDeptSearchBar()}
+                  </Form.Item>
+                </Col>
+                <Col {...colLayout}>
+                  <Form.Item
+                    key={'renderContractNumSearchBar'}
+                    label="中标编号"
+                  >
+                    {this.renderContractNumSearchBar()}
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Form>
+          </div>
+          <div style={{ flex: '.2' }}>{this.renderButtonBar()}</div>
+        </div>
+      </div>
+    )
+  }
+
   render() {
+    const { needFixed } = this.state
     return (
       <Content>
         <div className="list-page">
           <div className="list-page-content">
-            <div className="list-page-content-toolbar">
-              <div className="list-page-content-toolbar-search">
-                {this.renderKeywordSearchBar()}
-                {this.renderProjectTypeSearchBar()}
-                {this.renderDeptSearchBar()}
-              </div>
-              <div className="list-page-content-toolbar-button">
-                {this.renderButtonBar()}
-              </div>
+            <div
+              className={`list-page-content-toolbar ${
+                needFixed ? 'toolbar-fixed' : ''
+              }`}
+            >
+              {this.renderToolBar()}
             </div>
             <div className="list-page-content-table">{this.renderTable()}</div>
           </div>

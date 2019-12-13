@@ -1,5 +1,5 @@
 import React from 'react'
-import { Layout, Breadcrumb } from 'antd'
+import { Layout } from 'antd'
 import {
   HashRouter,
   Redirect,
@@ -22,17 +22,6 @@ interface IState {}
 
 class Docm extends React.Component<IProps, IState> {
   render() {
-    const path = this.props.location.pathname
-    let curItem
-    if (path.indexOf(`${modulePath}/add`) >= 0) {
-      curItem = '新增'
-    } else if (path.indexOf(`${modulePath}/edit`) >= 0) {
-      curItem = '编辑'
-    } else if (path.indexOf(`${modulePath}/view`) >= 0) {
-      curItem = '详情'
-    } else if (path.indexOf(`${modulePath}/list`) >= 0) {
-      curItem = '查询'
-    }
     return (
       <Layout>
         {/* 包裹内容的灰色边框，需要Sider的协助 */}
@@ -40,15 +29,6 @@ class Docm extends React.Component<IProps, IState> {
         <Layout>
           <div className="layout-content">
             <div className="layout-content-inner">
-              <Breadcrumb>
-                <Breadcrumb.Item>当前位置：</Breadcrumb.Item>
-                <Breadcrumb.Item
-                  onClick={() => this.props.history.push(`${modulePath}`)}
-                >
-                  我的项目
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>{curItem}</Breadcrumb.Item>
-              </Breadcrumb>
               <HashRouter>
                 <Switch>
                   <Redirect
