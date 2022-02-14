@@ -15,3 +15,8 @@ export interface IDeptVO {
   id: string
   name: string
 }
+
+export interface IinvalidAttachInfo {
+  path: string
+  attachId: string
+}
